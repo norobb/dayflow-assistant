@@ -59,7 +59,11 @@ export const AndroidSimulator: React.FC = () => {
 
   // Reusable Phone Inner Screen Content (Shared between device preview and fullscreen)
   const renderScreenContent = (isFull: boolean = false) => (
-    <div className={`relative w-full h-full bg-[#FAF6F0] flex flex-col overflow-hidden text-left select-none ${isFull ? 'max-w-2xl mx-auto' : ''}`}>
+    <div
+      className={`relative w-full h-full bg-[#FAF6F0] flex flex-col overflow-hidden text-left select-none isolate min-w-0 min-h-0 ${
+        isFull ? 'max-w-2xl mx-auto rounded-none sm:rounded-3xl' : 'rounded-[38px]'
+      }`}
+    >
       {/* Status Bar */}
       <div className="h-9 px-6 pt-2 flex items-center justify-between text-[11px] font-semibold text-[#1E1B19] z-20 shrink-0 border-b border-[#D8CFC2]/40 bg-[#FAF6F0]/90 backdrop-blur-sm">
         <span>{currentTime}</span>
@@ -146,7 +150,7 @@ export const AndroidSimulator: React.FC = () => {
       </AnimatePresence>
 
       {/* Fixed Internal Scrollable Viewport */}
-      <div className="flex-1 overflow-y-auto px-4 py-3.5 space-y-4 scrollbar-none">
+      <div className="flex-1 overflow-y-auto px-4 py-3.5 space-y-4 scrollbar-none min-h-0">
         <AnimatePresence mode="wait">
           {/* TIMELINE TAB */}
           {activePhoneTab === 'timeline' && (
@@ -387,7 +391,11 @@ export const AndroidSimulator: React.FC = () => {
       </div>
 
       {/* Android Home Navigation Bar (Gesture Pill) */}
-      <div className="h-3.5 w-full bg-white flex items-center justify-center shrink-0">
+      <div
+        className={`h-3.5 w-full bg-white flex items-center justify-center shrink-0 ${
+          isFull ? 'rounded-b-none sm:rounded-b-3xl' : 'rounded-b-[38px]'
+        }`}
+      >
         <div className="w-24 h-1 bg-[#1E1B19]/30 rounded-full" />
       </div>
     </div>
@@ -407,15 +415,15 @@ export const AndroidSimulator: React.FC = () => {
           maxHeight: '680px',
         }}
       >
-        {/* Outer Titanium Device Bezel with overflow-hidden and border-radius perfectly clipping corners */}
-        <div className="absolute inset-0 rounded-[50px] bg-[#1E1B19] p-3 shadow-2xl border-4 border-[#3D3734] overflow-hidden">
-          {/* Subtle hardware buttons */}
-          <div className="absolute -left-1 top-24 w-1 h-12 bg-[#2D2825] rounded-l-md" />
-          <div className="absolute -left-1 top-40 w-1 h-12 bg-[#2D2825] rounded-l-md" />
-          <div className="absolute -right-1 top-28 w-1 h-16 bg-[#2D2825] rounded-r-md" />
+        {/* Hardware side buttons - Positioned on outer phone frame outside bezel clipping */}
+        <div className="absolute -left-1 top-24 w-1 h-12 bg-[#2D2825] rounded-l-md z-0" />
+        <div className="absolute -left-1 top-40 w-1 h-12 bg-[#2D2825] rounded-l-md z-0" />
+        <div className="absolute -right-1 top-28 w-1 h-16 bg-[#2D2825] rounded-r-md z-0" />
 
-          {/* Screen Clipping Viewport with nested continuous radius (38px) */}
-          <div className="relative w-full h-full rounded-[38px] overflow-hidden border border-[#D8CFC2]/70 bg-[#FAF6F0]">
+        {/* Outer Titanium Device Bezel */}
+        <div className="absolute inset-0 rounded-[50px] bg-[#1E1B19] p-3 shadow-2xl border-4 border-[#3D3734] z-10">
+          {/* Screen Clipping Viewport with nested continuous radius (38px), overflow-hidden, and isolation */}
+          <div className="relative w-full h-full rounded-[38px] overflow-hidden isolate border border-[#D8CFC2]/70 bg-[#FAF6F0] min-w-0 min-h-0">
             {renderScreenContent(false)}
           </div>
         </div>
