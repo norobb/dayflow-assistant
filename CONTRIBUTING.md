@@ -8,20 +8,27 @@ Thank you for your interest in contributing to Dayflow. This guide covers the wo
 
 | Branch | Purpose |
 |--------|---------|
-| `main` | Production-ready code. Auto-deploys to GitHub Pages. |
-| `develop` | Integration branch for in-progress work. All feature PRs target `develop`. |
+| `main` | Stable/common project baseline. Not deployed automatically. |
+| `website` | Active Dayflow web application. **Auto-deploys to GitHub Pages on every push.** |
+| `android` | Reserved for the future native Android application. No deployment configured yet. |
 | `feature/*` | New features or enhancements (e.g. `feature/voice-input-improvements`). |
 | `fix/*` | Bug fixes (e.g. `fix/simulator-corner-clip`). |
 | `chore/*` | Tooling, CI, dependency updates (e.g. `chore/update-motion`). |
 | `docs/*` | Documentation-only changes (e.g. `docs/update-agents-md`). |
 
-### Release Flow
+### Website Development Flow
 
 ```
-feature/* → develop → main (→ auto-deploys to GitHub Pages)
+feature/* → website → GitHub Actions → GitHub Pages
 ```
 
-Changes always flow from feature branches into `develop` first. When `develop` is stable and ready for production, it is merged into `main` via a PR, which triggers automatic deployment.
+Feature branches always target `website`. When `website` reaches a stable milestone, it may be merged into `main`.
+
+### Android Development Flow (future)
+
+```
+feature/* → android → future Android CI/CD
+```
 
 ---
 
@@ -43,10 +50,10 @@ npm run dev
 
 ## Making a Change
 
-1. **Branch from `develop`** (not from `main`):
+1. **Branch from `website`** for web application work:
    ```bash
-   git checkout develop
-   git pull origin develop
+   git checkout website
+   git pull origin website
    git checkout -b feature/your-feature-name
    ```
 
@@ -64,7 +71,7 @@ npm run dev
    ```
    Follow [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`.
 
-5. **Open a PR** targeting `develop`. Fill out the PR template completely.
+5. **Open a PR** targeting `website`. Fill out the PR template completely.
 
 ---
 
@@ -72,7 +79,7 @@ npm run dev
 
 This repository covers two distinct product areas:
 
-### 1. Dayflow Website (`/src`)
+### 1. Dayflow Website (`website` branch · `/src`)
 The existing React + Vite + TypeScript + Tailwind CSS v4 web application.
 
 - **Do not** redesign or rebuild the website
@@ -80,14 +87,14 @@ The existing React + Vite + TypeScript + Tailwind CSS v4 web application.
 - **Do not** modify the Tailwind/Motion/TypeScript stack without discussion
 - **Always** run `npm run lint` before marking a PR ready
 
-### 2. Future Android Application
-The native Android app (Kotlin / Jetpack Compose) will live in a future dedicated directory or repository. Contributors interested in this area should open a Feature Request issue to discuss scope and architecture.
+### 2. Future Android Application (`android` branch)
+The native Android app (Kotlin / Jetpack Compose) will live on the `android` branch. Contributors interested in this area should open a Feature Request issue to discuss scope and architecture. Do not add placeholder Android code.
 
 ---
 
 ## Design System Rules
 
-- **Color palette**: Burgundy `#641C24`, linen `#F5EFE6`, charcoal `#1E1B19` — see `AGENTS.md §7`
+- **Color palette**: Burgundy `#641C24`, linen `#F5EFE6`, charcoal `#1E1B19` — see `docs/design-system.md`
 - **Logo**: The official logo assets in `src/assets/` and `public/assets/` are the **only** valid versions. Never replace, regenerate, or redesign them
 - **Typography**: Plus Jakarta Sans (primary), Newsreader (editorial serif)
 - **Animations**: Use `motion/react` (Framer Motion v12). Never add new animation libraries

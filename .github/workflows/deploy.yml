@@ -1,12 +1,12 @@
-name: Deploy to GitHub Pages
+name: Deploy Dayflow Website
 
 on:
   push:
     branches:
-      - main
+      - website
   workflow_dispatch:
 
-# Allow only one concurrent deployment, skipping runs queued between the current run and the latest queued.
+# Allow only one concurrent deployment, cancelling any in-progress run.
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -20,6 +20,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,8 +40,13 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Use root base for custom domain; change to /dayflow-assistant/ if using github.io subdomain only
-          VITE_BASE_URL: /
+          # Deploys to https://norobb.github.io/dayflow-assistant/
+          # If a custom domain is configured, set this to / in the Pages settings
+          # and remove this env var from the workflow.
+          VITE_BASE_URL: /dayflow-assistant/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -51,9 +57,11 @@ jobs:
     name: Deploy
     needs: build
     runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
