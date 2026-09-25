@@ -3,10 +3,9 @@ name: Deploy Dayflow Website
 on:
   push:
     branches:
-      - website
+      - main
   workflow_dispatch:
 
-# Allow only one concurrent deployment, cancelling any in-progress run.
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -21,6 +20,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./website
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,6 +33,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: ./website/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -40,9 +44,6 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Deploys to https://norobb.github.io/dayflow-assistant/
-          # If a custom domain is configured, set this to / in the Pages settings
-          # and remove this env var from the workflow.
           VITE_BASE_URL: /dayflow-assistant/
 
       - name: Setup Pages
@@ -51,7 +52,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: ./website/dist
 
   deploy:
     name: Deploy
