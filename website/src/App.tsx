@@ -105,12 +105,18 @@ export default function App() {
           {/* Desktop Right Controls (Language Switcher, Sound Toggle, CTA) */}
           <div className="hidden md:flex items-center gap-4">
             {/* Subtle Language Switcher (EN / DE / ES) */}
-            <div className="flex items-center bg-white rounded-xl border border-[#D8CFC2] p-0.5 text-xs font-bold text-[#1E1B19]">
+            <div
+              className="flex items-center bg-white rounded-xl border border-[#D8CFC2] p-0.5 text-xs font-bold text-[#1E1B19]"
+              role="group"
+              aria-label="Language selection"
+            >
               {(['en', 'de', 'es'] as const).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => setLanguage(lang)}
-                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                  aria-pressed={language === lang}
+                  aria-label={`Switch language to ${lang.toUpperCase()}`}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
                     language === lang
                       ? 'bg-[#641C24] text-white shadow-xs'
                       : 'hover:text-[#641C24]'
@@ -126,7 +132,7 @@ export default function App() {
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.96 }}
               onClick={toggleSound}
-              className="p-2 rounded-xl border border-[#D8CFC2] bg-white hover:bg-[#FAF6F0] text-[#1E1B19] transition-all cursor-pointer shadow-xs"
+              className="p-2 rounded-xl border border-[#D8CFC2] bg-white hover:bg-[#FAF6F0] text-[#1E1B19] transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24]"
               title={soundMuted ? 'Unmute sounds' : 'Mute sounds'}
               aria-label="Toggle Sound Effects"
             >
@@ -152,7 +158,8 @@ export default function App() {
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as Language)}
-              className="p-1 rounded-lg border border-[#D8CFC2] bg-white text-xs font-bold text-[#1E1B19]"
+              aria-label="Select Language"
+              className="p-1 rounded-lg border border-[#D8CFC2] bg-white text-xs font-bold text-[#1E1B19] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24]"
             >
               <option value="en">EN</option>
               <option value="de">DE</option>
@@ -377,12 +384,18 @@ export default function App() {
             </div>
 
             {/* Interactive Demo Tab Navigation with micro-interaction feedback */}
-            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-8 flex-wrap">
+            <div
+              className="flex items-center justify-center gap-2 sm:gap-3 mb-8 flex-wrap"
+              role="tablist"
+              aria-label="Demo Scenarios"
+            >
               <motion.button
+                role="tab"
+                aria-selected={activeDemoTab === 'message'}
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleTabSelect('message')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
                   activeDemoTab === 'message'
                     ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
                     : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
@@ -393,10 +406,12 @@ export default function App() {
               </motion.button>
 
               <motion.button
+                role="tab"
+                aria-selected={activeDemoTab === 'screenshot'}
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleTabSelect('screenshot')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
                   activeDemoTab === 'screenshot'
                     ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
                     : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
@@ -407,10 +422,12 @@ export default function App() {
               </motion.button>
 
               <motion.button
+                role="tab"
+                aria-selected={activeDemoTab === 'pdf'}
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleTabSelect('pdf')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
                   activeDemoTab === 'pdf'
                     ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
                     : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
@@ -421,10 +438,12 @@ export default function App() {
               </motion.button>
 
               <motion.button
+                role="tab"
+                aria-selected={activeDemoTab === 'voice'}
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleTabSelect('voice')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
                   activeDemoTab === 'voice'
                     ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
                     : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
