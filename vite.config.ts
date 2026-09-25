@@ -5,6 +5,10 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // Base URL for deployment. Set VITE_BASE_URL=/dayflow-assistant/ when
+    // deploying to https://norobb.github.io/dayflow-assistant/ (no custom domain).
+    // Leave as '/' (default) when using a custom domain.
+    base: process.env.VITE_BASE_URL ?? '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
