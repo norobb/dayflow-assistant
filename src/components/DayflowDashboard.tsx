@@ -2,17 +2,12 @@ import React from 'react';
 import { useDayflowStore } from '../store/dayflowStore';
 import {
   Calendar,
-  Clock,
   CheckCircle2,
   Circle,
   Bell,
-  Sparkles,
-  MapPin,
   RefreshCw,
-  Plus,
-  ArrowRight
 } from 'lucide-react';
-import { ProductStateBadge } from './DayflowLogo';
+import { motion, AnimatePresence } from 'motion/react';
 import { sounds } from '../utils/audio';
 
 export const DayflowDashboard: React.FC = () => {
@@ -24,187 +19,238 @@ export const DayflowDashboard: React.FC = () => {
     activeInsight,
     snoozeInsight,
     resetToDefaults,
+    t,
   } = useDayflowStore();
 
+  const handleReset = () => {
+    sounds.playClick();
+    resetToDefaults();
+  };
+
+  const handleToggle = (id: string) => {
+    sounds.playToggle();
+    toggleTask(id);
+  };
+
   return (
-    <div className="w-full bg-[#FAF6F0] rounded-3xl border border-[#D8CFC2] p-6 lg:p-9 shadow-sm">
+    <div className="w-full bg-[#FAF6F0] rounded-3xl border border-[#D8CFC2] p-5 sm:p-7 lg:p-9 shadow-sm text-left">
       {/* Top Greeting & State Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#D8CFC2]/70 gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#641C24]">
-              Personal Organization Layer
-            </span>
-            <ProductStateBadge state="NOW" />
-          </div>
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#641C24] block">
+            {t.dashboard.badge}
+          </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1E1B19] mt-0.5">
-            Good morning, Noah.
+            {t.dashboard.title}
           </h2>
           <p className="text-xs sm:text-sm text-[#6B635B] mt-0.5">
-            Friday, September 25 • All scheduled items verified and synced
+            {t.dashboard.dateSubtitle}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={resetToDefaults}
+          <motion.button
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={handleReset}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#D8CFC2] bg-white hover:bg-[#F5EFE6] text-xs font-medium text-[#1E1B19] transition-all cursor-pointer shadow-xs"
             title="Reset interactive states to default"
           >
             <RefreshCw className="w-3.5 h-3.5 text-[#6B635B]" />
-            <span>Reset Demo State</span>
-          </button>
+            <span>{t.dashboard.resetState}</span>
+          </motion.button>
         </div>
       </div>
 
       {/* Proactive Context Intelligence Card */}
-      {activeInsight.visible && (
-        <div className="mt-6 p-4 rounded-2xl bg-[#641C24] text-[#F5EFE6] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
-              <Sparkles className="w-4 h-4 text-[#E6C2C6]" />
-            </div>
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-[#E6C2C6]">
-                Proactive AI Insight
+      <AnimatePresence>
+        {activeInsight.visible && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: 'auto', marginTop: 24 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#641C24]" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                    {t.dashboard.insightTitle}
+                  </h4>
+                </div>
+                <p className="text-xs sm:text-sm text-[#1E1B19] font-medium">
+                  {t.dashboard.insightDesc}
+                </p>
               </div>
-              <p className="text-sm font-medium mt-0.5 text-white/95">
-                {activeInsight.text}
-              </p>
+              <div className="flex items-center gap-2 shrink-0">
+                <motion.button
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={snoozeInsight}
+                  className="px-3 py-1.5 rounded-xl border border-[#D8CFC2] bg-[#FAF6F0] hover:bg-[#F5EFE6] text-xs font-medium text-[#1E1B19] transition-all cursor-pointer"
+                >
+                  {t.dashboard.snooze}
+                </motion.button>
+              </div>
             </div>
-          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
-            <a
-              href="#demo-section"
-              className="px-3.5 py-1.5 rounded-lg bg-white text-[#641C24] hover:bg-[#F5EFE6] text-xs font-bold transition-all"
-            >
-              View tasks
-            </a>
-            <button
-              onClick={snoozeInsight}
-              className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-medium text-white transition-all cursor-pointer"
-            >
-              Snooze
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Main Grid: Timeline + Tasks & Reminders */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Calendar Timeline (7 Cols) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl p-5 border border-[#D8CFC2] shadow-xs">
-          <div className="flex items-center justify-between pb-3 border-b border-[#D8CFC2]/60">
+      {/* 3-Column Work Area */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Timeline Column */}
+        <div className="lg:col-span-6 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-[#D8CFC2]/60">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#641C24]" />
-              <h3 className="text-sm font-bold text-[#1E1B19]">Calendar Timeline</h3>
+              <h3 className="font-bold text-sm text-[#1E1B19]">
+                {t.dashboard.timelineTitle}
+              </h3>
             </div>
-            <span className="text-xs font-semibold text-[#6B635B]">
-              {events.length} schedule entries
+            <span className="text-xs text-[#6B635B] font-medium">
+              {events.length}
             </span>
           </div>
 
-          <div className="mt-4 space-y-3 relative before:absolute before:left-[17px] before:top-3 before:bottom-3 before:w-[1.5px] before:bg-[#D8CFC2]">
-            {events.map((ev) => (
-              <div key={ev.id} className="relative pl-8 flex items-start group">
-                <div className="absolute left-[13px] top-2 w-2.5 h-2.5 rounded-full bg-[#641C24] ring-4 ring-white" />
-                <div className="w-full bg-[#FAF6F0] p-3 rounded-xl border border-[#D8CFC2]/60 flex items-center justify-between hover:border-[#641C24]/30 transition-all">
+          <div className="space-y-3">
+            <AnimatePresence initial={false}>
+              {events.map((ev) => (
+                <motion.div
+                  key={ev.id}
+                  initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  whileHover={{ y: -1 }}
+                  className="bg-white rounded-2xl p-4 border border-[#D8CFC2] shadow-xs hover:border-[#641C24]/30 transition-all flex items-start justify-between cursor-default"
+                >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-extrabold text-[#641C24] font-mono">
+                      <span className="text-xs font-bold text-[#641C24]">
                         {ev.time}
                       </span>
-                      <span className="text-xs font-bold text-[#1E1B19]">{ev.title}</span>
+                      <span className="text-[10px] text-[#6B635B] uppercase tracking-wider bg-[#FAF6F0] px-2 py-0.5 rounded-md border border-[#D8CFC2]/60">
+                        {ev.sourceType === 'default' ? t.phone.scheduledLabel : t.phone.organizedLabel}
+                      </span>
                     </div>
+                    <h4 className="font-bold text-sm text-[#1E1B19] mt-1">
+                      {ev.title}
+                    </h4>
                     {ev.location && (
-                      <div className="flex items-center gap-1 text-[11px] text-[#6B635B] mt-1">
-                        <MapPin className="w-3 h-3" />
-                        <span>{ev.location}</span>
-                      </div>
+                      <span className="text-xs text-[#6B635B] mt-0.5 block">
+                        {ev.location}
+                      </span>
                     )}
                   </div>
-                  <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white text-[#6B635B] border border-[#D8CFC2]/40">
-                    {ev.sourceType}
-                  </span>
-                </div>
-              </div>
-            ))}
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
 
-        {/* Right Column: Tasks & Reminders (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Actionable Tasks */}
-          <div className="bg-white rounded-2xl p-5 border border-[#D8CFC2] shadow-xs">
-            <div className="flex items-center justify-between pb-3 border-b border-[#D8CFC2]/60">
-              <h3 className="text-sm font-bold text-[#1E1B19]">Actionable Tasks</h3>
-              <span className="text-xs font-semibold text-[#2E5C38]">
-                {tasks.filter((t) => t.completed).length}/{tasks.length} done
+        {/* Tasks & Reminders Column */}
+        <div className="lg:col-span-6 space-y-6">
+          {/* Tasks Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[#D8CFC2]/60">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#2E5C38]" />
+                <h3 className="font-bold text-sm text-[#1E1B19]">
+                  {t.dashboard.tasksTitle}
+                </h3>
+              </div>
+              <span className="text-xs text-[#6B635B] font-medium">
+                {tasks.filter((tk) => tk.completed).length}/{tasks.length}
               </span>
             </div>
 
-            <div className="mt-3 space-y-2">
-              {tasks.map((task) => (
-                <button
-                  key={task.id}
-                  onClick={() => toggleTask(task.id)}
-                  className={`w-full text-left p-2.5 rounded-xl border transition-all flex items-start gap-2.5 cursor-pointer ${
-                    task.completed
-                      ? 'bg-[#FAF6F0]/60 border-[#D8CFC2]/40 opacity-70'
-                      : 'bg-white border-[#D8CFC2] hover:border-[#641C24]/40 shadow-xs'
-                  }`}
-                >
-                  <div className="mt-0.5 shrink-0 text-[#641C24]">
-                    {task.completed ? (
-                      <CheckCircle2 className="w-4 h-4 fill-[#2E5C38] text-white" />
-                    ) : (
-                      <Circle className="w-4 h-4 text-[#D8CFC2]" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p
-                      className={`text-xs font-medium text-[#1E1B19] ${
-                        task.completed ? 'line-through text-[#6B635B]' : ''
-                      }`}
-                    >
-                      {task.title}
-                    </p>
-                    {task.dueDate && (
-                      <span className="text-[10px] text-[#6B635B] block mt-0.5">
-                        Due: {task.dueDate}
-                      </span>
-                    )}
-                  </div>
-                </button>
-              ))}
+            <div className="space-y-2">
+              <AnimatePresence initial={false}>
+                {tasks.map((task) => (
+                  <motion.button
+                    key={task.id}
+                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleToggle(task.id)}
+                    className="w-full text-left bg-white rounded-2xl p-3.5 border border-[#D8CFC2] shadow-xs hover:border-[#641C24]/30 transition-all flex items-start gap-3 cursor-pointer"
+                  >
+                    <div className="mt-0.5 shrink-0">
+                      {task.completed ? (
+                        <motion.div
+                          initial={{ scale: 0.6 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-[#2E5C38]" />
+                        </motion.div>
+                      ) : (
+                        <Circle className="w-4 h-4 text-[#D8CFC2]" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className={`text-xs sm:text-sm font-medium leading-tight transition-colors ${
+                          task.completed ? 'line-through text-[#6B635B]' : 'text-[#1E1B19]'
+                        }`}
+                      >
+                        {task.title}
+                      </div>
+                      {task.dueDate && (
+                        <div className="text-[11px] text-[#6B635B] mt-1">
+                          {task.dueDate}
+                        </div>
+                      )}
+                    </div>
+                  </motion.button>
+                ))}
+              </AnimatePresence>
             </div>
           </div>
 
-          {/* Upcoming Reminders */}
-          <div className="bg-white rounded-2xl p-5 border border-[#D8CFC2] shadow-xs">
-            <div className="flex items-center justify-between pb-3 border-b border-[#D8CFC2]/60">
+          {/* Reminders Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[#D8CFC2]/60">
               <div className="flex items-center gap-2">
                 <Bell className="w-4 h-4 text-[#641C24]" />
-                <h3 className="text-sm font-bold text-[#1E1B19]">Upcoming Reminders</h3>
+                <h3 className="font-bold text-sm text-[#1E1B19]">
+                  {t.dashboard.remindersTitle}
+                </h3>
               </div>
-              <span className="text-xs font-semibold text-[#6B635B]">
-                {reminders.length} active
+              <span className="text-xs text-[#6B635B] font-medium">
+                {reminders.length}
               </span>
             </div>
 
-            <div className="mt-3 space-y-2">
-              {reminders.map((r) => (
-                <div
-                  key={r.id}
-                  className="p-2.5 rounded-xl bg-[#FAF6F0] border border-[#D8CFC2]/60 flex items-center justify-between"
-                >
-                  <div className="text-xs font-medium text-[#1E1B19]">{r.title}</div>
-                  <span className="text-[10px] font-bold text-[#641C24] font-mono shrink-0 ml-2">
-                    {r.timeLabel}
-                  </span>
-                </div>
-              ))}
+            <div className="space-y-2">
+              <AnimatePresence initial={false}>
+                {reminders.map((rem) => (
+                  <motion.div
+                    key={rem.id}
+                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    whileHover={{ y: -1 }}
+                    className="bg-white rounded-2xl p-3.5 border border-[#D8CFC2] shadow-xs flex items-center justify-between cursor-default"
+                  >
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-[#1E1B19]">
+                        {rem.title}
+                      </h4>
+                      <span className="text-xs text-[#641C24] font-medium">
+                        {rem.timeLabel}
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </div>
         </div>

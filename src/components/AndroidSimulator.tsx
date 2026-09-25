@@ -1,339 +1,450 @@
-import React, { useState } from 'react';
-import { useDayflowStore } from '../store/dayflowStore';
-import { DayflowSymbol } from './DayflowLogo';
+import React, { useState, useEffect } from 'react';
 import {
   Calendar,
-  CheckSquare,
-  Bell,
-  ScanLine,
-  Wifi,
-  BatteryMedium,
   CheckCircle2,
-  Sparkles,
-  ArrowRight,
-  Circle,
-  Clock,
+  Bell,
   MapPin,
-  ChevronRight,
-  Info
+  Circle,
+  ScanLine,
+  Maximize2,
+  X,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { useDayflowStore } from '../store/dayflowStore';
+import { DayflowSymbol } from './DayflowLogo';
 import { sounds } from '../utils/audio';
 
-interface AndroidSimulatorProps {
-  className?: string;
-}
-
-export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({ className = '' }) => {
+export const AndroidSimulator: React.FC = () => {
   const {
     events,
     tasks,
     reminders,
     notifications,
     toggleTask,
+    activeInsight,
     activePhoneTab,
     setActivePhoneTab,
-    activeInsight,
+    t,
   } = useDayflowStore();
 
-  const [flashNotification, setFlashNotification] = useState<string | null>(null);
+  const [currentTime] = useState('09:41');
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  // Keyboard shortcut: Escape exits fullscreen mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+        sounds.playClick();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
 
   const handleTabChange = (tab: 'timeline' | 'tasks' | 'reminders' | 'scanner') => {
     sounds.playClick();
     setActivePhoneTab(tab);
   };
 
-  return (
-    <div
-      className={`relative mx-auto w-full max-w-[340px] h-[680px] bg-[#1E1B19] rounded-[48px] p-3.5 shadow-[0_25px_60px_-15px_rgba(30,27,25,0.35),0_0_0_1px_rgba(216,207,194,0.4)] transition-all select-none ${className}`}
-    >
-      {/* Outer Phone Hardware Bezels & Volume / Power Buttons */}
-      <div className="absolute -left-[3px] top-28 w-[3px] h-12 bg-[#3A3532] rounded-l-sm" />
-      <div className="absolute -left-[3px] top-44 w-[3px] h-12 bg-[#3A3532] rounded-l-sm" />
-      <div className="absolute -right-[3px] top-32 w-[3px] h-16 bg-[#3A3532] rounded-r-sm" />
+  const openFullscreen = () => {
+    sounds.playClick();
+    setIsFullscreen(true);
+  };
 
-      {/* Screen Container */}
-      <div className="relative w-full h-full bg-[#FAF6F0] rounded-[38px] overflow-hidden flex flex-col border border-[#D8CFC2]/60">
-        {/* Status Bar */}
-        <div className="w-full h-8 pt-2 px-5 flex items-center justify-between text-[#1E1B19] text-[11px] font-medium z-30">
-          <span>09:41</span>
-          {/* Subtle Camera Cutout */}
-          <div className="w-3.5 h-3.5 rounded-full bg-[#1E1B19] flex items-center justify-center border border-white/10">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#2A2624]" />
-          </div>
-          <div className="flex items-center gap-1.5 text-[#1E1B19]/80">
-            <Wifi className="w-3 h-3" />
-            <BatteryMedium className="w-3.5 h-3.5" />
-          </div>
+  const closeFullscreen = () => {
+    sounds.playClick();
+    setIsFullscreen(false);
+  };
+
+  // Reusable Phone Inner Screen Content (Shared between device preview and fullscreen)
+  const renderScreenContent = (isFull: boolean = false) => (
+    <div className={`relative w-full h-full bg-[#FAF6F0] flex flex-col overflow-hidden text-left select-none ${isFull ? 'max-w-2xl mx-auto' : ''}`}>
+      {/* Status Bar */}
+      <div className="h-9 px-6 pt-2 flex items-center justify-between text-[11px] font-semibold text-[#1E1B19] z-20 shrink-0 border-b border-[#D8CFC2]/40 bg-[#FAF6F0]/90 backdrop-blur-sm">
+        <span>{currentTime}</span>
+        {/* Center Camera Cutout (Hole punch) */}
+        {!isFull && (
+          <div className="w-3.5 h-3.5 rounded-full bg-black mx-auto ring-1 ring-[#1E1B19]" />
+        )}
+        <div className="flex items-center gap-2 text-[10px]">
+          <span>5G</span>
+          <span className="font-bold">100%</span>
+          {isFull && (
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={closeFullscreen}
+              className="ml-2 p-1 rounded-md hover:bg-[#D8CFC2]/50 text-[#1E1B19] transition-all cursor-pointer"
+              title={t.phone.exitFullscreen}
+            >
+              <X className="w-3.5 h-3.5" />
+            </motion.button>
+          )}
+        </div>
+      </div>
+
+      {/* App Header */}
+      <div className="px-5 py-2.5 border-b border-[#D8CFC2]/50 bg-white/80 backdrop-blur-md flex items-center justify-between shrink-0 z-10">
+        <div className="flex items-center gap-2">
+          <DayflowSymbol size={20} />
+          <span className="text-sm font-bold text-[#1E1B19] tracking-tight">
+            dayflow
+          </span>
         </div>
 
-        {/* App Top Bar */}
-        <div className="px-4 pt-1 pb-2.5 flex items-center justify-between border-b border-[#D8CFC2]/50 bg-[#FAF6F0]">
-          <div className="flex items-center gap-2">
-            <DayflowSymbol size={24} />
-            <span className="font-semibold text-xs tracking-tight text-[#1E1B19]">dayflow</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#2E5C38] animate-pulse" />
-            <span className="text-[10px] uppercase font-semibold tracking-wider text-[#6B635B]">
-              Active
-            </span>
-          </div>
-        </div>
+        {!isFull ? (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={openFullscreen}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold text-[#641C24] bg-[#641C24]/5 hover:bg-[#641C24]/10 transition-colors cursor-pointer"
+            title={t.phone.fullscreenBtn}
+          >
+            <Maximize2 className="w-3 h-3" />
+            <span className="hidden sm:inline">{t.phone.fullscreenBtn}</span>
+          </motion.button>
+        ) : (
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={closeFullscreen}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold text-[#641C24] bg-[#641C24]/10 hover:bg-[#641C24]/20 transition-all cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+            <span>{t.phone.exitFullscreen}</span>
+          </motion.button>
+        )}
+      </div>
 
-        {/* Dynamic Notification Toast on Phone */}
+      {/* Reactive Notification Banner (Toast) with Spring Entrance */}
+      <AnimatePresence>
         {notifications.length > 0 && (
-          <div className="px-3 pt-2">
-            <div className="bg-[#641C24] text-[#F5EFE6] px-3 py-2 rounded-xl text-xs shadow-md border border-[#7E242F] flex items-start gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
-              <Sparkles className="w-3.5 h-3.5 text-[#E6C2C6] shrink-0 mt-0.5" />
+          <motion.div
+            key={notifications[0].id}
+            initial={{ opacity: 0, y: -10, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+            className="mx-3 mt-2 p-2.5 bg-white rounded-2xl border border-[#D8CFC2] shadow-xs shrink-0 z-10"
+          >
+            <div className="flex items-center gap-2.5">
+              <DayflowSymbol size={16} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[11px] text-[#F5EFE6]">
+                  <span className="text-[11px] font-bold text-[#1E1B19] truncate">
                     {notifications[0].title}
                   </span>
-                  <span className="text-[9px] text-[#E6C2C6]">{notifications[0].time}</span>
+                  <span className="text-[9px] text-[#6B635B]">{notifications[0].time}</span>
                 </div>
-                <p className="text-[10px] text-[#F5EFE6]/90 truncate mt-0.5">
+                <p className="text-[11px] text-[#6B635B] truncate mt-0.5">
                   {notifications[0].body}
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        {/* Phone Screen Body Content */}
-        <div className="flex-1 overflow-y-auto px-3.5 py-2.5 space-y-3">
+      {/* Fixed Internal Scrollable Viewport */}
+      <div className="flex-1 overflow-y-auto px-4 py-3.5 space-y-4 scrollbar-none">
+        <AnimatePresence mode="wait">
+          {/* TIMELINE TAB */}
           {activePhoneTab === 'timeline' && (
-            <div className="space-y-3">
+            <motion.div
+              key="timeline"
+              initial={{ opacity: 0, x: 6 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -6 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">{t.dashboard.title}</h4>
+                <span className="text-[10px] text-[#6B635B] font-medium">{events.length}</span>
+              </div>
+
               {/* Proactive Context Card */}
               {activeInsight.visible && (
-                <div className="p-2.5 rounded-2xl bg-[#F0E4E6] border border-[#641C24]/15">
-                  <div className="flex items-center gap-1.5 text-[#641C24] text-[11px] font-semibold">
-                    <Sparkles className="w-3 h-3" />
-                    <span>Intelligent Context</span>
+                <div className="p-3 rounded-2xl bg-[#F0E4E6] border border-[#641C24]/20 space-y-1.5">
+                  <div className="text-[11px] font-bold text-[#641C24]">
+                    {t.dashboard.insightTitle}
                   </div>
-                  <p className="text-[11px] text-[#1E1B19] mt-1 leading-snug">
-                    {activeInsight.text}
+                  <p className="text-[10px] text-[#1E1B19]/80 leading-snug">
+                    {t.dashboard.insightDesc}
                   </p>
                 </div>
               )}
 
-              {/* Day Header */}
-              <div className="flex items-center justify-between pt-1">
-                <div>
-                  <h3 className="text-sm font-semibold text-[#1E1B19]">Today’s Flow</h3>
-                  <p className="text-[10px] text-[#6B635B]">Friday, September 25</p>
-                </div>
-                <span className="text-[10px] font-medium bg-[#1E1B19]/5 px-2 py-0.5 rounded-full text-[#1E1B19]">
-                  {events.length} events
-                </span>
-              </div>
-
-              {/* Timeline Items */}
-              <div className="space-y-2 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1.5px] before:bg-[#D8CFC2]">
-                {events.map((ev) => (
-                  <div
-                    key={ev.id}
-                    className="relative pl-6 flex items-start group"
-                  >
-                    <div className="absolute left-[6.5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#641C24] ring-2 ring-[#FAF6F0]" />
-                    <div className="w-full bg-white p-2.5 rounded-xl border border-[#D8CFC2]/70 shadow-xs flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] font-bold text-[#641C24]">{ev.time}</span>
-                          <span className="text-xs font-medium text-[#1E1B19]">{ev.title}</span>
-                        </div>
-                        {ev.location && (
-                          <div className="flex items-center gap-1 text-[10px] text-[#6B635B] mt-0.5">
-                            <MapPin className="w-2.5 h-2.5" />
-                            <span>{ev.location}</span>
-                          </div>
-                        )}
-                      </div>
-                      <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-[#F5EFE6] text-[#6B635B] font-medium">
-                        {ev.sourceType === 'default' ? 'Calendar' : ev.sourceType}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activePhoneTab === 'tasks' && (
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-semibold text-[#1E1B19]">Actionable Tasks</h3>
-                  <p className="text-[10px] text-[#6B635B]">Extracted across messages & files</p>
-                </div>
-                <span className="text-[10px] bg-[#641C24]/10 text-[#641C24] font-semibold px-2 py-0.5 rounded-full">
-                  {tasks.filter((t) => !t.completed).length} pending
-                </span>
-              </div>
-
-              <div className="space-y-1.5">
-                {tasks.map((task) => (
-                  <button
-                    key={task.id}
-                    onClick={() => toggleTask(task.id)}
-                    className={`w-full text-left p-2.5 rounded-xl border transition-all flex items-start gap-2.5 ${
-                      task.completed
-                        ? 'bg-[#FAF6F0]/60 border-[#D8CFC2]/50 opacity-60'
-                        : 'bg-white border-[#D8CFC2]/80 shadow-xs hover:border-[#641C24]/40'
-                    }`}
-                  >
-                    <div className="mt-0.5 shrink-0 text-[#641C24]">
-                      {task.completed ? (
-                        <CheckCircle2 className="w-4 h-4 fill-[#2E5C38] text-white" />
-                      ) : (
-                        <Circle className="w-4 h-4 text-[#D8CFC2]" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className={`text-xs font-medium text-[#1E1B19] ${
-                          task.completed ? 'line-through text-[#6B635B]' : ''
-                        }`}
-                      >
-                        {task.title}
-                      </p>
-                      {task.dueDate && (
-                        <span className="text-[10px] text-[#6B635B] flex items-center gap-1 mt-0.5">
-                          <Clock className="w-2.5 h-2.5" />
-                          {task.dueDate}
+              {/* Events Stream */}
+              <div className="space-y-2">
+                <AnimatePresence initial={false}>
+                  {events.map((ev) => (
+                    <motion.div
+                      key={ev.id}
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      className="p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs hover:border-[#641C24]/30 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-[#641C24]">{ev.time}</span>
+                        <span className="text-[9px] uppercase tracking-wider text-[#6B635B] bg-[#FAF6F0] px-2 py-0.5 rounded-full border border-[#D8CFC2]">
+                          {ev.sourceType === 'default' ? t.phone.scheduledLabel : t.phone.organizedLabel}
                         </span>
+                      </div>
+                      <div className="text-xs font-semibold text-[#1E1B19] mt-1">{ev.title}</div>
+                      {ev.location && (
+                        <div className="flex items-center gap-1 text-[10px] text-[#6B635B] mt-1">
+                          <MapPin className="w-3 h-3 text-[#641C24]" />
+                          <span>{ev.location}</span>
+                        </div>
                       )}
-                    </div>
-                  </button>
-                ))}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
-            </div>
+            </motion.div>
           )}
 
-          {activePhoneTab === 'reminders' && (
-            <div className="space-y-2.5">
+          {/* TASKS TAB */}
+          {activePhoneTab === 'tasks' && (
+            <motion.div
+              key="tasks"
+              initial={{ opacity: 0, x: 6 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -6 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-3"
+            >
               <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-semibold text-[#1E1B19]">Smart Reminders</h3>
-                  <p className="text-[10px] text-[#6B635B]">Time & context alerts</p>
-                </div>
-                <span className="text-[10px] bg-[#1E1B19]/5 text-[#1E1B19] font-medium px-2 py-0.5 rounded-full">
-                  {reminders.length} scheduled
+                <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">{t.dashboard.tasksTitle}</h4>
+                <span className="text-[10px] text-[#6B635B]">
+                  {tasks.filter((tk) => tk.completed).length}/{tasks.length}
                 </span>
               </div>
 
               <div className="space-y-2">
-                {reminders.map((r) => (
-                  <div
-                    key={r.id}
-                    className="p-2.5 rounded-xl bg-white border border-[#D8CFC2]/80 shadow-xs flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-[#F0E4E6] flex items-center justify-center text-[#641C24]">
-                        <Bell className="w-3.5 h-3.5" />
+                <AnimatePresence initial={false}>
+                  {tasks.map((task) => (
+                    <motion.button
+                      key={task.id}
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => toggleTask(task.id)}
+                      className="w-full text-left p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs flex items-start gap-2.5 transition-all hover:border-[#641C24]/40 cursor-pointer"
+                    >
+                      <div className="mt-0.5 shrink-0">
+                        {task.completed ? (
+                          <motion.div initial={{ scale: 0.6 }} animate={{ scale: 1 }}>
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#2E5C38]" />
+                          </motion.div>
+                        ) : (
+                          <Circle className="w-3.5 h-3.5 text-[#D8CFC2]" />
+                        )}
                       </div>
-                      <div>
-                        <div className="text-xs font-medium text-[#1E1B19]">{r.title}</div>
-                        <div className="text-[10px] text-[#6B635B] flex items-center gap-1">
-                          <Clock className="w-2.5 h-2.5" />
-                          {r.timeLabel}
+                      <div className="min-w-0 flex-1">
+                        <div
+                          className={`text-xs font-medium leading-tight ${
+                            task.completed ? 'line-through text-[#6B635B]' : 'text-[#1E1B19]'
+                          }`}
+                        >
+                          {task.title}
                         </div>
+                        {task.dueDate && (
+                          <div className="text-[9px] text-[#6B635B] mt-0.5">{task.dueDate}</div>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    </motion.button>
+                  ))}
+                </AnimatePresence>
               </div>
-            </div>
+            </motion.div>
           )}
 
+          {/* REMINDERS / NOTIFICATIONS TAB */}
+          {activePhoneTab === 'reminders' && (
+            <motion.div
+              key="reminders"
+              initial={{ opacity: 0, x: 6 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -6 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">{t.dashboard.remindersTitle}</h4>
+                <span className="text-[10px] text-[#6B635B]">{reminders.length}</span>
+              </div>
+
+              <div className="space-y-2">
+                <AnimatePresence initial={false}>
+                  {reminders.map((rem) => (
+                    <motion.div
+                      key={rem.id}
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      className="p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs space-y-1"
+                    >
+                      <div className="text-xs font-semibold text-[#1E1B19]">{rem.title}</div>
+                      <div className="text-[10px] text-[#641C24] font-medium flex items-center gap-1">
+                        <Bell className="w-3 h-3" />
+                        <span>{rem.timeLabel}</span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+
+          {/* SCREEN INTELLIGENCE CONCEPT TAB */}
           {activePhoneTab === 'scanner' && (
-            <div className="space-y-3">
-              <div className="p-3 rounded-2xl bg-[#641C24]/5 border border-[#641C24]/15">
-                <div className="flex items-center gap-1.5 text-[#641C24] text-xs font-semibold">
-                  <ScanLine className="w-3.5 h-3.5" />
-                  <span>Screen Intelligence Concept</span>
-                </div>
-                <span className="inline-block mt-1 text-[9px] uppercase px-1.5 py-0.5 rounded bg-[#641C24]/10 text-[#641C24] font-bold">
-                  Coming soon
+            <motion.div
+              key="scanner"
+              initial={{ opacity: 0, x: 6 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -6 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">
+                  {t.concepts.screenTitle}
+                </h4>
+                <span className="text-[9px] text-[#8C5E28] font-bold">
+                  {t.concepts.comingSoon}
                 </span>
-                <p className="text-[11px] text-[#6B635B] mt-1.5 leading-relaxed">
-                  Conceptual prototype simulation of future Android screen-understanding layer. No browser screen capture is executed.
-                </p>
               </div>
 
-              {/* Simulated Screen with Recognition Bounding Boxes */}
-              <div className="relative h-44 rounded-xl border border-dashed border-[#641C24]/40 bg-white p-3 overflow-hidden flex flex-col justify-between">
-                <div className="text-[10px] text-[#6B635B] flex items-center justify-between border-b pb-1.5 border-[#D8CFC2]/60">
-                  <span>Target App: Messenger</span>
-                  <span className="text-[#2E5C38] font-medium">Element Recognized</span>
+              <div className="p-3.5 rounded-2xl bg-white border border-[#D8CFC2] space-y-2.5 relative">
+                <div className="text-[11px] text-[#6B635B] leading-snug">
+                  {t.phone.screenSubtext}
                 </div>
 
-                <div className="relative p-2 bg-[#F5EFE6] rounded border border-[#641C24] animate-pulse">
-                  <div className="text-[10px] font-semibold text-[#641C24]">
-                    [Entity Detected: Flight #LH420]
-                  </div>
-                  <div className="text-[9px] text-[#1E1B19]">Departure 19:25 • Terminal 1</div>
-                  <div className="absolute -top-2 right-1 bg-[#641C24] text-white text-[8px] px-1 rounded">
-                    Dayflow Overlay
-                  </div>
-                </div>
-
-                <div className="text-[10px] text-center text-[#6B635B] italic">
-                  “✦ Tap to sync with Calendar”
+                <div className="p-3 rounded-xl border border-dashed border-[#641C24]/30 bg-[#641C24]/5 space-y-1 text-center">
+                  <ScanLine className="w-5 h-5 text-[#641C24] mx-auto text-[#641C24]" />
+                  <span className="text-[10px] font-bold text-[#641C24] block mt-1">
+                    Context Flow
+                  </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
+      </div>
 
-        {/* Bottom Navigation Bar */}
-        <div className="h-14 bg-white border-t border-[#D8CFC2]/80 px-2 flex items-center justify-around">
-          <button
-            onClick={() => handleTabChange('timeline')}
-            className={`flex flex-col items-center gap-0.5 text-[10px] font-medium py-1 px-2.5 rounded-lg transition-colors ${
-              activePhoneTab === 'timeline' ? 'text-[#641C24] font-semibold' : 'text-[#6B635B]'
-            }`}
-          >
-            <Calendar className="w-4 h-4" />
-            <span>Timeline</span>
-          </button>
+      {/* Bottom Android Navigation Tabs */}
+      <div className="h-14 border-t border-[#D8CFC2]/60 bg-white/95 px-3 flex items-center justify-around shrink-0 z-10">
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          onClick={() => handleTabChange('timeline')}
+          className={`p-1.5 flex flex-col items-center gap-0.5 cursor-pointer transition-colors ${
+            activePhoneTab === 'timeline' ? 'text-[#641C24]' : 'text-[#6B635B] hover:text-[#1E1B19]'
+          }`}
+        >
+          <Calendar className="w-4 h-4" />
+          <span className="text-[9px] font-bold">{t.phone.todayTab}</span>
+        </motion.button>
 
-          <button
-            onClick={() => handleTabChange('tasks')}
-            className={`flex flex-col items-center gap-0.5 text-[10px] font-medium py-1 px-2.5 rounded-lg transition-colors ${
-              activePhoneTab === 'tasks' ? 'text-[#641C24] font-semibold' : 'text-[#6B635B]'
-            }`}
-          >
-            <CheckSquare className="w-4 h-4" />
-            <span>Tasks</span>
-          </button>
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          onClick={() => handleTabChange('tasks')}
+          className={`p-1.5 flex flex-col items-center gap-0.5 cursor-pointer transition-colors ${
+            activePhoneTab === 'tasks' ? 'text-[#641C24]' : 'text-[#6B635B] hover:text-[#1E1B19]'
+          }`}
+        >
+          <CheckCircle2 className="w-4 h-4" />
+          <span className="text-[9px] font-bold">{t.phone.tasksTab}</span>
+        </motion.button>
 
-          <button
-            onClick={() => handleTabChange('reminders')}
-            className={`flex flex-col items-center gap-0.5 text-[10px] font-medium py-1 px-2.5 rounded-lg transition-colors ${
-              activePhoneTab === 'reminders' ? 'text-[#641C24] font-semibold' : 'text-[#6B635B]'
-            }`}
-          >
-            <Bell className="w-4 h-4" />
-            <span>Alerts</span>
-          </button>
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          onClick={() => handleTabChange('reminders')}
+          className={`p-1.5 flex flex-col items-center gap-0.5 cursor-pointer transition-colors ${
+            activePhoneTab === 'reminders' ? 'text-[#641C24]' : 'text-[#6B635B] hover:text-[#1E1B19]'
+          }`}
+        >
+          <Bell className="w-4 h-4" />
+          <span className="text-[9px] font-bold">{t.phone.notificationsTab}</span>
+        </motion.button>
 
-          <button
-            onClick={() => handleTabChange('scanner')}
-            className={`flex flex-col items-center gap-0.5 text-[10px] font-medium py-1 px-2.5 rounded-lg transition-colors ${
-              activePhoneTab === 'scanner' ? 'text-[#641C24] font-semibold' : 'text-[#6B635B]'
-            }`}
-          >
-            <ScanLine className="w-4 h-4" />
-            <span>Screen</span>
-          </button>
-        </div>
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          onClick={() => handleTabChange('scanner')}
+          className={`p-1.5 flex flex-col items-center gap-0.5 cursor-pointer transition-colors ${
+            activePhoneTab === 'scanner' ? 'text-[#641C24]' : 'text-[#6B635B] hover:text-[#1E1B19]'
+          }`}
+        >
+          <ScanLine className="w-4 h-4" />
+          <span className="text-[9px] font-bold">{t.phone.intelligenceTab}</span>
+        </motion.button>
+      </div>
 
-        {/* Android Gesture Navigation Pill */}
-        <div className="h-4 bg-white flex items-center justify-center pb-1">
-          <div className="w-24 h-1 bg-[#1E1B19]/25 rounded-full" />
-        </div>
+      {/* Android Home Navigation Bar (Gesture Pill) */}
+      <div className="h-3.5 w-full bg-white flex items-center justify-center shrink-0">
+        <div className="w-24 h-1 bg-[#1E1B19]/30 rounded-full" />
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {/* 1. Normal Embedded Phone Preview */}
+      <div
+        className="relative shrink-0 select-none shadow-2xl transition-all"
+        style={{
+          width: '340px',
+          height: '680px',
+          minWidth: '340px',
+          maxWidth: '340px',
+          minHeight: '680px',
+          maxHeight: '680px',
+        }}
+      >
+        {/* Outer Titanium Device Bezel with overflow-hidden and border-radius perfectly clipping corners */}
+        <div className="absolute inset-0 rounded-[50px] bg-[#1E1B19] p-3 shadow-2xl border-4 border-[#3D3734] overflow-hidden">
+          {/* Subtle hardware buttons */}
+          <div className="absolute -left-1 top-24 w-1 h-12 bg-[#2D2825] rounded-l-md" />
+          <div className="absolute -left-1 top-40 w-1 h-12 bg-[#2D2825] rounded-l-md" />
+          <div className="absolute -right-1 top-28 w-1 h-16 bg-[#2D2825] rounded-r-md" />
+
+          {/* Screen Clipping Viewport with nested continuous radius (38px) */}
+          <div className="relative w-full h-full rounded-[38px] overflow-hidden border border-[#D8CFC2]/70 bg-[#FAF6F0]">
+            {renderScreenContent(false)}
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Fullscreen Expanded Phone Experience Modal with Smooth Growth Animation */}
+      <AnimatePresence>
+        {isFullscreen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-50 bg-[#1E1B19]/80 backdrop-blur-md flex items-center justify-center p-0 sm:p-6"
+            onClick={closeFullscreen}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 12 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full h-full max-w-2xl bg-[#FAF6F0] sm:rounded-3xl shadow-2xl border border-[#D8CFC2] flex flex-col overflow-hidden relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {renderScreenContent(true)}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };

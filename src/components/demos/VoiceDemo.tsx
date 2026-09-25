@@ -1,185 +1,234 @@
 import React, { useState } from 'react';
 import { useDayflowStore } from '../../store/dayflowStore';
-import { analyzeContent, DayflowAnalysisResult } from '../../services/dayflowAnalyzer';
+import { Mic, Volume2, Bell, CheckSquare, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { sounds } from '../../utils/audio';
-import {
-  Mic,
-  Sparkles,
-  BellRing,
-  CheckCircle,
-  Volume2,
-  Square,
-  Play,
-  Check
-} from 'lucide-react';
-import { ProductStateBadge } from '../DayflowLogo';
+import { resultStaggerContainer, resultStaggerItem } from '../../utils/motion';
 
 export const VoiceDemo: React.FC = () => {
-  const { addTask, addReminder } = useDayflowStore();
-  const [recordingState, setRecordingState] = useState<'idle' | 'recording' | 'transcribed' | 'analyzed'>('idle');
-  const [result, setResult] = useState<DayflowAnalysisResult | null>(null);
-  const [createdReminder, setCreatedReminder] = useState(false);
+  const { addTask, addReminder, t, language } = useDayflowStore();
 
-  const sampleTranscript = '“Remind me next Monday to submit my presentation.”';
+  const [recordingState, setRecordingState] = useState<'idle' | 'recording' | 'transcribed' | 'analyzed'>('idle');
+  const [createdReminder, setCreatedReminder] = useState<boolean>(false);
 
   const startVoiceSimulation = () => {
-    sounds.playClick();
+    sounds.playAnalyze();
     setRecordingState('recording');
-    setResult(null);
     setCreatedReminder(false);
 
-    // Simulate animated recording duration
     setTimeout(() => {
       setRecordingState('transcribed');
-      sounds.playAnalyze();
-
-      // Simulate analysis completion
-      setTimeout(async () => {
-        const data = await analyzeContent('voice', 300);
-        setResult(data);
+      setTimeout(() => {
         setRecordingState('analyzed');
         sounds.playSuccess();
       }, 700);
-    }, 1200);
+    }, 1100);
   };
 
   const handleCreateReminder = () => {
-    if (!result) return;
     sounds.playClick();
-    if (result.tasks.length > 0) {
-      addTask({
-        title: result.tasks[0].title,
-        dueDate: result.tasks[0].dueDate,
-        sourceType: 'voice',
-      });
-    }
-    if (result.reminders.length > 0) {
-      addReminder({
-        title: result.reminders[0].title,
-        timeLabel: result.reminders[0].timeLabel,
-        sourceType: 'voice',
-      });
-    }
+    const reminderTitle = t.demo.voiceTaskLabel;
+    const reminderTime = language === 'de' ? 'Nächsten Montag 09:00' : language === 'es' ? 'Próximo lunes 09:00' : 'Next Monday 09:00';
+
+    addReminder({
+      title: reminderTitle,
+      timeLabel: reminderTime,
+      sourceType: 'voice',
+    });
+    addTask({
+      title: reminderTitle,
+      dueDate: reminderTime,
+      sourceType: 'voice',
+    });
     setCreatedReminder(true);
   };
 
   return (
-    <div className="bg-[#FAF6F0] rounded-2xl border border-[#D8CFC2] p-6 lg:p-7 shadow-xs">
+    <div className="w-full bg-white rounded-3xl border border-[#D8CFC2] p-6 lg:p-8 shadow-sm text-left">
       <div className="flex items-center justify-between pb-4 border-b border-[#D8CFC2]/60">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#641C24]/10 text-[#641C24] flex items-center justify-center">
-            <Mic className="w-4 h-4" />
-          </div>
-          <div>
-            <h4 className="text-sm font-bold text-[#1E1B19]">Voice Note Simulation</h4>
-            <p className="text-xs text-[#6B635B]">
-              Real-time speech transcription mapped to structured task reminders
-            </p>
-          </div>
+          <Mic className="w-5 h-5 text-[#641C24]" />
+          <h3 className="font-bold text-[#1E1B19] text-base sm:text-lg">
+            {t.demo.tabVoice}
+          </h3>
         </div>
-        <ProductStateBadge state="NOW" />
       </div>
 
-      <div className="mt-6 flex flex-col items-center justify-center py-4 space-y-5">
-        {/* Large Interactive Microphone Centerpiece */}
-        <div className="relative flex items-center justify-center">
-          {recordingState === 'recording' && (
-            <>
-              <div className="absolute w-24 h-24 rounded-full bg-[#641C24]/20 animate-ping pointer-events-none" />
-              <div className="absolute w-28 h-28 rounded-full bg-[#641C24]/10 animate-pulse pointer-events-none" />
-            </>
-          )}
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left: Large Microphone & Waveform Interface */}
+        <div className="lg:col-span-6 space-y-4">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#6B635B]">
+            {t.demo.tabVoice}
+          </span>
 
-          <button
-            onClick={startVoiceSimulation}
-            disabled={recordingState === 'recording'}
-            className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-              recordingState === 'recording'
-                ? 'bg-[#641C24] text-white scale-105'
-                : 'bg-white hover:bg-[#641C24] text-[#641C24] hover:text-white border border-[#D8CFC2]'
-            }`}
-            aria-label="Simulate Voice Input"
-          >
-            {recordingState === 'recording' ? (
-              <Square className="w-7 h-7 fill-white animate-pulse" />
-            ) : (
-              <Mic className="w-8 h-8" />
-            )}
-          </button>
-        </div>
-
-        {/* Audio Waveform Animation Bars */}
-        <div className="flex items-center gap-1.5 h-8">
-          {[20, 45, 80, 55, 30, 90, 65, 35, 75, 50, 25].map((height, i) => (
-            <div
-              key={i}
-              className={`w-1.5 rounded-full transition-all duration-200 ${
+          <div className="p-8 rounded-3xl bg-[#FAF6F0] border border-[#D8CFC2] flex flex-col items-center justify-center text-center space-y-5">
+            {/* Interactive Mic Button */}
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.94 }}
+              onClick={startVoiceSimulation}
+              disabled={recordingState === 'recording'}
+              className={`w-20 h-20 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
                 recordingState === 'recording'
-                  ? 'bg-[#641C24] animate-bounce'
-                  : 'bg-[#D8CFC2] h-2'
+                  ? 'bg-[#641C24] text-white scale-105 shadow-lg'
+                  : 'bg-white hover:bg-[#FAF6F0] text-[#641C24] border-2 border-[#641C24]/30'
               }`}
-              style={{
-                height: recordingState === 'recording' ? `${height}%` : '8px',
-                animationDelay: `${i * 60}ms`,
-              }}
-            />
-          ))}
-        </div>
+            >
+              <Mic className="w-8 h-8" />
+            </motion.button>
 
-        <p className="text-xs text-[#6B635B] text-center max-w-sm">
-          {recordingState === 'idle' && 'Click microphone to play simulated voice capture'}
-          {recordingState === 'recording' && 'Listening to audio stream…'}
-          {recordingState === 'transcribed' && 'Transcribing audio signal…'}
-          {recordingState === 'analyzed' && 'Voice memo processed successfully'}
-        </p>
-
-        {/* Transcription Display */}
-        {(recordingState === 'transcribed' || recordingState === 'analyzed') && (
-          <div className="w-full max-w-md bg-white rounded-xl border border-[#D8CFC2] p-4 space-y-3 animate-in fade-in duration-300">
-            <div className="flex items-center justify-between border-b pb-1.5 border-[#D8CFC2]/60">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#641C24]">
-                Transcribed Audio
-              </span>
-              <span className="text-[10px] text-[#2E5C38] font-semibold">100% accurate</span>
+            {/* Simulated Animated Waveform */}
+            <div className="h-8 flex items-center gap-1.5 justify-center">
+              {[12, 24, 38, 18, 44, 26, 14, 30, 20, 10].map((h, i) => (
+                <div
+                  key={i}
+                  style={{ height: recordingState === 'recording' ? `${h}px` : '4px' }}
+                  className={`w-1 rounded-full transition-all duration-150 ${
+                    recordingState === 'recording' ? 'bg-[#641C24]' : 'bg-[#D8CFC2]'
+                  }`}
+                />
+              ))}
             </div>
 
-            <p className="text-sm font-medium text-[#1E1B19] italic">
-              {sampleTranscript}
-            </p>
-
-            {recordingState === 'analyzed' && result && (
-              <div className="pt-2 space-y-2 border-t border-[#D8CFC2]/50">
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2 rounded bg-[#FAF6F0] border border-[#D8CFC2]/60">
-                    <span className="text-[9px] uppercase font-bold text-[#641C24] block">
-                      Task Detected
-                    </span>
-                    <span className="font-semibold text-[#1E1B19]">Submit presentation</span>
-                  </div>
-                  <div className="p-2 rounded bg-[#FAF6F0] border border-[#D8CFC2]/60">
-                    <span className="text-[9px] uppercase font-bold text-[#641C24] block">
-                      Reminder
-                    </span>
-                    <span className="font-semibold text-[#1E1B19]">Next Monday 08:30</span>
-                  </div>
-                </div>
-
-                <button
-                  disabled={createdReminder}
-                  onClick={handleCreateReminder}
-                  className={`w-full py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
-                    createdReminder
-                      ? 'bg-[#2E5C38]/10 text-[#2E5C38] cursor-default'
-                      : 'bg-[#641C24] text-white hover:bg-[#7E242F] cursor-pointer'
-                  }`}
-                >
-                  <BellRing className="w-3.5 h-3.5" />
-                  <span>{createdReminder ? '✓ Reminder Created' : 'Create Reminder'}</span>
-                </button>
-              </div>
-            )}
+            <div className="space-y-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#1E1B19] block">
+                {recordingState === 'idle' && t.demo.voiceTapToSpeak}
+                {recordingState === 'recording' && t.demo.voiceRecording}
+                {recordingState === 'transcribed' && t.demo.voiceTranscribing}
+                {recordingState === 'analyzed' && t.demo.voiceProcessed}
+              </span>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Right: Transcription & Structured Result */}
+        <div className="lg:col-span-6 space-y-4">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#6B635B]">
+            {t.todayUnderstood.title}
+          </span>
+
+          <AnimatePresence mode="wait">
+            {recordingState === 'idle' && (
+              <motion.div
+                key="idle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-64 rounded-2xl border-2 border-dashed border-[#D8CFC2] flex flex-col items-center justify-center p-6 text-center text-[#6B635B] space-y-2"
+              >
+                <Volume2 className="w-8 h-8 text-[#D8CFC2]" />
+                <p className="text-xs font-medium">
+                  {t.demo.voiceEmpty}
+                </p>
+              </motion.div>
+            )}
+
+            {recordingState === 'recording' && (
+              <motion.div
+                key="recording"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-64 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] flex flex-col items-center justify-center p-6 text-center space-y-3"
+              >
+                <div className="w-10 h-10 rounded-full border-3 border-[#641C24]/20 border-t-[#641C24] animate-spin" />
+                <div className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                  {t.demo.voiceRecording}
+                </div>
+              </motion.div>
+            )}
+
+            {recordingState === 'transcribed' && (
+              <motion.div
+                key="transcribed"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-64 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] flex flex-col items-center justify-center p-6 text-center space-y-3"
+              >
+                <div className="w-10 h-10 rounded-full border-3 border-[#641C24]/20 border-t-[#641C24] animate-spin" />
+                <div className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                  {t.demo.voiceTranscribing}
+                </div>
+              </motion.div>
+            )}
+
+            {recordingState === 'analyzed' && (
+              <motion.div
+                key="result"
+                variants={resultStaggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="space-y-4"
+              >
+                <motion.div
+                  variants={resultStaggerItem}
+                  className="p-4 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] space-y-2 shadow-xs"
+                >
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#641C24] bg-[#641C24]/10 px-2 py-0.5 rounded">
+                    {t.demo.voiceProcessed}
+                  </span>
+                  <p className="text-sm font-medium text-[#1E1B19] italic pt-1">
+                    {t.demo.voiceTranscript}
+                  </p>
+                </motion.div>
+
+                {/* Detected Task */}
+                <motion.div
+                  variants={resultStaggerItem}
+                  className="p-4 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] space-y-1 shadow-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#2E5C38] bg-[#2E5C38]/10 px-2 py-0.5 rounded">
+                      {t.demo.taskDetected}
+                    </span>
+                    <span className="text-xs text-[#6B635B] font-bold">
+                      {t.demo.voiceReminderLabel}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <CheckSquare className="w-4 h-4 text-[#2E5C38]" />
+                    <span className="text-sm font-bold text-[#1E1B19]">
+                      {t.demo.voiceTaskLabel}
+                    </span>
+                  </div>
+                </motion.div>
+
+                {/* Action Button */}
+                <motion.div variants={resultStaggerItem}>
+                  <motion.button
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={handleCreateReminder}
+                    disabled={createdReminder}
+                    className={`w-full py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      createdReminder
+                        ? 'bg-[#2E5C38] text-white shadow-xs'
+                        : 'bg-[#641C24] hover:bg-[#7E242F] text-white shadow-xs'
+                    }`}
+                  >
+                    {createdReminder ? (
+                      <motion.span
+                        initial={{ scale: 0.7, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        className="flex items-center gap-1.5"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>{t.demo.addedSuccess}</span>
+                      </motion.span>
+                    ) : (
+                      <>
+                        <Bell className="w-3.5 h-3.5" />
+                        <span>{t.demo.createReminder}</span>
+                      </>
+                    )}
+                  </motion.button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

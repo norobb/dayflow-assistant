@@ -3,38 +3,41 @@ import {
   MessageSquare,
   Image as ImageIcon,
   FileText,
-  Mic,
   Calendar,
-  CheckSquare,
-  Bell,
-  Sparkles,
-  ArrowRight,
   Layers,
-  Smartphone,
-  ShieldCheck,
-  Volume2,
-  VolumeX,
+  Mic,
+  Bell,
+  ArrowRight,
   Menu,
   X,
-  Compass,
-  Zap,
-  Globe2
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useDayflowStore } from './store/dayflowStore';
-import { DayflowLogo, DayflowSymbol, ProductStateBadge } from './components/DayflowLogo';
+import { sounds } from './utils/audio';
+import { Language } from './utils/i18n';
+import { DayflowLogo, ProductStateBadge } from './components/DayflowLogo';
 import { AndroidSimulator } from './components/AndroidSimulator';
 import { TodayUnderstood } from './components/TodayUnderstood';
 import { DayflowDashboard } from './components/DayflowDashboard';
 import { OmniInputSystem } from './components/OmniInputSystem';
+import { ProductConceptSections } from './components/ProductConceptSections';
 import { MessageDemo } from './components/demos/MessageDemo';
 import { ScreenshotDemo } from './components/demos/ScreenshotDemo';
 import { PdfDemo } from './components/demos/PdfDemo';
 import { VoiceDemo } from './components/demos/VoiceDemo';
-import { ProductConceptSections } from './components/ProductConceptSections';
-import { sounds } from './utils/audio';
+import { ScrollReveal, tabContentVariants, buttonMotion } from './utils/motion';
 
 export default function App() {
-  const { soundMuted, toggleSound } = useDayflowStore();
+  const {
+    language,
+    setLanguage,
+    t,
+    soundMuted,
+    toggleSound,
+  } = useDayflowStore();
+
   const [activeDemoTab, setActiveDemoTab] = useState<'message' | 'screenshot' | 'pdf' | 'voice'>('message');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -44,59 +47,117 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5EFE6] text-[#1E1B19] flex flex-col font-sans selection:bg-[#641C24] selection:text-[#F5EFE6]">
-      {/* 1. Sticky Navigation Bar */}
-      <header className="sticky top-0 z-50 bg-[#F5EFE6]/90 backdrop-blur-md border-b border-[#D8CFC2]/70 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-[#F5EFE6] text-[#1E1B19] font-sans antialiased selection:bg-[#641C24] selection:text-[#F5EFE6]">
+      {/* 1. Sticky Navigation Bar with subtle entrance */}
+      <motion.nav
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+        className="sticky top-0 z-50 bg-[#F5EFE6]/90 backdrop-blur-md border-b border-[#D8CFC2]/70 transition-all"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           {/* Brand Logo & Wordmark */}
-          <a href="#" className="flex items-center gap-2 group">
-            <DayflowLogo size={30} />
-          </a>
+          <motion.a
+            href="#"
+            whileHover={{ opacity: 0.9 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center gap-2 cursor-pointer focus:outline-none"
+            onClick={() => sounds.playClick()}
+          >
+            <DayflowLogo size={32} />
+          </motion.a>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-[#1E1B19]">
-            <a href="#problem-section" className="hover:text-[#641C24] transition-colors">
-              Concept
+          <div className="hidden md:flex items-center gap-8 text-xs font-semibold text-[#1E1B19]/80">
+            <a
+              href="#problem-section"
+              className="hover:text-[#641C24] transition-colors"
+            >
+              {t.nav.concept}
             </a>
-            <a href="#demo-section" className="hover:text-[#641C24] transition-colors">
-              Interactive Demo
+            <a
+              href="#demo-section"
+              className="hover:text-[#641C24] transition-colors"
+            >
+              {t.nav.demo}
             </a>
-            <a href="#dashboard-section" className="hover:text-[#641C24] transition-colors">
-              Dashboard
+            <a
+              href="#dashboard-section"
+              className="hover:text-[#641C24] transition-colors"
+            >
+              {t.nav.dashboard}
             </a>
-            <a href="#architecture-section" className="hover:text-[#641C24] transition-colors">
-              Architecture
+            <a
+              href="#architecture-section"
+              className="hover:text-[#641C24] transition-colors"
+            >
+              {t.nav.architecture}
             </a>
-            <a href="#roadmap-section" className="hover:text-[#641C24] transition-colors">
-              Roadmap
+            <a
+              href="#roadmap-section"
+              className="hover:text-[#641C24] transition-colors"
+            >
+              {t.nav.roadmap}
             </a>
-          </nav>
+          </div>
 
-          {/* Action Controls & Sound Toggle */}
-          <div className="hidden md:flex items-center gap-3">
-            <button
+          {/* Desktop Right Controls (Language Switcher, Sound Toggle, CTA) */}
+          <div className="hidden md:flex items-center gap-4">
+            {/* Subtle Language Switcher (EN / DE / ES) */}
+            <div className="flex items-center bg-white rounded-xl border border-[#D8CFC2] p-0.5 text-xs font-bold text-[#1E1B19]">
+              {(['en', 'de', 'es'] as const).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setLanguage(lang)}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    language === lang
+                      ? 'bg-[#641C24] text-white shadow-xs'
+                      : 'hover:text-[#641C24]'
+                  }`}
+                >
+                  {lang.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            {/* Subtle Sound Effects Toggle */}
+            <motion.button
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.96 }}
               onClick={toggleSound}
-              className="p-2 rounded-xl border border-[#D8CFC2] bg-white hover:bg-[#FAF6F0] text-[#1E1B19] transition-all cursor-pointer"
-              title={soundMuted ? 'Sound muted (Click to enable)' : 'Sound enabled (Click to mute)'}
-              aria-label="Toggle UI Sound Effects"
+              className="p-2 rounded-xl border border-[#D8CFC2] bg-white hover:bg-[#FAF6F0] text-[#1E1B19] transition-all cursor-pointer shadow-xs"
+              title={soundMuted ? 'Unmute sounds' : 'Mute sounds'}
+              aria-label="Toggle Sound Effects"
             >
               {soundMuted ? (
                 <VolumeX className="w-4 h-4 text-[#6B635B]" />
               ) : (
                 <Volume2 className="w-4 h-4 text-[#641C24]" />
               )}
-            </button>
+            </motion.button>
 
-            <a
+            <motion.a
               href="#demo-section"
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
               className="px-4 py-2 rounded-xl bg-[#641C24] text-[#F5EFE6] hover:bg-[#7E242F] text-xs font-bold transition-all shadow-xs cursor-pointer"
             >
-              Try Demo
-            </a>
+              {t.nav.tryDemo}
+            </motion.a>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu & Language Button */}
           <div className="flex md:hidden items-center gap-2">
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as Language)}
+              className="p-1 rounded-lg border border-[#D8CFC2] bg-white text-xs font-bold text-[#1E1B19]"
+            >
+              <option value="en">EN</option>
+              <option value="de">DE</option>
+              <option value="es">ES</option>
+            </select>
+
             <button
               onClick={toggleSound}
               className="p-1.5 rounded-lg border border-[#D8CFC2] bg-white"
@@ -104,6 +165,7 @@ export default function App() {
             >
               {soundMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#641C24]" />}
             </button>
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-1.5 rounded-lg border border-[#D8CFC2] bg-white text-[#1E1B19]"
@@ -116,438 +178,520 @@ export default function App() {
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-[#FAF6F0] border-b border-[#D8CFC2] px-4 py-4 space-y-3 animate-in fade-in">
+          <div className="md:hidden bg-[#FAF6F0] border-b border-[#D8CFC2] px-4 py-4 space-y-3">
             <a
               href="#problem-section"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-xs font-semibold py-1"
             >
-              Concept
+              {t.nav.concept}
             </a>
             <a
               href="#demo-section"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-xs font-semibold py-1"
             >
-              Interactive Demo
+              {t.nav.demo}
             </a>
             <a
               href="#dashboard-section"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-xs font-semibold py-1"
             >
-              Dashboard
+              {t.nav.dashboard}
+            </a>
+            <a
+              href="#architecture-section"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-xs font-semibold py-1"
+            >
+              {t.nav.architecture}
             </a>
             <a
               href="#roadmap-section"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-xs font-semibold py-1"
             >
-              Roadmap
-            </a>
-            <a
-              href="#demo-section"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-center w-full py-2 bg-[#641C24] text-white rounded-xl text-xs font-bold mt-2"
-            >
-              Try the Demo
+              {t.nav.roadmap}
             </a>
           </div>
         )}
-      </header>
+      </motion.nav>
 
-      {/* 2. Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24">
+      {/* 2. Hero Section - Choreographed Page Load Sequence */}
+      <section className="pt-12 sm:pt-16 pb-20 lg:pt-24 lg:pb-32 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Hero Content */}
             <div className="lg:col-span-7 space-y-6 text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#D8CFC2] shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-[#641C24] animate-pulse" />
+              {/* ~150 ms Badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#D8CFC2] shadow-xs"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#641C24]" />
                 <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-                  Intelligent Personal Flow
+                  {t.hero.badge}
                 </span>
-                <span className="text-[10px] text-[#6B635B] font-medium">• Prototype v1.0</span>
-              </div>
+              </motion.div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1E1B19] leading-[1.1]">
-                Your day. Your phone.{' '}
-                <span className="text-[#641C24] block sm:inline">One intelligent flow.</span>
-              </h1>
+              {/* ~220 ms Main Headline with subtle blur reduction */}
+              <motion.h1
+                initial={{ opacity: 0, y: 18, filter: 'blur(3px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 0.65, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1E1B19] leading-[1.1]"
+              >
+                {t.hero.titlePart1}{' '}
+                <span className="text-[#641C24] block sm:inline">{t.hero.titlePart2}</span>
+              </motion.h1>
 
-              <p className="text-base sm:text-lg text-[#6B635B] max-w-2xl leading-relaxed">
-                Dayflow understands information scattered across your messages, screenshots, files and voice notes — and turns it into organized actions.
-              </p>
+              {/* ~350 ms Supporting Text */}
+              <motion.p
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="text-base sm:text-lg text-[#6B635B] max-w-2xl leading-relaxed"
+              >
+                {t.hero.subtitle}
+              </motion.p>
 
-              {/* CTAs */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <a
+              {/* ~450 ms - 550 ms CTAs */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-wrap items-center gap-3 pt-2"
+              >
+                <motion.a
                   href="#demo-section"
                   onClick={() => sounds.playClick()}
-                  className="px-6 py-3.5 rounded-2xl bg-[#641C24] text-[#F5EFE6] hover:bg-[#7E242F] text-sm font-bold transition-all shadow-sm hover:shadow flex items-center gap-2"
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-6 py-3.5 rounded-2xl bg-[#641C24] text-[#F5EFE6] hover:bg-[#7E242F] text-sm font-bold transition-all shadow-sm hover:shadow flex items-center gap-2 cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-[#E6C2C6]" />
-                  <span>Try the Demo</span>
-                </a>
+                  <span>{t.hero.tryDemoBtn}</span>
+                </motion.a>
 
-                <a
+                <motion.a
                   href="#dashboard-section"
                   onClick={() => sounds.playClick()}
-                  className="px-6 py-3.5 rounded-2xl bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2] text-sm font-semibold transition-all shadow-xs flex items-center gap-2"
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-6 py-3.5 rounded-2xl bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2] text-sm font-semibold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
                 >
-                  <span>Explore Dayflow</span>
+                  <span>{t.hero.exploreBtn}</span>
                   <ArrowRight className="w-4 h-4 text-[#6B635B]" />
-                </a>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="pt-6 border-t border-[#D8CFC2]/70 flex flex-wrap items-center gap-6 text-xs text-[#6B635B]">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[#2E5C38] font-bold">✓</span>
-                  <span>100% Zero-Key evaluation</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[#2E5C38] font-bold">✓</span>
-                  <span>No login required</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[#2E5C38] font-bold">✓</span>
-                  <span>Interactive Android simulator</span>
-                </div>
-              </div>
+                </motion.a>
+              </motion.div>
             </div>
 
-            {/* Right Hero: Live Interactive Android Phone Simulator */}
-            <div className="lg:col-span-5 flex justify-center">
+            {/* Right Hero: Android Phone - ~600 ms Elegant visual entrance */}
+            <motion.div
+              initial={{ opacity: 0, y: 22, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.58, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-5 flex justify-center"
+            >
               <div className="relative">
-                {/* Subtle decorative glow ring */}
                 <div className="absolute -inset-4 bg-[#641C24]/5 rounded-[60px] blur-xl -z-10" />
                 <AndroidSimulator />
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* 3. "Today, understood." (Core Value Highlight Section) */}
+      {/* 3. Today, understood. */}
       <TodayUnderstood />
 
-      {/* 4. The Problem: "Your life is everywhere." -> "Dayflow connects the dots." */}
-      <section id="problem-section" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-            The Friction of Everyday Information
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
-            Your life is everywhere.
-          </h2>
-          <p className="text-base text-[#6B635B] leading-relaxed">
-            Every day, important details arrive scattered across chat bubbles, receipts, photos, school letters, voice memos, and forgotten screenshots. You constantly copy and paste information between five different apps just to get through your week.
-          </p>
-        </div>
-
-        {/* Scattered Chaos Visual Transition Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-12">
-          {[
-            { label: 'Messages', icon: MessageSquare, desc: 'Train pickup times' },
-            { label: 'Screenshots', icon: ImageIcon, desc: 'Doctor appointments' },
-            { label: 'PDFs', icon: FileText, desc: 'School trip agendas' },
-            { label: 'Voice Notes', icon: Mic, desc: 'Quick reminders' },
-            { label: 'Calendar', icon: Calendar, desc: 'Fragmented slots' },
-            { label: 'Tasks', icon: CheckSquare, desc: 'Buried to-dos' },
-            { label: 'Reminders', icon: Bell, desc: 'Lost notifications' },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl p-4 border border-[#D8CFC2] text-center shadow-xs flex flex-col items-center justify-center space-y-2 hover:border-[#641C24]/30 transition-all"
-            >
-              <div className="w-8 h-8 rounded-xl bg-[#FAF6F0] text-[#641C24] flex items-center justify-center">
-                <item.icon className="w-4 h-4" />
-              </div>
-              <span className="text-xs font-bold text-[#1E1B19]">{item.label}</span>
-              <span className="text-[10px] text-[#6B635B]">{item.desc}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Bridge to Dayflow */}
-        <div className="bg-[#FAF6F0] rounded-3xl border border-[#D8CFC2] p-8 lg:p-10 text-center max-w-4xl mx-auto shadow-xs">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-            The Solution
-          </span>
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1E1B19] tracking-tight mt-1">
-            Dayflow connects the dots.
-          </h3>
-          <p className="text-sm text-[#6B635B] mt-2 max-w-xl mx-auto leading-relaxed">
-            Instead of manually transcribing dates and copying text from screenshots, Dayflow reads the intent, extracts the commitments, and places them neatly into your agenda with a single tap.
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs font-semibold">
-            <span className="px-3 py-1.5 rounded-full bg-white border border-[#D8CFC2] text-[#1E1B19]">
-              Scattered Input ➔
+      {/* 4. The Problem */}
+      <ScrollReveal>
+        <section id="problem-section" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+              {t.problem.badge}
             </span>
-            <span className="px-3 py-1.5 rounded-full bg-[#641C24] text-white">
-              Intelligent Extraction ➔
-            </span>
-            <span className="px-3 py-1.5 rounded-full bg-[#2E5C38] text-white">
-              Organized Action
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Interactive Demo Section */}
-      <section id="demo-section" className="py-16 lg:py-24 bg-[#FAF6F0] border-y border-[#D8CFC2]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
-            <div className="inline-flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#2E5C38] animate-pulse" />
-              <span className="text-xs font-bold uppercase tracking-wider text-[#2E5C38]">
-                Interactive Studio
-              </span>
-              <ProductStateBadge state="NOW" />
-            </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
-              See Dayflow in action.
+              {t.problem.title}
             </h2>
-            <p className="text-base text-[#6B635B]">
-              Give Dayflow information. It figures out what to do with it.
+            <p className="text-base text-[#6B635B] leading-relaxed">
+              {t.problem.desc}
             </p>
           </div>
 
-          {/* Omni Scenario Bar */}
-          <div className="mb-10">
-            <OmniInputSystem onSelectScenario={(sc) => setActiveDemoTab(sc)} />
-          </div>
-
-          {/* Demo Tabs */}
-          <div className="flex items-center justify-center gap-2 mb-8 flex-wrap">
+          {/* Scattered Chaos Visual Transition Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-12">
             {[
-              { id: 'message', label: '1. Chat Message', icon: MessageSquare },
-              { id: 'screenshot', label: '2. Screenshot', icon: ImageIcon },
-              { id: 'pdf', label: '3. PDF Document', icon: FileText },
-              { id: 'voice', label: '4. Voice Note', icon: Mic },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabSelect(tab.id as typeof activeDemoTab)}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  activeDemoTab === tab.id
-                    ? 'bg-[#641C24] text-white shadow-sm'
-                    : 'bg-white border border-[#D8CFC2] text-[#1E1B19] hover:bg-[#F5EFE6]'
-                }`}
+              { label: t.problem.messages, icon: MessageSquare },
+              { label: t.problem.screenshots, icon: ImageIcon },
+              { label: t.problem.pdfs, icon: FileText },
+              { label: t.problem.calendar, icon: Calendar },
+              { label: t.problem.notes, icon: Layers },
+              { label: t.problem.voiceNotes, icon: Mic },
+              { label: t.problem.reminders, icon: Bell },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ y: -2, transition: { duration: 0.2 } }}
+                className="bg-white rounded-2xl p-4 border border-[#D8CFC2] flex flex-col items-center justify-center text-center space-y-2 shadow-xs hover:border-[#641C24]/30 transition-all cursor-default"
               >
-                <tab.icon className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
-              </button>
+                <item.icon className="w-5 h-5 text-[#641C24]" />
+                <span className="text-xs font-bold text-[#1E1B19]">{item.label}</span>
+              </motion.div>
             ))}
           </div>
 
-          {/* Active Demo Card View */}
-          <div className="max-w-3xl mx-auto">
-            {activeDemoTab === 'message' && <MessageDemo />}
-            {activeDemoTab === 'screenshot' && <ScreenshotDemo />}
-            {activeDemoTab === 'pdf' && <PdfDemo />}
-            {activeDemoTab === 'voice' && <VoiceDemo />}
+          {/* Solution Transition Banner */}
+          <div className="bg-[#FAF6F0] rounded-3xl p-8 lg:p-12 border border-[#D8CFC2] max-w-4xl mx-auto text-center space-y-4 shadow-sm">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#2E5C38] bg-[#2E5C38]/10 px-3 py-1 rounded-full">
+              {t.problem.contrastBadge}
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1E1B19]">
+              {t.problem.contrastTitle}
+            </h3>
+            <p className="text-sm sm:text-base text-[#6B635B] max-w-2xl mx-auto leading-relaxed">
+              {t.problem.contrastDesc}
+            </p>
           </div>
+        </section>
+      </ScrollReveal>
 
-          <div className="text-center mt-6 text-xs text-[#6B635B]">
-            All actions executed in the demo immediately sync live into the Dayflow Dashboard and Android Phone Simulator.
+      {/* 5. Interactive Demo Studio */}
+      <ScrollReveal>
+        <section id="demo-section" className="py-16 bg-[#FAF6F0] border-t border-[#D8CFC2]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                {t.demo.badge}
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
+                {t.demo.title}
+              </h2>
+              <p className="text-base text-[#6B635B]">
+                {t.demo.subtitle}
+              </p>
+            </div>
+
+            {/* Interactive Demo Tab Navigation with micro-interaction feedback */}
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-8 flex-wrap">
+              <motion.button
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handleTabSelect('message')}
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                  activeDemoTab === 'message'
+                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
+                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
+                }`}
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>{t.demo.tabMessage}</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handleTabSelect('screenshot')}
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                  activeDemoTab === 'screenshot'
+                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
+                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
+                }`}
+              >
+                <ImageIcon className="w-4 h-4" />
+                <span>{t.demo.tabScreenshot}</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handleTabSelect('pdf')}
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                  activeDemoTab === 'pdf'
+                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
+                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
+                }`}
+              >
+                <FileText className="w-4 h-4" />
+                <span>{t.demo.tabPdf}</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handleTabSelect('voice')}
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                  activeDemoTab === 'voice'
+                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
+                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
+                }`}
+              >
+                <Mic className="w-4 h-4" />
+                <span>{t.demo.tabVoice}</span>
+              </motion.button>
+            </div>
+
+            {/* Active Demo Workspace - Smooth Crossfade and Staggered Reveal */}
+            <div className="max-w-4xl mx-auto min-h-[380px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeDemoTab}
+                  variants={tabContentVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  {activeDemoTab === 'message' && <MessageDemo />}
+                  {activeDemoTab === 'screenshot' && <ScreenshotDemo />}
+                  {activeDemoTab === 'pdf' && <PdfDemo />}
+                  {activeDemoTab === 'voice' && <VoiceDemo />}
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
-      {/* 6. Dayflow Dashboard Section */}
-      <section id="dashboard-section" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-            Unified Operating Surface
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
-            The Dayflow Dashboard.
-          </h2>
-          <p className="text-base text-[#6B635B]">
-            Real-time reflection of your schedule, active tasks, reminders, and proactive AI insights.
-          </p>
-        </div>
+      {/* 6. The Dayflow Dashboard */}
+      <ScrollReveal>
+        <section id="dashboard-section" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <DayflowDashboard />
+        </section>
+      </ScrollReveal>
 
-        <DayflowDashboard />
-      </section>
+      {/* 7. Input System */}
+      <ScrollReveal>
+        <section className="py-14 bg-[#FAF6F0] border-t border-[#D8CFC2]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <OmniInputSystem onSelectScenario={(sc) => setActiveDemoTab(sc)} />
+          </div>
+        </section>
+      </ScrollReveal>
 
-      {/* 7. Product Architecture: The Three Layers */}
-      <section id="architecture-section" className="py-20 bg-[#FAF6F0] border-y border-[#D8CFC2]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 8. Three-Layer Architecture & Features */}
+      <ScrollReveal>
+        <section id="architecture-section" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
             <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-              Three-Layer System
+              {t.architecture.badge}
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
-              How Dayflow is built.
+              {t.architecture.title}
             </h2>
             <p className="text-base text-[#6B635B]">
-              From multimodal perception to autonomous confirmation across devices.
+              {t.architecture.subtitle}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Layer 1: UNDERSTAND */}
-            <div className="bg-white rounded-3xl p-7 border border-[#D8CFC2] shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="w-8 h-8 rounded-xl bg-[#641C24]/10 text-[#641C24] font-mono font-bold flex items-center justify-center text-sm">
-                    01
-                  </span>
-                  <ProductStateBadge state="NOW" />
-                </div>
-                <h3 className="text-xl font-extrabold text-[#1E1B19]">1. UNDERSTAND</h3>
-                <p className="text-xs text-[#6B635B] mt-2 mb-4">
-                  Ingests raw, unstructured human context from every format without manual input.
-                </p>
-                <div className="space-y-1.5 text-xs text-[#1E1B19] font-medium border-t pt-3 border-[#D8CFC2]/50">
-                  <div>• Chat Messages & SMS</div>
-                  <div>• Appointment Screenshots</div>
-                  <div>• Multi-page PDFs & Docs</div>
-                  <div>• Voice Notes & Dictation</div>
-                  <div>• Camera Photos & Receipts</div>
-                  <div>• System Notifications</div>
-                </div>
-              </div>
-              <div className="mt-6 pt-3 border-t border-[#D8CFC2]/60 text-[11px] text-[#641C24] font-bold">
-                Local Engine active • Gemini-ready
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* UNDERSTAND */}
+            <motion.div
+              whileHover={{ y: -2, transition: { duration: 0.2 } }}
+              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
+            >
+              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
+                Layer 1
+              </span>
+              <h3 className="text-xl font-bold text-[#1E1B19]">
+                {t.architecture.understandTitle}
+              </h3>
+              <p className="text-xs text-[#6B635B] leading-relaxed">
+                {t.architecture.understandDesc}
+              </p>
+            </motion.div>
+
+            {/* ORGANIZE */}
+            <motion.div
+              whileHover={{ y: -2, transition: { duration: 0.2 } }}
+              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
+            >
+              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
+                Layer 2
+              </span>
+              <h3 className="text-xl font-bold text-[#1E1B19]">
+                {t.architecture.organizeTitle}
+              </h3>
+              <p className="text-xs text-[#6B635B] leading-relaxed">
+                {t.architecture.organizeDesc}
+              </p>
+            </motion.div>
+
+            {/* ACT */}
+            <motion.div
+              whileHover={{ y: -2, transition: { duration: 0.2 } }}
+              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
+            >
+              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
+                Layer 3
+              </span>
+              <h3 className="text-xl font-bold text-[#1E1B19]">
+                {t.architecture.actTitle}
+              </h3>
+              <p className="text-xs text-[#6B635B] leading-relaxed">
+                {t.architecture.actDesc}
+              </p>
+            </motion.div>
+
+            {/* CONTEXT */}
+            <motion.div
+              whileHover={{ y: -2, transition: { duration: 0.2 } }}
+              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
+            >
+              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
+                Layer 4
+              </span>
+              <h3 className="text-xl font-bold text-[#1E1B19]">
+                {t.architecture.contextTitle}
+              </h3>
+              <p className="text-xs text-[#6B635B] leading-relaxed">
+                {t.architecture.contextDesc}
+              </p>
+            </motion.div>
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* 9-11. Android Experience, Screen Intelligence & Smart Actions */}
+      <ScrollReveal>
+        <ProductConceptSections />
+      </ScrollReveal>
+
+      {/* 12. Transparent Product Roadmap */}
+      <ScrollReveal>
+        <section id="roadmap-section" className="py-20 bg-[#FAF6F0] border-t border-[#D8CFC2]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                {t.roadmap.badge}
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
+                {t.roadmap.title}
+              </h2>
+              <p className="text-base text-[#6B635B]">
+                {t.roadmap.subtitle}
+              </p>
             </div>
 
-            {/* Layer 2: ORGANIZE */}
-            <div className="bg-white rounded-3xl p-7 border border-[#D8CFC2] shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="w-8 h-8 rounded-xl bg-[#641C24]/10 text-[#641C24] font-mono font-bold flex items-center justify-center text-sm">
-                    02
-                  </span>
-                  <ProductStateBadge state="NOW" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {/* NOW */}
+              <div className="bg-white rounded-3xl p-7 border-2 border-[#2E5C38]/40 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-[#1E1B19]">
+                    {t.roadmap.nowTitle}
+                  </h3>
                 </div>
-                <h3 className="text-xl font-extrabold text-[#1E1B19]">2. ORGANIZE</h3>
-                <p className="text-xs text-[#6B635B] mt-2 mb-4">
-                  Extracts dates, requirements, dependencies, and resolves conflicts on your behalf.
-                </p>
-                <div className="space-y-1.5 text-xs text-[#1E1B19] font-medium border-t pt-3 border-[#D8CFC2]/50">
-                  <div>• Structured Calendar Events</div>
-                  <div>• Actionable Task Checklists</div>
-                  <div>• Context-aware Reminders</div>
-                  <div>• Proactive Insight Alerts</div>
-                  <div>• Personal Routine Mapping</div>
-                </div>
+                <ul className="space-y-2 text-xs text-[#6B635B]">
+                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
+                    <span className="text-[#2E5C38] font-bold">✓</span>
+                    <span>{t.roadmap.itemMessage}</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
+                    <span className="text-[#2E5C38] font-bold">✓</span>
+                    <span>{t.roadmap.itemScreenshot}</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
+                    <span className="text-[#2E5C38] font-bold">✓</span>
+                    <span>{t.roadmap.itemPdf}</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
+                    <span className="text-[#2E5C38] font-bold">✓</span>
+                    <span>{t.roadmap.itemVoice}</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
+                    <span className="text-[#2E5C38] font-bold">✓</span>
+                    <span>{t.roadmap.itemDashboard}</span>
+                  </li>
+                </ul>
               </div>
-              <div className="mt-6 pt-3 border-t border-[#D8CFC2]/60 text-[11px] text-[#2E5C38] font-bold">
-                Fully interactive in Web Prototype
-              </div>
-            </div>
 
-            {/* Layer 3: ACT */}
-            <div className="bg-white rounded-3xl p-7 border border-[#D8CFC2] shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="w-8 h-8 rounded-xl bg-[#641C24]/10 text-[#641C24] font-mono font-bold flex items-center justify-center text-sm">
-                    03
-                  </span>
+              {/* COMING SOON */}
+              <div className="bg-white rounded-3xl p-7 border border-[#D8CFC2] shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-[#1E1B19]">
+                    {t.roadmap.comingSoonTitle}
+                  </h3>
                   <ProductStateBadge state="COMING SOON" />
                 </div>
-                <h3 className="text-xl font-extrabold text-[#1E1B19]">3. ACT</h3>
-                <p className="text-xs text-[#6B635B] mt-2 mb-4">
-                  Executes actions across your device ecosystem with affirmative user verification.
-                </p>
-                <div className="space-y-1.5 text-xs text-[#1E1B19] font-medium border-t pt-3 border-[#D8CFC2]/50">
-                  <div>• Native Android System Deep Links</div>
-                  <div>• Google Calendar Two-Way Sync</div>
-                  <div>• Screen UI Understanding</div>
-                  <div>• Safe Messaging Previews</div>
-                  <div>• Cross-app automation triggers</div>
-                </div>
+                <ul className="space-y-2 text-xs text-[#6B635B]">
+                  <li className="flex items-center gap-2">
+                    <span className="text-[#8C5E28]">○</span>
+                    <span>{t.roadmap.itemAndroid}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-[#8C5E28]">○</span>
+                    <span>{t.roadmap.itemCalSync}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-[#8C5E28]">○</span>
+                    <span>{t.roadmap.itemScreenIntel}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-[#8C5E28]">○</span>
+                    <span>{t.roadmap.itemSmartActions}</span>
+                  </li>
+                </ul>
               </div>
-              <div className="mt-6 pt-3 border-t border-[#D8CFC2]/60 text-[11px] text-[#641C24] font-bold">
-                Targeted for upcoming Android APK
+
+              {/* LATER */}
+              <div className="bg-white rounded-3xl p-7 border border-[#D8CFC2] shadow-xs space-y-4 opacity-80">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-[#1E1B19]">
+                    {t.roadmap.laterTitle}
+                  </h3>
+                  <ProductStateBadge state="LATER" />
+                </div>
+                <ul className="space-y-2 text-xs text-[#6B635B]">
+                  <li className="flex items-center gap-2">
+                    <span className="text-[#6B635B]">○</span>
+                    <span>{t.roadmap.itemDesktop}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-[#6B635B]">○</span>
+                    <span>{t.roadmap.itemMultiProvider}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-[#6B635B]">○</span>
+                    <span>{t.roadmap.itemAutomation}</span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
-      {/* 8. Advanced Concept Sections (Android, Screen Intelligence, Smart Actions, Privacy, Roadmap) */}
-      <ProductConceptSections />
-
-      {/* 9. Final CTA Section */}
-      <section className="py-20 lg:py-28 bg-[#641C24] text-[#F5EFE6] text-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-[#E6C2C6]" />
-            <span>Ready for evaluation</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-            Your day is already full.<br />
-            Let Dayflow handle the small things.
+      {/* 13. Final CTA & Footer */}
+      <footer className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-[#D8CFC2]/70 text-center space-y-8">
+        <div className="max-w-xl mx-auto space-y-4">
+          <h2 className="text-3xl font-extrabold text-[#1E1B19]">
+            {t.footer.readyTitle}
           </h2>
-
-          <p className="text-base sm:text-lg text-white/80 max-w-xl mx-auto leading-relaxed">
-            Experience the calm of having your messages, appointments, and tasks automatically resolved into one intelligent flow.
+          <p className="text-base text-[#6B635B]">
+            {t.footer.readySubtitle}
           </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <a
+          <div className="pt-2">
+            <motion.a
               href="#demo-section"
               onClick={() => sounds.playClick()}
-              className="px-8 py-3.5 rounded-2xl bg-white text-[#641C24] hover:bg-[#FAF6F0] font-bold text-sm transition-all shadow-md"
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#641C24] text-[#F5EFE6] hover:bg-[#7E242F] text-sm font-bold shadow-sm transition-all cursor-pointer"
             >
-              Try Dayflow Demo
-            </a>
-            <a
-              href="#roadmap-section"
-              className="px-8 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm transition-all border border-white/20"
-            >
-              Coming to Android
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* 10. Commercial Grade Footer */}
-      <footer className="bg-[#1E1B19] text-[#FAF6F0] py-14 px-4 sm:px-6 lg:px-8 border-t border-[#D8CFC2]/30">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
-          <div className="space-y-3 md:col-span-2">
-            <DayflowLogo size={28} inverted withTagline />
-            <p className="text-xs text-white/60 max-w-sm leading-relaxed mt-2">
-              An intelligent personal organization layer for Android and modern web platforms. 
-              Designed to turn scattered digital noise into structured daily focus.
-            </p>
-          </div>
-
-          <div className="space-y-2 text-xs">
-            <div className="font-bold uppercase tracking-wider text-white">Product Prototype</div>
-            <ul className="space-y-1 text-white/60">
-              <li><a href="#demo-section" className="hover:text-white">Message Extraction</a></li>
-              <li><a href="#demo-section" className="hover:text-white">Screenshot OCR</a></li>
-              <li><a href="#demo-section" className="hover:text-white">PDF Travel Itinerary</a></li>
-              <li><a href="#demo-section" className="hover:text-white">Voice Transcription</a></li>
-            </ul>
-          </div>
-
-          <div className="space-y-2 text-xs">
-            <div className="font-bold uppercase tracking-wider text-white">Trust & Architecture</div>
-            <ul className="space-y-1 text-white/60">
-              <li>Helpful by default</li>
-              <li>Careful by design</li>
-              <li>Zero client API keys</li>
-              <li>Human-in-the-loop authorization</li>
-            </ul>
+              <span>{t.nav.tryDemo}</span>
+            </motion.a>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-white/50 gap-4">
-          <div>© 2026 Dayflow Technologies. All rights reserved.</div>
-          <div className="flex items-center gap-4">
-            <span>English (US)</span>
-            <span>•</span>
-            <span>Deutsch (DE)</span>
+        <div className="pt-12 border-t border-[#D8CFC2]/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6B635B]">
+          <div className="flex items-center gap-2">
+            <DayflowLogo size={24} />
+          </div>
+
+          <div>
+            © {new Date().getFullYear()} Dayflow. {t.footer.rights}
           </div>
         </div>
       </footer>

@@ -1,6 +1,7 @@
 /**
- * Subtle Web Audio API Synthesizer for tactile micro-interactions
+ * Subtle Web Audio API Synthesizer and Tactile Micro-Interactions
  * 100% client-side, zero external assets, silent by default if muted or unsupported.
+ * Includes graceful optional haptic feedback via navigator.vibrate.
  */
 
 class SoundSystem {
@@ -30,8 +31,20 @@ class SoundSystem {
     return this.muted;
   }
 
-  /** Soft tactile click */
+  /** Subtle haptic tap (graceful fallback if unsupported) */
+  public triggerHaptic(durationMs: number = 8) {
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+      try {
+        navigator.vibrate(durationMs);
+      } catch {
+        // Ignored if user blocked or unsupported
+      }
+    }
+  }
+
+  /** Soft tactile click with haptic tap */
   public playClick() {
+    this.triggerHaptic(6);
     if (this.muted) return;
     try {
       const ctx = this.getContext();
@@ -58,6 +71,7 @@ class SoundSystem {
 
   /** Analysis start / sweep chime */
   public playAnalyze() {
+    this.triggerHaptic(10);
     if (this.muted) return;
     try {
       const ctx = this.getContext();
@@ -84,6 +98,7 @@ class SoundSystem {
 
   /** Subtle positive resolution / confirmation tone */
   public playSuccess() {
+    this.triggerHaptic(15);
     if (this.muted) return;
     try {
       const ctx = this.getContext();
@@ -115,6 +130,7 @@ class SoundSystem {
 
   /** Toggle / checkmark tap */
   public playToggle() {
+    this.triggerHaptic(8);
     if (this.muted) return;
     try {
       const ctx = this.getContext();
