@@ -1,5 +1,7 @@
 # Dayflow
 
+![Dayflow GitHub Banner](website/public/assets/dayflow-banner-03-github.jpg)
+
 **Your day. Your phone. One intelligent flow.**
 
 Dayflow is an intelligent daily flow assistant that solves personal information fragmentation — the problem of crucial schedule details scattered across chat messages, screenshots, PDFs, and voice notes. It automatically ingests and understands these multi-modal inputs and converts them into structured calendar events, actionable tasks, time-anchored reminders, and proactive daily context insights, all surfaced through a synchronized web dashboard and Android phone simulator.
