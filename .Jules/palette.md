@@ -1,0 +1,3 @@
+## 2025-05-18 - Interactive Tab Controls & Language Switcher Accessibility
+**Learning:** In rich single-page applications with custom demo tab panels and language switchers, button elements require explicit ARIA roles (`role="tablist"`, `role="tab"`, `aria-selected`, `aria-pressed`) and visible keyboard focus indicators (`focus-visible:ring-2`) to ensure screen reader users can discover tab relationships and keyboard-only users can navigate controls seamlessly.
+**Action:** Always add `role="tablist"` and `role="tab"` with `aria-selected` to tab navigation groups, and include `focus-visible:ring-2` focus rings on custom styled buttons.
