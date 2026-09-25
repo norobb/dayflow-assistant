@@ -405,7 +405,7 @@ export const AndroidSimulator: React.FC = () => {
     <>
       {/* 1. Normal Embedded Phone Preview */}
       <div
-        className="relative shrink-0 select-none shadow-2xl transition-all"
+        className="relative shrink-0 select-none rounded-[50px] shadow-2xl transition-all"
         style={{
           width: '340px',
           height: '680px',
