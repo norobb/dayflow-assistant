@@ -209,4 +209,4 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full contribution guide includi
 
 ## License
 
-© Dayflow. All rights reserved.
+MIT License
