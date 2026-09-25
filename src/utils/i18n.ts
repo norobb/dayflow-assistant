@@ -211,6 +211,7 @@ export interface Translations {
     readyTitle: string;
     readySubtitle: string;
     rights: string;
+    github: string;
   };
 }
 
@@ -434,6 +435,7 @@ export const translations: Record<Language, Translations> = {
       readyTitle: 'Your day is already full.',
       readySubtitle: 'Let Dayflow handle the small things.',
       rights: 'All rights reserved.',
+      github: 'View on GitHub',
     },
   },
   de: {
@@ -655,6 +657,7 @@ export const translations: Record<Language, Translations> = {
       readyTitle: 'Dein Tag ist bereits voll genug.',
       readySubtitle: 'Lass Dayflow die kleinen Dinge organisieren.',
       rights: 'Alle Rechte vorbehalten.',
+      github: 'Auf GitHub ansehen',
     },
   },
   es: {
@@ -876,6 +879,7 @@ export const translations: Record<Language, Translations> = {
       readyTitle: 'Tu día ya está bastante lleno.',
       readySubtitle: 'Deja que Dayflow se encargue de los pequeños detalles.',
       rights: 'Todos los derechos reservados.',
+      github: 'Ver en GitHub',
     },
   },
 };

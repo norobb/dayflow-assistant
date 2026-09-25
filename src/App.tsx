@@ -12,6 +12,7 @@ import {
   X,
   Volume2,
   VolumeX,
+  Github,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useDayflowStore } from './store/dayflowStore';
@@ -692,6 +693,18 @@ export default function App() {
 
           <div>
             © {new Date().getFullYear()} Dayflow. {t.footer.rights}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <a
+              href="https://github.com/norobb/dayflow-assistant/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs text-[#6B635B] hover:text-[#1E1B19] transition-colors"
+            >
+              <Github size={14} />
+              <span>{t.footer.github}</span>
+            </a>
           </div>
         </div>
       </footer>

@@ -1,18 +1,19 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    // Base URL for deployment. Set VITE_BASE_URL=/dayflow-assistant/ when
-    // deploying to https://norobb.github.io/dayflow-assistant/ (no custom domain).
-    // Leave as '/' (default) when using a custom domain.
+    // Base URL for deployment.
+    // Local development: defaults to '/' (no env var needed).
+    // GitHub Pages (project site): set VITE_BASE_URL=/dayflow-assistant/ in CI.
+    // Custom domain: set VITE_BASE_URL=/ in CI (or remove the env var entirely).
     base: process.env.VITE_BASE_URL ?? '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        // Use import.meta.dirname (ESM-native) instead of __dirname.
+        '@': import.meta.dirname,
       },
     },
     server: {

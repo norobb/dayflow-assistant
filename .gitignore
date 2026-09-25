@@ -1,8 +1,22 @@
+# Dependencies
 node_modules/
-build/
+
+# Build output
 dist/
+build/
+
+# Test coverage
 coverage/
-.DS_Store
-*.log
-.env*
+
+# Environment — never commit real secrets
+.env
+.env.*
 !.env.example
+
+# OS / editor artifacts
+.DS_Store
+Thumbs.db
+*.log
+
+# AI Studio internal artifacts
+.aistudio/
