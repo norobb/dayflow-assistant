@@ -20,29 +20,30 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./website
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: ./website/package-lock.json
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Type check
-        run: npm run lint
+        run: pnpm --dir website run lint
 
       - name: Build
-        run: npm run build
+        run: pnpm --dir website run build
         env:
           VITE_BASE_URL: /dayflow-assistant/
 
