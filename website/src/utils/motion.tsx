@@ -20,6 +20,7 @@ export const transitions = {
   elegant: { duration: 0.7, ease: cubicEase },
   spring: { type: 'spring' as const, stiffness: 380, damping: 30 },
   gentleSpring: { type: 'spring' as const, stiffness: 260, damping: 26 },
+  swipeSpring: { type: 'spring' as const, stiffness: 450, damping: 32 },
 };
 
 export const buttonMotion = {
@@ -140,4 +141,25 @@ export const ScrollReveal: React.FC<{
       {children}
     </motion.div>
   );
+};
+
+export const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.06,
+      delayChildren: 0.02,
+    },
+  },
+};
+
+export const staggerItem: Variants = {
+  hidden: { opacity: 0, y: 12, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: 'spring' as const, stiffness: 260, damping: 26 },
+  },
 };
