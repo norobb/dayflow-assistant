@@ -53,7 +53,7 @@ export default function App() {
       <motion.nav
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] as const }}
         className="sticky top-0 z-50 bg-[#F5EFE6]/90 backdrop-blur-md border-b border-[#D8CFC2]/70 transition-all"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
@@ -232,45 +232,75 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Hero Content */}
             <div className="lg:col-span-7 space-y-6 text-left">
-              {/* ~150 ms Badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#D8CFC2] shadow-xs"
-              >
-                <span className="w-2 h-2 rounded-full bg-[#641C24]" />
-                <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-                  {t.hero.badge}
-                </span>
-              </motion.div>
-
-              {/* ~220 ms Main Headline with subtle blur reduction */}
+              {/* Choreographed Main Headline with Staggered Multi-Phrase Motion */}
               <motion.h1
-                initial={{ opacity: 0, y: 18, filter: 'blur(3px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 0.65, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1E1B19] leading-[1.1]"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.16,
+                      delayChildren: 0.12,
+                    },
+                  },
+                }}
+                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1E1B19] leading-[1.12]"
               >
-                {t.hero.titlePart1}{' '}
-                <span className="text-[#641C24] block sm:inline">{t.hero.titlePart2}</span>
+                {(() => {
+                  const parts = t.hero.titlePart1.endsWith('.')
+                    ? t.hero.titlePart1.slice(0, -1).split('. ')
+                    : t.hero.titlePart1.split('. ');
+
+                  const spanVariants = {
+                    hidden: { opacity: 0, y: 22, filter: 'blur(8px)', scale: 0.96 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      filter: 'blur(0px)',
+                      scale: 1,
+                      transition: { duration: 0.72, ease: [0.16, 1, 0.3, 1] as const },
+                    },
+                  };
+
+                  return (
+                    <>
+                      {parts.map((part, idx) => (
+                        <motion.span
+                          key={idx}
+                          variants={spanVariants}
+                          className="inline-block mr-[0.25em]"
+                        >
+                          {part}.
+                        </motion.span>
+                      ))}
+                      <motion.span
+                        variants={spanVariants}
+                        className="text-[#641C24] block sm:inline-block"
+                      >
+                        {t.hero.titlePart2}
+                      </motion.span>
+                    </>
+                  );
+                })()}
               </motion.h1>
 
-              {/* ~350 ms Supporting Text */}
+              {/* Supporting Text synced with title sequence */}
               <motion.p
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.6, delay: 0.52, ease: [0.16, 1, 0.3, 1] as const }}
                 className="text-base sm:text-lg text-[#6B635B] max-w-2xl leading-relaxed"
               >
                 {t.hero.subtitle}
               </motion.p>
 
-              {/* ~450 ms - 550 ms CTAs */}
+              {/* CTAs synced after text sequence */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.55, delay: 0.64, ease: [0.16, 1, 0.3, 1] as const }}
                 className="flex flex-wrap items-center gap-3 pt-2"
               >
                 <motion.a
@@ -300,7 +330,7 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0, y: 22, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.58, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.8, delay: 0.58, ease: [0.16, 1, 0.3, 1] as const }}
               className="lg:col-span-5 flex justify-center"
             >
               <div className="relative">
