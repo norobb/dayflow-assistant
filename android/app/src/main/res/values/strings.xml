@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dayflow</string>
+    <string name="tagline">Your day. Your phone. One intelligent flow.</string>
+    
+    <!-- Navigation Tabs -->
+    <string name="nav_today">Today</string>
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_reminders">Reminders</string>
+    <string name="nav_intelligence">Intelligence</string>
+    <string name="nav_understand">Understand</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Today Screen -->
+    <string name="today_title">Today</string>
+    <string name="today_schedule">Schedule</string>
+    <string name="today_no_events">No events scheduled today.</string>
+    <string name="today_pending_tasks">Pending Tasks</string>
+    <string name="today_no_tasks">All tasks completed for today.</string>
+    <string name="today_active_reminders">Active Reminders</string>
+    <string name="today_context_insight">Context Insight</string>
+    <string name="today_recent_understood">Recently Understood</string>
+    <string name="today_swipe_hint">Swipe items to organize</string>
+    <string name="today_scheduled_badge">Scheduled</string>
+    <string name="today_organized_badge">Organized</string>
+
+    <!-- Tasks Screen -->
+    <string name="tasks_title">Tasks</string>
+    <string name="tasks_completed_count">%1$d of %2$d completed</string>
+    <string name="tasks_empty_state">No tasks pending. Tap + to add or share anything with Dayflow.</string>
+    <string name="tasks_add_button">New Task</string>
+    <string name="tasks_dialog_title">Create Task</string>
+    <string name="tasks_title_hint">Task title</string>
+    <string name="tasks_due_hint">Due date or time (optional)</string>
+
+    <!-- Reminders Screen -->
+    <string name="reminders_title">Reminders</string>
+    <string name="reminders_count">%1$d reminders</string>
+    <string name="reminders_empty_state">No reminders active. Dayflow extracts reminders from chat messages, PDFs and screenshots.</string>
+    <string name="reminders_add_button">New Reminder</string>
+    <string name="reminders_dialog_title">Create Reminder</string>
+    <string name="reminders_title_hint">Reminder title</string>
+    <string name="reminders_time_hint">Time label (e.g. Tomorrow 17:00)</string>
+
+    <!-- Intelligence / Context Screen -->
+    <string name="intelligence_title">Context Flow</string>
+    <string name="intelligence_badge_soon">COMING SOON</string>
+    <string name="intelligence_headline">System-Level Context Understanding</string>
+    <string name="intelligence_description">Dayflow is designed to securely observe on-screen contextual cues and propose smart verified actions without constant manual copy-pasting.</string>
+    <string name="intelligence_flow_title">Active Context Streams</string>
+    <string name="intelligence_stream_chat">Chat &amp; Messaging Intake</string>
+    <string name="intelligence_stream_chat_desc">Extracts transit times, meeting places, and action items from message threads.</string>
+    <string name="intelligence_stream_receipts">Receipts &amp; Bookings Intake</string>
+    <string name="intelligence_stream_receipts_desc">Translates doctor appointments, train tickets, and invoices into calendar items.</string>
+    <string name="intelligence_stream_docs">PDFs &amp; Documents Intake</string>
+    <string name="intelligence_stream_docs_desc">Scans itineraries and contracts to surface deadlines and required paperwork.</string>
+
+    <!-- Universal Input / Understand Sheet -->
+    <string name="input_sheet_title">Give Dayflow Anything</string>
+    <string name="input_sheet_subtitle">Paste text, pick an image, import a PDF or record your voice.</string>
+    <string name="input_tab_text">Text</string>
+    <string name="input_tab_image">Screenshot</string>
+    <string name="input_tab_pdf">Document</string>
+    <string name="input_tab_voice">Voice</string>
+    <string name="input_text_hint">Enter or paste a message, itinerary note, or schedule snippet…</string>
+    <string name="input_action_understand">Understand</string>
+    <string name="input_action_analyzing">Analyzing…</string>
+    <string name="input_preset_message_label">Alex Train Station (Message)</string>
+    <string name="input_preset_screenshot_label">Dr. Stein Dentist (Screenshot)</string>
+    <string name="input_preset_pdf_label">Barcelona Itinerary (PDF)</string>
+    <string name="input_preset_voice_label">Voice Memo (Recording)</string>
+    <string name="input_pick_image">Choose Screenshot / Image</string>
+    <string name="input_pick_pdf">Choose PDF File</string>
+    <string name="input_voice_record">Hold or Tap to Record</string>
+    <string name="input_voice_recording">Recording voice note…</string>
+    <string name="input_voice_stop">Stop &amp; Analyze</string>
+
+    <!-- Verification Card / Human in the Loop -->
+    <string name="verification_title">Dayflow Understood</string>
+    <string name="verification_subtitle">Review detected items before adding to your phone.</string>
+    <string name="verification_event_label">Calendar Event</string>
+    <string name="verification_task_label">Actionable Task</string>
+    <string name="verification_reminder_label">Time-Anchored Reminder</string>
+    <string name="verification_btn_add_calendar">Add to Calendar</string>
+    <string name="verification_btn_add_task">Add Task</string>
+    <string name="verification_btn_add_reminder">Create Reminder</string>
+    <string name="verification_btn_add_both">Add Both</string>
+    <string name="verification_btn_added">Added to Phone</string>
+
+    <!-- Android Integration / Share Target -->
+    <string name="share_received_title">Shared with Dayflow</string>
+    <string name="share_analyzing">Understanding shared content…</string>
+    <string name="share_error_unsupported">Unsupported shared content type.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_en">English</string>
+    <string name="settings_language_de">Deutsch</string>
+    <string name="settings_language_es">Español</string>
+    <string name="settings_section_haptics">Sound &amp; Feedback</string>
+    <string name="settings_sound_effects">Micro-interaction Sounds</string>
+    <string name="settings_haptics">Haptic Feedback</string>
+    <string name="settings_section_ai">Understanding Engine</string>
+    <string name="settings_ai_provider">Active AI Provider</string>
+    <string name="settings_ai_provider_local">Local Deterministic Engine (Offline / Secure)</string>
+    <string name="settings_ai_provider_gemini">Gemini Multi-Modal API (Proxy / Endpoint)</string>
+    <string name="settings_section_privacy">Privacy &amp; Security</string>
+    <string name="settings_privacy_info">Zero Data Resale · On-Device Tokenization · Verified Actions</string>
+    <string name="settings_reset_data">Reset Mock Seed Data</string>
+    <string name="settings_reset_success">Reset data to defaults.</string>
+    <string name="settings_about">About Dayflow</string>
+    <string name="settings_version">Version 1.0.0 (Native Android)</string>
+
+    <!-- Notifications & Permissions -->
+    <string name="notif_channel_reminders">Dayflow Reminders</string>
+    <string name="notif_channel_reminders_desc">Time-sensitive reminders extracted by Dayflow.</string>
+    <string name="notif_channel_events">Dayflow Events</string>
+    <string name="notif_channel_events_desc">Upcoming calendar events organized by Dayflow.</string>
+    <string name="permission_calendar_rationale">Calendar access allows Dayflow to save verified events directly to your phone calendar.</string>
+    <string name="permission_microphone_rationale">Microphone access is needed to record and transcribe voice notes.</string>
+    <string name="permission_notification_rationale">Notification access is needed to notify you of time-anchored reminders.</string>
+    <string name="permission_grant">Grant</string>
+    <string name="permission_cancel">Cancel</string>
+
+    <!-- Common Actions -->
+    <string name="action_done">Done</string>
+    <string name="action_close">Close</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+</resources>

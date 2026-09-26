@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dayflow Design System Colors -->
+    <color name="dayflow_bg">#F5EFE6</color>
+    <color name="dayflow_card">#FAF6F0</color>
+    <color name="dayflow_card_white">#FFFFFF</color>
+    <color name="dayflow_primary">#641C24</color>
+    <color name="dayflow_primary_light">#7E242F</color>
+    <color name="dayflow_primary_soft">#F0E4E6</color>
+    <color name="dayflow_text">#1E1B19</color>
+    <color name="dayflow_text_muted">#6B635B</color>
+    <color name="dayflow_border">#D8CFC2</color>
+    <color name="dayflow_accent_green">#2E5C38</color>
+    <color name="dayflow_accent_amber">#8C5E28</color>
+</resources>

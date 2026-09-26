@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dayflow</string>
+    <string name="tagline">Tu día. Tu teléfono. Un flujo inteligente.</string>
+    
+    <!-- Navigation Tabs -->
+    <string name="nav_today">Hoy</string>
+    <string name="nav_tasks">Tareas</string>
+    <string name="nav_reminders">Recordatorios</string>
+    <string name="nav_intelligence">Inteligencia</string>
+    <string name="nav_understand">Entender</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Today Screen -->
+    <string name="today_title">Hoy</string>
+    <string name="today_schedule">Agenda de hoy</string>
+    <string name="today_no_events">No hay eventos programados para hoy.</string>
+    <string name="today_pending_tasks">Tareas pendientes</string>
+    <string name="today_no_tasks">Todas las tareas completadas por hoy.</string>
+    <string name="today_active_reminders">Recordatorios activos</string>
+    <string name="today_context_insight">Información de contexto</string>
+    <string name="today_recent_understood">Entendido recientemente</string>
+    <string name="today_swipe_hint">Desliza elementos para organizar</string>
+    <string name="today_scheduled_badge">Programado</string>
+    <string name="today_organized_badge">Organizado</string>
+
+    <!-- Tasks Screen -->
+    <string name="tasks_title">Tareas</string>
+    <string name="tasks_completed_count">%1$d de %2$d completadas</string>
+    <string name="tasks_empty_state">No hay tareas pendientes. Pulsa + para compartir con Dayflow.</string>
+    <string name="tasks_add_button">Nueva tarea</string>
+    <string name="tasks_dialog_title">Crear tarea</string>
+    <string name="tasks_title_hint">Título de la tarea</string>
+    <string name="tasks_due_hint">Vencimiento (opcional)</string>
+
+    <!-- Reminders Screen -->
+    <string name="reminders_title">Recordatorios</string>
+    <string name="reminders_count">%1$d recordatorios</string>
+    <string name="reminders_empty_state">Sin recordatorios activos. Dayflow extrae recordatorios de chats, PDFs y capturas.</string>
+    <string name="reminders_add_button">Nuevo recordatorio</string>
+    <string name="reminders_dialog_title">Crear recordatorio</string>
+    <string name="reminders_title_hint">Título del recordatorio</string>
+    <string name="reminders_time_hint">Hora o fecha (ej. Mañana 17:00)</string>
+
+    <!-- Intelligence / Context Screen -->
+    <string name="intelligence_title">Flujo de contexto</string>
+    <string name="intelligence_badge_soon">PRÓXIMAMENTE</string>
+    <string name="intelligence_headline">Comprensión contextual a nivel de sistema</string>
+    <string name="intelligence_description">Dayflow reconoce información contextual en pantalla y sugiere acciones verificadas sin necesidad de copiar y pegar.</string>
+    <string name="intelligence_flow_title">Canales de contexto activos</string>
+    <string name="intelligence_stream_chat">Comprensión de chats y mensajes</string>
+    <string name="intelligence_stream_chat_desc">Extrae horarios de viaje, puntos de encuentro y tareas de tus conversaciones.</string>
+    <string name="intelligence_stream_receipts">Citas y recibos de reserva</string>
+    <string name="intelligence_stream_receipts_desc">Convierte citas médicas, billetes de tren y facturas en eventos de calendario.</string>
+    <string name="intelligence_stream_docs">PDFs y documentos de viaje</string>
+    <string name="intelligence_stream_docs_desc">Analiza itinerarios y contratos en busca de plazos y trámites necesarios.</string>
+
+    <!-- Universal Input / Understand Sheet -->
+    <string name="input_sheet_title">Entrega cualquier cosa a Dayflow</string>
+    <string name="input_sheet_subtitle">Pega texto, elige una captura, importa un PDF o graba tu voz.</string>
+    <string name="input_tab_text">Texto</string>
+    <string name="input_tab_image">Captura</string>
+    <string name="input_tab_pdf">Documento</string>
+    <string name="input_tab_voice">Voz</string>
+    <string name="input_text_hint">Pega un mensaje, reserva o apunte de viaje…</string>
+    <string name="input_action_understand">Entender</string>
+    <string name="input_action_analyzing">Analizando…</string>
+    <string name="input_preset_message_label">Alex Estación (Mensaje)</string>
+    <string name="input_preset_screenshot_label">Dra. Stein Dentista (Captura)</string>
+    <string name="input_preset_pdf_label">Barcelona Itinerario (PDF)</string>
+    <string name="input_preset_voice_label">Nota de voz (Grabación)</string>
+    <string name="input_pick_image">Elegir captura / imagen</string>
+    <string name="input_pick_pdf">Elegir archivo PDF</string>
+    <string name="input_voice_record">Toca para grabar</string>
+    <string name="input_voice_recording">Grabando nota de voz…</string>
+    <string name="input_voice_stop">Detener y analizar</string>
+
+    <!-- Verification Card / Human in the Loop -->
+    <string name="verification_title">Dayflow ha entendido</string>
+    <string name="verification_subtitle">Revisa las acciones detectadas antes de confirmarlas.</string>
+    <string name="verification_event_label">Evento de calendario</string>
+    <string name="verification_task_label">Tarea</string>
+    <string name="verification_reminder_label">Recordatorio</string>
+    <string name="verification_btn_add_calendar">Añadir al calendario</string>
+    <string name="verification_btn_add_task">Crear tarea</string>
+    <string name="verification_btn_add_reminder">Crear recordatorio</string>
+    <string name="verification_btn_add_both">Añadir ambos</string>
+    <string name="verification_btn_added">Añadido al teléfono</string>
+
+    <!-- Android Integration / Share Target -->
+    <string name="share_received_title">Compartido con Dayflow</string>
+    <string name="share_analyzing">Analizando contenido compartido…</string>
+    <string name="share_error_unsupported">Tipo de contenido no compatible.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_en">English</string>
+    <string name="settings_language_de">Deutsch</string>
+    <string name="settings_language_es">Español</string>
+    <string name="settings_section_haptics">Sonido y vibración</string>
+    <string name="settings_sound_effects">Sonidos de interacción</string>
+    <string name="settings_haptics">Respuesta háptica</string>
+    <string name="settings_section_ai">Motor de comprensión</string>
+    <string name="settings_ai_provider">Proveedor de IA</string>
+    <string name="settings_ai_provider_local">Motor determinista local (Sin conexión / Seguro)</string>
+    <string name="settings_ai_provider_gemini">API multimodal Gemini (Proxy / Endpoint)</string>
+    <string name="settings_section_privacy">Privacidad y confianza</string>
+    <string name="settings_privacy_info">Sin reventa de datos · Procesamiento local · Acciones verificadas</string>
+    <string name="settings_reset_data">Restablecer datos de prueba</string>
+    <string name="settings_reset_success">Datos restablecidos a los valores por defecto.</string>
+    <string name="settings_about">Acerca de Dayflow</string>
+    <string name="settings_version">Versión 1.0.0 (Android nativo)</string>
+
+    <!-- Notifications & Permissions -->
+    <string name="notif_channel_reminders">Recordatorios de Dayflow</string>
+    <string name="notif_channel_reminders_desc">Recordatorios importantes extraídos por Dayflow.</string>
+    <string name="notif_channel_events">Eventos de Dayflow</string>
+    <string name="notif_channel_events_desc">Próximos eventos de calendario organizados por Dayflow.</string>
+    <string name="permission_calendar_rationale">El acceso al calendario permite a Dayflow guardar eventos directamente en tu teléfono.</string>
+    <string name="permission_microphone_rationale">El acceso al micrófono es necesario para grabar y transcribir notas de voz.</string>
+    <string name="permission_notification_rationale">Se requieren notificaciones para avisarte de recordatorios.</string>
+    <string name="permission_grant">Permitir</string>
+    <string name="permission_cancel">Cancelar</string>
+
+    <!-- Common Actions -->
+    <string name="action_done">Listo</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_delete">Eliminar</string>
+</resources>
