@@ -28,7 +28,7 @@ import { MessageDemo } from './components/demos/MessageDemo';
 import { ScreenshotDemo } from './components/demos/ScreenshotDemo';
 import { PdfDemo } from './components/demos/PdfDemo';
 import { VoiceDemo } from './components/demos/VoiceDemo';
-import { ScrollReveal, tabContentVariants, buttonMotion } from './utils/motion';
+import { ScrollReveal, SectionHeaderReveal, tabContentVariants, buttonMotion } from './utils/motion';
 
 export default function App() {
   const {
@@ -316,19 +316,18 @@ export default function App() {
       <TodayUnderstood />
 
       {/* 4. The Problem */}
-      <ScrollReveal>
+      <ScrollReveal horizontalParallax="right">
         <section id="problem-section" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-              {t.problem.badge}
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
-              {t.problem.title}
-            </h2>
-            <p className="text-base text-[#6B635B] leading-relaxed">
-              {t.problem.desc}
-            </p>
-          </div>
+          <SectionHeaderReveal
+            badge={
+              <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                {t.problem.badge}
+              </span>
+            }
+            title={t.problem.title}
+            subtitle={t.problem.desc}
+            horizontalParallax="subtle"
+          />
 
           {/* Scattered Chaos Visual Transition Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-12">
@@ -368,20 +367,19 @@ export default function App() {
       </ScrollReveal>
 
       {/* 5. Interactive Demo Studio */}
-      <ScrollReveal>
+      <ScrollReveal horizontalParallax="left">
         <section id="demo-section" className="py-16 bg-[#FAF6F0] border-t border-[#D8CFC2]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-                {t.demo.badge}
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
-                {t.demo.title}
-              </h2>
-              <p className="text-base text-[#6B635B]">
-                {t.demo.subtitle}
-              </p>
-            </div>
+            <SectionHeaderReveal
+              badge={
+                <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                  {t.demo.badge}
+                </span>
+              }
+              title={t.demo.title}
+              subtitle={t.demo.subtitle}
+              horizontalParallax="subtle"
+            />
 
             {/* Interactive Demo Tab Navigation with micro-interaction feedback */}
             <div
@@ -492,19 +490,18 @@ export default function App() {
       </ScrollReveal>
 
       {/* 8. Three-Layer Architecture & Features */}
-      <ScrollReveal>
+      <ScrollReveal horizontalParallax="right">
         <section id="architecture-section" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-              {t.architecture.badge}
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
-              {t.architecture.title}
-            </h2>
-            <p className="text-base text-[#6B635B]">
-              {t.architecture.subtitle}
-            </p>
-          </div>
+          <SectionHeaderReveal
+            badge={
+              <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                {t.architecture.badge}
+              </span>
+            }
+            title={t.architecture.title}
+            subtitle={t.architecture.subtitle}
+            horizontalParallax="subtle"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* UNDERSTAND */}
@@ -580,20 +577,19 @@ export default function App() {
       </ScrollReveal>
 
       {/* 12. Transparent Product Roadmap */}
-      <ScrollReveal>
+      <ScrollReveal horizontalParallax="left">
         <section id="roadmap-section" className="py-20 bg-[#FAF6F0] border-t border-[#D8CFC2]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-                {t.roadmap.badge}
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
-                {t.roadmap.title}
-              </h2>
-              <p className="text-base text-[#6B635B]">
-                {t.roadmap.subtitle}
-              </p>
-            </div>
+            <SectionHeaderReveal
+              badge={
+                <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                  {t.roadmap.badge}
+                </span>
+              }
+              title={t.roadmap.title}
+              subtitle={t.roadmap.subtitle}
+              horizontalParallax="subtle"
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {/* NOW */}

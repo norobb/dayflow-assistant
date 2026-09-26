@@ -1,0 +1,6 @@
+{
+  "name": "Dayflow — One Intelligent Flow",
+  "description": "Dayflow understands information scattered across messages, screenshots, files and voice notes — and turns it into organized actions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

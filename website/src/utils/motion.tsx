@@ -115,30 +115,171 @@ export const resultStaggerItem: Variants = {
   },
 };
 
-/**
- * Calm, reusable scroll reveal wrapper.
- * Groups content together so individual elements don't fly in uncoordinated.
- */
-export const ScrollReveal: React.FC<{
+export interface ScrollRevealProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
-}> = ({ children, className = '', delay = 0 }) => {
+  duration?: number;
+  distance?: number;
+  direction?: 'up' | 'down' | 'left' | 'right' | 'none';
+  horizontalParallax?: boolean | 'left' | 'right' | number;
+}
+
+/**
+ * Enhanced, calm ScrollReveal component.
+ * Supports nuanced entrance timings and subtle horizontal parallax drift.
+ * Strictly respects prefers-reduced-motion.
+ */
+export const ScrollReveal: React.FC<ScrollRevealProps> = ({
+  children,
+  className = '',
+  delay = 0,
+  duration = 0.65,
+  distance = 22,
+  direction = 'up',
+  horizontalParallax = false,
+}) => {
   const shouldReduceMotion = useReducedMotion();
 
   if (shouldReduceMotion) {
     return <div className={className}>{children}</div>;
   }
 
+  // Calculate subtle horizontal offset for parallax drift
+  let initialX = 0;
+  if (typeof horizontalParallax === 'number') {
+    initialX = horizontalParallax;
+  } else if (horizontalParallax === true || horizontalParallax === 'right') {
+    initialX = 14;
+  } else if (horizontalParallax === 'left') {
+    initialX = -14;
+  } else if (direction === 'left') {
+    initialX = distance;
+  } else if (direction === 'right') {
+    initialX = -distance;
+  }
+
+  const initialY =
+    direction === 'up' ? distance : direction === 'down' ? -distance : 0;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 22 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: initialY, x: initialX }}
+      whileInView={{ opacity: 1, y: 0, x: 0 }}
       viewport={{ once: true, margin: '-50px' }}
-      transition={{ duration: 0.6, delay, ease: cubicEase }}
+      transition={{ duration, delay, ease: cubicEase }}
       className={className}
     >
       {children}
+    </motion.div>
+  );
+};
+
+/**
+ * Nuanced Section Header Reveal:
+ * Choreographs the entrance of section badge, heading, and description with
+ * staggered micro-timings and subtle horizontal parallax drift for refined editorial feel.
+ */
+export const SectionHeaderReveal: React.FC<{
+  badge?: React.ReactNode;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  className?: string;
+  align?: 'center' | 'left';
+  horizontalParallax?: 'subtle' | 'left' | 'right' | 'none';
+}> = ({
+  badge,
+  title,
+  subtitle,
+  className = '',
+  align = 'center',
+  horizontalParallax = 'subtle',
+}) => {
+  const shouldReduceMotion = useReducedMotion();
+
+  if (shouldReduceMotion) {
+    return (
+      <div className={`space-y-3 mb-12 ${align === 'center' ? 'text-center max-w-3xl mx-auto' : 'text-left'} ${className}`}>
+        {badge}
+        {typeof title === 'string' ? (
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
+            {title}
+          </h2>
+        ) : (
+          title
+        )}
+        {subtitle && (
+          <p className="text-base text-[#6B635B] leading-relaxed max-w-2xl mx-auto">
+            {subtitle}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  const badgeOffset = horizontalParallax === 'left' ? -10 : horizontalParallax === 'right' ? 10 : horizontalParallax === 'subtle' ? -6 : 0;
+  const titleOffset = horizontalParallax === 'left' ? -6 : horizontalParallax === 'right' ? 6 : horizontalParallax === 'subtle' ? 4 : 0;
+
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-60px' }}
+      className={`space-y-3 mb-12 ${align === 'center' ? 'text-center max-w-3xl mx-auto' : 'text-left'} ${className}`}
+    >
+      {badge && (
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 10, x: badgeOffset },
+            visible: {
+              opacity: 1,
+              y: 0,
+              x: 0,
+              transition: { duration: 0.5, ease: cubicEase },
+            },
+          }}
+        >
+          {badge}
+        </motion.div>
+      )}
+
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: 16, x: titleOffset, filter: 'blur(2px)' },
+          visible: {
+            opacity: 1,
+            y: 0,
+            x: 0,
+            filter: 'blur(0px)',
+            transition: { duration: 0.65, delay: 0.1, ease: cubicEase },
+          },
+        }}
+      >
+        {typeof title === 'string' ? (
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
+            {title}
+          </h2>
+        ) : (
+          title
+        )}
+      </motion.div>
+
+      {subtitle && (
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 12 },
+            visible: {
+              opacity: 1,
+              y: 0,
+              transition: { duration: 0.6, delay: 0.22, ease: cubicEase },
+            },
+          }}
+        >
+          <p className="text-base text-[#6B635B] leading-relaxed max-w-2xl mx-auto">
+            {subtitle}
+          </p>
+        </motion.div>
+      )}
     </motion.div>
   );
 };

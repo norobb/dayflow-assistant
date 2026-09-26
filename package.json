@@ -1,0 +1,13 @@
+{
+  "name": "dayflow",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm --prefix website run dev",
+    "build": "npm --prefix website run build && rm -rf dist && cp -r website/dist dist",
+    "preview": "npm --prefix website run preview",
+    "clean": "npm --prefix website run clean && rm -rf dist",
+    "lint": "npm --prefix website run lint"
+  }
+}
