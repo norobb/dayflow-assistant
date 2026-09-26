@@ -52,7 +52,17 @@ class TodayViewModel(
         repository.observeInsight(),
         _isAnalyzing,
         _pendingVerification
-    ) { events, tasks, reminders, insight, isAnalyzing, verification ->
+    ) { flows ->
+        @Suppress("UNCHECKED_CAST")
+        val events = flows[0] as List<DayflowEvent>
+        @Suppress("UNCHECKED_CAST")
+        val tasks = flows[1] as List<DayflowTask>
+        @Suppress("UNCHECKED_CAST")
+        val reminders = flows[2] as List<DayflowReminder>
+        val insight = flows[3] as DayflowInsight
+        val isAnalyzing = flows[4] as Boolean
+        val verification = flows[5] as DayflowAnalysisResult?
+
         TodayUiState(
             events = events,
             tasks = tasks,

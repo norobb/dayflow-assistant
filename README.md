@@ -86,56 +86,41 @@ Dayflow is an **interactive concept demonstration**. The web application is full
 
 ```
 dayflow-assistant/
-├── src/
-│   ├── App.tsx                        # Root layout and page sections
-│   ├── main.tsx                       # Application entry point
-│   ├── index.css                      # Design system tokens and global styles
-│   ├── components/
-│   │   ├── AndroidSimulator.tsx       # Interactive Android phone simulator
-│   │   ├── DayflowDashboard.tsx       # Synchronized events/tasks/reminders dashboard
-│   │   ├── DayflowLogo.tsx            # Brand assets (symbol, wordmark, badge)
-│   │   ├── OmniInputSystem.tsx        # Omni-input field simulator
-│   │   ├── ProductConceptSections.tsx # Feature showcase sections
-│   │   ├── TodayUnderstood.tsx        # Dynamic summary grid
-│   │   └── demos/
-│   │       ├── MessageDemo.tsx        # Chat message analysis demo
-│   │       ├── ScreenshotDemo.tsx     # Screenshot analysis demo
-│   │       ├── PdfDemo.tsx            # PDF itinerary demo
-│   │       └── VoiceDemo.tsx          # Voice note demo
-│   ├── services/
-│   │   └── dayflowAnalyzer.ts         # AI abstraction layer (Gemini + local fallback)
-│   ├── store/
-│   │   └── dayflowStore.tsx           # Global React Context state
-│   └── utils/
-│       ├── audio.ts                   # Web Audio API sound synthesizer
-│       ├── i18n.ts                    # Translation dictionaries + locale detection
-│       └── motion.tsx                 # Motion system exports and variants
-├── public/
-│   └── assets/                        # Static logo assets served at root
-├── docs/                              # Developer documentation
+├── website/                            # Web application frontend
+│   ├── src/
+│   │   ├── App.tsx                     # Root layout and page sections
+│   │   ├── main.tsx                    # Application entry point
+│   │   ├── index.css                   # Design system tokens and global styles
+│   │   ├── components/
+│   │   ├── services/                   # AI abstraction layer (Gemini + local fallback)
+│   │   ├── store/                      # Global React Context state
+│   │   └── utils/
+│   ├── public/                         # Static logo assets served at root
+│   ├── vite.config.ts
+│   └── tsconfig.json
+├── android/                            # Native Android Application (Kotlin / Jetpack Compose)
+├── docs/                               # Developer documentation
 │   ├── README.md
 │   ├── architecture.md
 │   ├── development.md
 │   └── design-system.md
 ├── .github/
-│   ├── workflows/
-│   │   ├── deploy.yml                 # GitHub Pages deployment (website branch only)
-│   │   └── ci.yml                    # Type check + build on pull requests
-│   ├── ISSUE_TEMPLATE/
-│   └── PULL_REQUEST_TEMPLATE.md
-├── AGENTS.md                          # Authoritative AI agent context document
-├── CONTRIBUTING.md                    # Contribution guide
-├── vite.config.ts
-├── tsconfig.json
+│   └── workflows/
+│       ├── deploy.yml                  # GitHub Pages deployment
+│       ├── android.yml                 # Android APK build workflow
+│       └── ci.yml                     # Type check + build on pull requests
+├── AGENTS.md                           # Authoritative AI agent context document
+├── CONTRIBUTING.md                     # Contribution guide
+├── LICENSE                             # MIT License
 ├── package.json
-└── .env.example
+└── pnpm-workspace.yaml
 ```
 
 ---
 
 ## Getting Started
 
-**Prerequisites:** Node.js 22 LTS or later, npm 10 or later.
+**Prerequisites:** Node.js 22 LTS or later, pnpm 10 or later.
 
 ```bash
 # Clone the repository
@@ -143,10 +128,10 @@ git clone https://github.com/norobb/dayflow-assistant.git
 cd dayflow-assistant
 
 # Install dependencies
-npm install
+pnpm install
 
 # Start local development server
-npm run dev
+pnpm run dev
 # → http://localhost:3000
 ```
 
@@ -155,11 +140,11 @@ npm run dev
 ## Development
 
 ```bash
-npm run dev       # Start local dev server (port 3000)
-npm run build     # Production build → dist/
-npm run preview   # Preview production build locally
-npm run lint      # TypeScript type check (must pass before PR)
-npm run clean     # Remove dist/
+pnpm run dev       # Start local dev server (port 3000)
+pnpm run build     # Production build → dist/
+pnpm run preview   # Preview production build locally
+pnpm run lint      # TypeScript type check (must pass before PR)
+pnpm run clean     # Remove dist/
 ```
 
 ---
@@ -174,17 +159,16 @@ cp .env.example .env
 
 | Variable | Required | Description |
 |---|---|---|
-| `GEMINI_API_KEY` | For AI features | Gemini API key from [AI Studio](https://aistudio.google.com/app/apikey) |
 | `APP_URL` | Optional | Hosting URL (defaults to `http://localhost:3000`) |
 
-The application runs without `GEMINI_API_KEY` — it falls back to a deterministic local preset dataset for all demo scenarios.
+The application falls back to a deterministic local preset dataset for all demo scenarios when no AI key is provided.
 
 ---
 
 ## Build
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Output is written to `dist/`. The build is a standard static site — no server required.
@@ -211,4 +195,4 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full contribution guide includi
 
 ## License
 
-MIT License
+[MIT License](LICENSE)

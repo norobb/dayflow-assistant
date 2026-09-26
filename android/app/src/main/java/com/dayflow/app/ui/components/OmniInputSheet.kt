@@ -26,7 +26,7 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.ShortText
-import androidx.compose.material.icons.outlined.Sparkles
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -301,7 +301,7 @@ fun OmniInputSheet(
             if (selectedTab != SourceType.VOICE) {
                 DayflowPrimaryButton(
                     text = if (isAnalyzing) stringResource(R.string.input_action_analyzing) else stringResource(R.string.input_action_understand),
-                    icon = Icons.Outlined.Sparkles,
+                    icon = Icons.Outlined.AutoAwesome,
                     isLoading = isAnalyzing,
                     onClick = {
                         val type = if (inputText.isNotBlank()) selectedTab else SourceType.MESSAGE
