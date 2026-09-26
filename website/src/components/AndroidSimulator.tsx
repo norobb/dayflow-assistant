@@ -10,6 +10,7 @@ import {
   X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { staggerContainer, staggerItem } from '../utils/motion';
 import { useDayflowStore } from '../store/dayflowStore';
 import { DayflowSymbol } from './DayflowLogo';
 import { sounds } from '../utils/audio';
@@ -163,7 +164,10 @@ export const AndroidSimulator: React.FC = () => {
               className="space-y-3"
             >
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">{t.dashboard.title}</h4>
+                <div className="flex items-center gap-1.5">
+                  <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">{t.dashboard.title}</h4>
+                  <span className="text-[9px] text-[#641C24] bg-[#641C24]/10 px-1.5 py-0.5 rounded-full font-medium">← {t.phone.todayTab ? "Swipe" : "Swipe"} →</span>
+                </div>
                 <span className="text-[10px] text-[#6B635B] font-medium">{events.length}</span>
               </div>
 
@@ -179,17 +183,24 @@ export const AndroidSimulator: React.FC = () => {
                 </div>
               )}
 
-              {/* Events Stream */}
-              <div className="space-y-2">
+              {/* Events Stream with Staggered Entrance and Swipe Gesture */}
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="space-y-2"
+              >
                 <AnimatePresence initial={false}>
                   {events.map((ev) => (
                     <motion.div
                       key={ev.id}
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                      className="p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs hover:border-[#641C24]/30 transition-all"
+                      variants={staggerItem}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 0 }}
+                      dragElastic={0.25}
+                      whileDrag={{ scale: 1.02 }}
+                      className="p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs hover:border-[#641C24]/30 transition-all cursor-grab active:cursor-grabbing touch-pan-y"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-[#641C24]">{ev.time}</span>
@@ -207,7 +218,7 @@ export const AndroidSimulator: React.FC = () => {
                     </motion.div>
                   ))}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             </motion.div>
           )}
 
@@ -228,18 +239,25 @@ export const AndroidSimulator: React.FC = () => {
                 </span>
               </div>
 
-              <div className="space-y-2">
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="space-y-2"
+              >
                 <AnimatePresence initial={false}>
                   {tasks.map((task) => (
                     <motion.button
                       key={task.id}
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      variants={staggerItem}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 0 }}
+                      dragElastic={0.25}
+                      whileDrag={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => toggleTask(task.id)}
-                      className="w-full text-left p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs flex items-start gap-2.5 transition-all hover:border-[#641C24]/40 cursor-pointer"
+                      className="w-full text-left p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs flex items-start gap-2.5 transition-all hover:border-[#641C24]/40 cursor-grab active:cursor-grabbing touch-pan-y"
                     >
                       <div className="mt-0.5 shrink-0">
                         {task.completed ? (
@@ -265,7 +283,7 @@ export const AndroidSimulator: React.FC = () => {
                     </motion.button>
                   ))}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             </motion.div>
           )}
 
@@ -284,16 +302,23 @@ export const AndroidSimulator: React.FC = () => {
                 <span className="text-[10px] text-[#6B635B]">{reminders.length}</span>
               </div>
 
-              <div className="space-y-2">
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="space-y-2"
+              >
                 <AnimatePresence initial={false}>
                   {reminders.map((rem) => (
                     <motion.div
                       key={rem.id}
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                      className="p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs space-y-1"
+                      variants={staggerItem}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 0 }}
+                      dragElastic={0.25}
+                      whileDrag={{ scale: 1.02 }}
+                      className="p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs space-y-1 cursor-grab active:cursor-grabbing touch-pan-y"
                     >
                       <div className="text-xs font-semibold text-[#1E1B19]">{rem.title}</div>
                       <div className="text-[10px] text-[#641C24] font-medium flex items-center gap-1">
@@ -303,7 +328,7 @@ export const AndroidSimulator: React.FC = () => {
                     </motion.div>
                   ))}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             </motion.div>
           )}
 
@@ -392,7 +417,7 @@ export const AndroidSimulator: React.FC = () => {
 
       {/* Android Home Navigation Bar (Gesture Pill) */}
       <div
-        className={`h-3.5 w-full bg-white flex items-center justify-center shrink-0 ${
+        className={`h-3.5 w-full bg-white flex items-center justify-center shrink-0 overflow-hidden ${
           isFull ? 'rounded-b-none sm:rounded-b-3xl' : 'rounded-b-[38px]'
         }`}
       >
