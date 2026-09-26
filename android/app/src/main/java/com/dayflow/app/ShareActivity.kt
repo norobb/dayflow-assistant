@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.Sparkles
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -172,7 +172,7 @@ fun ShareIntakeScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Sparkles,
+                        imageVector = Icons.Outlined.AutoAwesome,
                         contentDescription = null,
                         tint = DayflowPrimary,
                         modifier = Modifier.size(22.dp)

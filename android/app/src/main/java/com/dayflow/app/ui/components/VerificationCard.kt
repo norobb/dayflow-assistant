@@ -18,7 +18,7 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.NotificationsNone
-import androidx.compose.material.icons.outlined.Sparkles
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -85,7 +85,7 @@ fun VerificationCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Sparkles,
+                        imageVector = Icons.Outlined.AutoAwesome,
                         contentDescription = null,
                         tint = DayflowPrimary,
                         modifier = Modifier.size(16.dp)
