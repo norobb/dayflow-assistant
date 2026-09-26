@@ -216,14 +216,30 @@ class GeminiProvider implements AIProvider {
     customInput?: string,
     simulatedDelayMs: number = 650
   ): Promise<DayflowAnalysisResult> {
+    // SECURITY ENHANCEMENT: Bound simulated delay to prevent thread stall (0 - 5000ms)
+    const delay =
+      typeof simulatedDelayMs === 'number' && !Number.isNaN(simulatedDelayMs)
+        ? Math.max(0, Math.min(5000, simulatedDelayMs))
+        : 650;
+
     // Simulate real-world asynchronous tokenization & structural inference
-    await new Promise((resolve) => setTimeout(resolve, simulatedDelayMs));
+    await new Promise((resolve) => setTimeout(resolve, delay));
 
     if (type !== 'custom' && PRESETS[type]) {
       return JSON.parse(JSON.stringify(PRESETS[type]));
     }
 
-    const text = customInput || 'New custom input';
+    // SECURITY ENHANCEMENT: Input validation & sanitization
+    // 1. Enforce string type check
+    // 2. Strip non-printable control characters
+    // 3. Enforce maximum input length limit (1000 chars) to prevent DoS/memory allocation risks
+    const rawInput = typeof customInput === 'string' ? customInput : '';
+    const sanitized = rawInput
+      .replace(/[\x00-\x1F\x7F]/g, '')
+      .trim()
+      .slice(0, 1000);
+
+    const text = sanitized || 'New custom input';
     return {
       id: `analysis-${Date.now()}`,
       sourceType: 'custom',
