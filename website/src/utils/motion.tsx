@@ -124,7 +124,8 @@ export const ScrollReveal: React.FC<{
   delay?: number;
   amount?: number;
   yOffset?: number;
-}> = ({ children, className = '', delay = 0.1, amount = 0.25, yOffset = 28 }) => {
+  duration?: number;
+}> = ({ children, className = '', delay = 0.12, amount = 0.2, yOffset = 40, duration = 1.05 }) => {
   const shouldReduceMotion = useReducedMotion();
 
   if (shouldReduceMotion) {
@@ -133,10 +134,10 @@ export const ScrollReveal: React.FC<{
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: yOffset, filter: 'blur(4px)' }}
+      initial={{ opacity: 0, y: yOffset, filter: 'blur(8px)' }}
       whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       viewport={{ once: true, amount }}
-      transition={{ duration: 0.65, delay, ease: cubicEase }}
+      transition={{ duration, delay, ease: cubicEase }}
       className={className}
     >
       {children}
