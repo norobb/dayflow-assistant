@@ -2,7 +2,6 @@ package com.dayflow.app.ui.settings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,14 +14,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.SystemUpdate
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Switch
@@ -40,52 +39,48 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dayflow.app.BuildConfig
 import com.dayflow.app.R
 import com.dayflow.app.core.designsystem.ButtonShape
-import com.dayflow.app.core.designsystem.CardShape
 import com.dayflow.app.core.designsystem.DayflowBg
-import com.dayflow.app.core.designsystem.DayflowBorder
 import com.dayflow.app.core.designsystem.DayflowPrimary
-import com.dayflow.app.core.designsystem.DayflowPrimaryLight
 import com.dayflow.app.core.designsystem.DayflowPrimarySoft
 import com.dayflow.app.core.designsystem.DayflowText
 import com.dayflow.app.core.designsystem.DayflowTextMuted
+import com.dayflow.app.core.update.UpdateStatus
+import com.dayflow.app.ui.components.DayflowPrimaryButton
 import com.dayflow.app.ui.components.DayflowCard
 import com.dayflow.app.ui.components.DayflowSecondaryButton
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(DayflowBg)
     ) {
-        // Settings Header
+        // Top Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
-                .background(Color.White.copy(alpha = 0.85f))
-                .border(width = 0.5.dp, color = DayflowBorder.copy(alpha = 0.5f))
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 8.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                     contentDescription = "Back",
                     tint = DayflowText
                 )
             }
             Text(
                 text = stringResource(R.string.settings_title),
-                fontSize = 17.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = DayflowText
             )
@@ -204,6 +199,132 @@ fun SettingsScreen(
                 }
             }
 
+            // Section: Auto Updates
+            item {
+                SectionHeader(stringResource(R.string.settings_section_updates))
+            }
+
+            item {
+                DayflowCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(
+                            text = stringResource(R.string.settings_update_channel),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = DayflowTextMuted
+                        )
+
+                        UpdateChannelRow(
+                            title = stringResource(R.string.settings_channel_releases),
+                            selected = uiState.updateChannel == "releases",
+                            onSelect = { viewModel.setUpdateChannel("releases") }
+                        )
+
+                        UpdateChannelRow(
+                            title = stringResource(R.string.settings_channel_ci),
+                            selected = uiState.updateChannel == "ci",
+                            onSelect = { viewModel.setUpdateChannel("ci") }
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // Status display
+                        when (val status = uiState.updateStatus) {
+                            is UpdateStatus.Checking -> {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        color = DayflowPrimary,
+                                        strokeWidth = 2.dp
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.settings_status_checking),
+                                        fontSize = 12.sp,
+                                        color = DayflowTextMuted
+                                    )
+                                }
+                            }
+                            is UpdateStatus.NoUpdateAvailable -> {
+                                Text(
+                                    text = stringResource(R.string.settings_status_up_to_date, BuildConfig.VERSION_NAME),
+                                    fontSize = 12.sp,
+                                    color = DayflowTextMuted
+                                )
+                            }
+                            is UpdateStatus.UpdateAvailable -> {
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.settings_status_update_available, status.versionTag),
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = DayflowPrimary
+                                    )
+                                    if (status.releaseNotes.isNotEmpty()) {
+                                        Text(
+                                            text = status.releaseNotes,
+                                            fontSize = 11.sp,
+                                            color = DayflowTextMuted,
+                                            maxLines = 2
+                                        )
+                                    }
+                                    DayflowPrimaryButton(
+                                        text = stringResource(R.string.settings_btn_install_update),
+                                        icon = Icons.Outlined.Download,
+                                        onClick = { viewModel.downloadAndInstallUpdate(status) },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                            is UpdateStatus.Downloading -> {
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.settings_status_downloading, status.progress),
+                                        fontSize = 12.sp,
+                                        color = DayflowPrimary,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                            is UpdateStatus.ReadyToInstall -> {
+                                DayflowPrimaryButton(
+                                    text = stringResource(R.string.settings_btn_install_update),
+                                    icon = Icons.Outlined.SystemUpdate,
+                                    onClick = { viewModel.downloadAndInstallUpdate(
+                                        UpdateStatus.UpdateAvailable(
+                                            versionTag = "Downloaded",
+                                            releaseNotes = "",
+                                            downloadUrl = status.apkFile.absolutePath,
+                                            channel = uiState.updateChannel
+                                        )
+                                    ) },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            is UpdateStatus.Error -> {
+                                Text(
+                                    text = status.message,
+                                    fontSize = 12.sp,
+                                    color = Color(0xFFB00020)
+                                )
+                            }
+                            UpdateStatus.Idle -> {
+                                // Default state
+                            }
+                        }
+
+                        DayflowSecondaryButton(
+                            text = stringResource(R.string.settings_btn_check_updates),
+                            icon = Icons.Outlined.Refresh,
+                            onClick = { viewModel.checkForUpdates() },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+
             // Section: Privacy & Reset
             item {
                 SectionHeader(stringResource(R.string.settings_section_privacy))
@@ -317,6 +438,40 @@ private fun LanguageRow(
 
 @Composable
 private fun AiProviderRow(
+    title: String,
+    selected: Boolean,
+    onSelect: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(ButtonShape)
+            .background(if (selected) DayflowPrimarySoft else Color.Transparent)
+            .clickable { onSelect() }
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = if (selected) DayflowPrimary else DayflowText,
+            modifier = Modifier.weight(1f)
+        )
+        if (selected) {
+            Icon(
+                imageVector = Icons.Outlined.Check,
+                contentDescription = null,
+                tint = DayflowPrimary,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun UpdateChannelRow(
     title: String,
     selected: Boolean,
     onSelect: () -> Unit

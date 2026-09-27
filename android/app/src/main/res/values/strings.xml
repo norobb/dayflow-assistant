@@ -106,6 +106,19 @@
     <string name="settings_ai_provider">Active AI Provider</string>
     <string name="settings_ai_provider_local">Local Deterministic Engine (Offline / Secure)</string>
     <string name="settings_ai_provider_gemini">Gemini Multi-Modal API (Proxy / Endpoint)</string>
+
+    <!-- Auto Updates -->
+    <string name="settings_section_updates">Auto Updates</string>
+    <string name="settings_update_channel">Update Release Channel</string>
+    <string name="settings_channel_releases">Official Releases (GitHub Releases)</string>
+    <string name="settings_channel_ci">Latest CI Release (GitHub Actions Build)</string>
+    <string name="settings_btn_check_updates">Check for Updates</string>
+    <string name="settings_btn_install_update">Install Update</string>
+    <string name="settings_status_checking">Checking for updates…</string>
+    <string name="settings_status_up_to_date">App is up to date (%1$s)</string>
+    <string name="settings_status_update_available">Update available: %1$s</string>
+    <string name="settings_status_downloading">Downloading update… %1$d%%</string>
+
     <string name="settings_section_privacy">Privacy &amp; Security</string>
     <string name="settings_privacy_info">Zero Data Resale · On-Device Tokenization · Verified Actions</string>
     <string name="settings_reset_data">Reset Mock Seed Data</string>

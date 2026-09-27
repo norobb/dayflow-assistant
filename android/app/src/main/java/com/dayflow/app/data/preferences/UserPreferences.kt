@@ -21,6 +21,7 @@ class UserPreferences(private val context: Context) : PreferencesRepository {
         val KEY_SOUND_ENABLED = booleanPreferencesKey("sound_enabled")
         val KEY_HAPTIC_ENABLED = booleanPreferencesKey("haptic_enabled")
         val KEY_AI_PROVIDER = stringPreferencesKey("ai_provider")
+        val KEY_UPDATE_CHANNEL = stringPreferencesKey("update_channel")
     }
 
     override fun getLanguage(): Flow<String> {
@@ -68,6 +69,18 @@ class UserPreferences(private val context: Context) : PreferencesRepository {
     override suspend fun setAiProvider(providerName: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_AI_PROVIDER] = providerName
+        }
+    }
+
+    override fun getUpdateChannel(): Flow<String> {
+        return context.dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.KEY_UPDATE_CHANNEL] ?: "releases"
+        }
+    }
+
+    override suspend fun setUpdateChannel(channel: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.KEY_UPDATE_CHANNEL] = channel
         }
     }
 

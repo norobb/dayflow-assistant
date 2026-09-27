@@ -68,6 +68,7 @@ fun DayflowApp(
 
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModel.Factory(
+            app.applicationContext,
             app.repository,
             app.preferencesRepository,
             app.soundAndHaptics
