@@ -1,11 +1,15 @@
 package com.dayflow.app.core.designsystem
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 
 private val DayflowSignatureLightColorScheme = lightColorScheme(
     primary = DayflowPrimaryLightMode,
@@ -67,6 +71,7 @@ fun DayflowTheme(
     designSystemMode: DesignSystemMode = DesignSystemMode.DAYFLOW_SIGNATURE,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     val isDark = when (appearanceMode) {
         AppearanceMode.LIGHT -> false
         AppearanceMode.DARK -> true
@@ -75,7 +80,13 @@ fun DayflowTheme(
 
     val colorScheme = when (designSystemMode) {
         DesignSystemMode.DAYFLOW_SIGNATURE -> if (isDark) DayflowSignatureDarkColorScheme else DayflowSignatureLightColorScheme
-        DesignSystemMode.MATERIAL3 -> if (isDark) M3DarkColorScheme else M3LightColorScheme
+        DesignSystemMode.MATERIAL3 -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            } else {
+                if (isDark) M3DarkColorScheme else M3LightColorScheme
+            }
+        }
     }
 
     MaterialTheme(
