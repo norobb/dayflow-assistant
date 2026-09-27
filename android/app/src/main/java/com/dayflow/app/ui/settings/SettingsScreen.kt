@@ -511,6 +511,26 @@ fun SettingsScreen(
                             is UpdateStatus.Error -> "Update error: ${status.message}"
                         }
 
+                        var updateChannel by remember { mutableStateOf("releases") }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            AppearanceOptionChip(
+                                label = "Releases",
+                                selected = updateChannel == "releases",
+                                onClick = { updateChannel = "releases" },
+                                modifier = Modifier.weight(1f)
+                            )
+                            AppearanceOptionChip(
+                                label = "CI Build",
+                                selected = updateChannel == "ci",
+                                onClick = { updateChannel = "ci" },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
                         Text(
                             text = statusText,
                             style = MaterialTheme.typography.bodyMedium,
