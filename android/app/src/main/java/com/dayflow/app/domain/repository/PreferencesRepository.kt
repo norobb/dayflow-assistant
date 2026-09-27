@@ -14,4 +14,7 @@ interface PreferencesRepository {
 
     fun getAiProvider(): Flow<String>
     suspend fun setAiProvider(providerName: String)
+
+    fun getUpdateChannel(): Flow<String>
+    suspend fun setUpdateChannel(channel: String)
 }
