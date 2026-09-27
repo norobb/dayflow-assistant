@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'android/**'
-      - '.github/workflows/android.yml'
   pull_request:
     branches:
       - main
@@ -50,7 +47,7 @@ jobs:
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dayflow-debug-apk
+          name: dayflow-debug-apk-${{ github.sha }}
           path: |
             android/app/build/outputs/apk/debug/*.apk
           retention-days: 30
