@@ -24,10 +24,25 @@ import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Refresh
+import android.Manifest
+import android.content.Intent
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Mic
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Vibration
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import com.dayflow.app.core.util.PermissionUtils
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -351,6 +366,178 @@ fun SettingsScreen(
                 }
             }
 
+            // Section: Permissions & System Integrations
+            item {
+                SectionHeader("PERMISSIONS & OVERLAY INTEGRATIONS")
+            }
+
+            item {
+                val context = LocalContext.current
+                var notifGranted by remember { mutableStateOf(PermissionUtils.hasNotificationPermission(context)) }
+                var calGranted by remember { mutableStateOf(PermissionUtils.hasCalendarPermission(context)) }
+                var micGranted by remember { mutableStateOf(PermissionUtils.hasMicrophonePermission(context)) }
+                var photosGranted by remember { mutableStateOf(PermissionUtils.hasPhotosPermission(context)) }
+
+                val notifLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) { granted -> notifGranted = granted }
+
+                val micLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) { granted -> micGranted = granted }
+
+                val photosLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) { granted -> photosGranted = granted }
+
+                val calLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestMultiplePermissions()
+                ) { map -> calGranted = map.values.all { it } }
+
+                DayflowCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Security,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "System Permissions",
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        PermissionRow(
+                            icon = Icons.Outlined.Notifications,
+                            title = "Notifications Permission",
+                            granted = notifGranted,
+                            onRequest = {
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                                    notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                }
+                            }
+                        )
+
+                        PermissionRow(
+                            icon = Icons.Outlined.CalendarToday,
+                            title = "Calendar Sync Permission",
+                            granted = calGranted,
+                            onRequest = {
+                                calLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.READ_CALENDAR,
+                                        Manifest.permission.WRITE_CALENDAR
+                                    )
+                                )
+                            }
+                        )
+
+                        PermissionRow(
+                            icon = Icons.Outlined.Mic,
+                            title = "Microphone Permission",
+                            granted = micGranted,
+                            onRequest = {
+                                micLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                            }
+                        )
+
+                        PermissionRow(
+                            icon = Icons.Outlined.Image,
+                            title = "Photos & Media Access",
+                            granted = photosGranted,
+                            onRequest = {
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                                    photosLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                                } else {
+                                    photosLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                }
+                            }
+                        )
+
+                        PermissionRow(
+                            icon = Icons.Outlined.Notifications,
+                            title = "Notification Listener (Message Overlay)",
+                            granted = false,
+                            onRequest = {
+                                try {
+                                    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            }
+                        )
+                    }
+                }
+            }
+
+            // Section: Auto-Update
+            item {
+                SectionHeader(stringResource(R.string.settings_section_updates))
+            }
+
+            item {
+                DayflowCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.SystemUpdate,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = stringResource(R.string.settings_section_updates),
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        // Status Info
+                        val statusText = when (val status = updateStatus) {
+                            is UpdateStatus.Idle -> stringResource(R.string.settings_version)
+                            is UpdateStatus.Checking -> stringResource(R.string.settings_status_checking)
+                            is UpdateStatus.NoUpdateAvailable -> stringResource(R.string.settings_status_up_to_date, status.currentVersion)
+                            is UpdateStatus.UpdateAvailable -> stringResource(R.string.settings_status_update_available, status.versionTag)
+                            is UpdateStatus.Downloading -> stringResource(R.string.settings_status_downloading, status.progress)
+                            is UpdateStatus.ReadyToInstall -> "Ready to install update"
+                            is UpdateStatus.Error -> "Update error: ${status.message}"
+                        }
+
+                        Text(
+                            text = statusText,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        if (updateStatus is UpdateStatus.UpdateAvailable) {
+                            val available = updateStatus as UpdateStatus.UpdateAvailable
+                            DayflowPrimaryButton(
+                                text = stringResource(R.string.settings_btn_install_update),
+                                icon = Icons.Outlined.Download,
+                                onClick = { viewModel.downloadAndInstallUpdate(available) },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        } else {
+                            DayflowSecondaryButton(
+                                text = stringResource(R.string.settings_btn_check_updates),
+                                icon = Icons.Outlined.Refresh,
+                                isLoading = updateStatus is UpdateStatus.Checking,
+                                onClick = { viewModel.checkForUpdates() },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            }
+
             // Section: Reset & Data
             item {
                 SectionHeader(stringResource(R.string.settings_section_privacy))
@@ -413,6 +600,55 @@ fun SettingsScreen(
             }
 
             item { Spacer(modifier = Modifier.height(30.dp)) }
+        }
+    }
+}
+
+@Composable
+private fun PermissionRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    granted: Boolean,
+    onRequest: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .clickable { onRequest() }
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(if (granted) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant)
+                .padding(horizontal = 10.dp, vertical = 4.dp)
+        ) {
+            Text(
+                text = if (granted) "Granted" else "Grant",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
