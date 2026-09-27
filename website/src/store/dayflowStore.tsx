@@ -259,7 +259,12 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (typeof crypto !== 'undefined' && crypto.randomUUID) {
       return `${prefix}-${crypto.randomUUID()}`;
     }
-    return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      const array = new Uint32Array(1);
+      crypto.getRandomValues(array);
+      return `${prefix}-${Date.now()}-${array[0].toString(36)}`;
+    }
+    return `${prefix}-${Date.now()}`;
   };
 
   const getSourceLabel = (type: string) => {
