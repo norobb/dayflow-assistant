@@ -62,6 +62,8 @@ fun IntelligenceScreen(
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showOverlayDemo by remember { mutableStateOf(false) }
+
     // Pulsing animation transition
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by infiniteTransition.animateFloat(
@@ -211,8 +213,6 @@ fun IntelligenceScreen(
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
-
-                var showOverlayDemo by remember { mutableStateOf(false) }
 
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
