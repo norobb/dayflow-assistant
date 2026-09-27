@@ -51,7 +51,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.dayflow.app.R
-import com.dayflow.app.ui.components.DayflowBadge
+import com.dayflow.app.ui.components.ProductStateBadge
 import com.dayflow.app.ui.components.DayflowCard
 import com.dayflow.app.ui.components.DayflowLogoHeader
 import com.dayflow.app.ui.components.DayflowMessageOverlay
@@ -145,7 +145,7 @@ fun IntelligenceScreen(
                             color = Color.Transparent
                         )
                     }
-                    DayflowBadge(label = stringResource(R.string.intelligence_badge_soon))
+                    ProductStateBadge(text = stringResource(R.string.intelligence_badge_soon))
                 }
             }
 

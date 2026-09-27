@@ -529,7 +529,6 @@ fun SettingsScreen(
                             DayflowSecondaryButton(
                                 text = stringResource(R.string.settings_btn_check_updates),
                                 icon = Icons.Outlined.Refresh,
-                                isLoading = updateStatus is UpdateStatus.Checking,
                                 onClick = { viewModel.checkForUpdates() },
                                 modifier = Modifier.fillMaxWidth()
                             )
