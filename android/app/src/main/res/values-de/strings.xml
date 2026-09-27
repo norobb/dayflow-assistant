@@ -143,4 +143,28 @@
     <string name="action_cancel">Abbrechen</string>
     <string name="action_save">Speichern</string>
     <string name="action_delete">Löschen</string>
+
+    <string name="tutorial_skip">Überspringen</string>
+    <string name="tutorial_next">Weiter</string>
+    <string name="tutorial_get_started">Loslegen</string>
+    <string name="tutorial_title_1">Verstreute Informationen</string>
+    <string name="tutorial_desc_1">Sende Dayflow Notizen, Screenshots, Dokumente oder Sprachnachrichten von überall auf deinem Smartphone.</string>
+    <string name="tutorial_title_2">Dayflow Versteht Es</string>
+    <string name="tutorial_desc_2">Gemini KI analysiert deine Eingaben und extrahiert Termine, Aufgaben und Erinnerungen automatisch.</string>
+    <string name="tutorial_title_3">Dayflow Organisiert Es</string>
+    <string name="tutorial_desc_3">Überprüfe und bestätige strukturierte Einträge, bevor etwas zu deinem Zeitplan hinzugefügt wird.</string>
+    <string name="tutorial_title_4">Dayflow Handelt &amp; Verifiziert</string>
+    <string name="tutorial_desc_4">Dein Tag bleibt übersichtlich, strukturiert und mit klaren Erinnerungen synchronisiert.</string>
+
+
+
+
+    <string name="settings_section_appearance">ERSCHEINUNGSBILD &amp; STIL</string>
+    <string name="settings_section_language">SPRACHE</string>
+    <string name="settings_select_language">Sprache wählen</string>
+    <string name="today_section_timeline">ZEITPLAN</string>
+    <string name="today_section_tasks">HEUTIGE AUFGABEN</string>
+    <string name="today_empty_title">Dein Tag ist übersichtlich</string>
+    <string name="today_empty_subtitle">Sende Dayflow Notizen oder Dokumente, um sie automatisch zu organisieren.</string>
+
 </resources>

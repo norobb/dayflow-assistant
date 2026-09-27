@@ -8,6 +8,9 @@ interface AIProvider {
     suspend fun analyze(
         type: SourceType,
         rawInput: String? = null,
-        simulatedDelayMs: Long = 650L
+        mediaBytes: ByteArray? = null,
+        mimeType: String? = null,
+        apiKey: String = "",
+        modelOverride: String = ""
     ): DayflowAnalysisResult
 }

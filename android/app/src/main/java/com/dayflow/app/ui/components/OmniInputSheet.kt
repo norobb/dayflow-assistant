@@ -1,6 +1,5 @@
 package com.dayflow.app.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,16 +18,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ShortText
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Mic
-import androidx.compose.material.icons.outlined.ShortText
-import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -48,16 +49,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dayflow.app.R
-import com.dayflow.app.core.designsystem.ButtonShape
-import com.dayflow.app.core.designsystem.CardShape
-import com.dayflow.app.core.designsystem.DayflowBg
-import com.dayflow.app.core.designsystem.DayflowBorder
-import com.dayflow.app.core.designsystem.DayflowCard
-import com.dayflow.app.core.designsystem.DayflowPrimary
-import com.dayflow.app.core.designsystem.DayflowPrimarySoft
-import com.dayflow.app.core.designsystem.DayflowText
-import com.dayflow.app.core.designsystem.DayflowTextMuted
-import com.dayflow.app.core.designsystem.PillShape
 import com.dayflow.app.domain.model.SourceType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,8 +56,7 @@ import com.dayflow.app.domain.model.SourceType
 fun OmniInputSheet(
     onDismiss: () -> Unit,
     onAnalyze: (SourceType, String?) -> Unit,
-    isAnalyzing: Boolean,
-    modifier: Modifier = Modifier
+    isAnalyzing: Boolean = false
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var selectedTab by remember { mutableStateOf(SourceType.CUSTOM) }
@@ -76,67 +66,47 @@ fun OmniInputSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = DayflowBg,
-        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-        modifier = modifier
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 8.dp
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp)
-                .padding(bottom = 32.dp),
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header
+            // Sheet Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.input_sheet_title),
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = DayflowText
-                    )
-                    Text(
-                        text = stringResource(R.string.input_sheet_subtitle),
-                        fontSize = 12.sp,
-                        color = DayflowTextMuted
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .border(1.dp, DayflowBorder, CircleShape)
-                        .clickable { onDismiss() },
-                    contentAlignment = Alignment.Center
-                ) {
+                Text(
+                    text = stringResource(R.string.input_sheet_title),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = DayflowText,
-                        modifier = Modifier.size(16.dp)
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            // Input Tabs
+            // Input Mode Selector Tabs
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(ButtonShape)
-                    .background(Color.White)
-                    .border(1.dp, DayflowBorder, ButtonShape)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .padding(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 TabButton(
-                    icon = Icons.Outlined.ShortText,
+                    icon = Icons.AutoMirrored.Outlined.ShortText,
                     label = stringResource(R.string.input_tab_text),
                     selected = selectedTab == SourceType.CUSTOM,
                     onClick = { selectedTab = SourceType.CUSTOM },
@@ -174,14 +144,13 @@ fun OmniInputSheet(
             // Tab Content
             when (selectedTab) {
                 SourceType.VOICE -> {
-                    // Voice Recorder UI
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(130.dp)
-                            .clip(CardShape)
-                            .background(Color.White)
-                            .border(1.dp, DayflowBorder, CardShape),
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
@@ -192,7 +161,7 @@ fun OmniInputSheet(
                                 modifier = Modifier
                                     .size(54.dp)
                                     .clip(CircleShape)
-                                    .background(if (isVoiceRecording) Color(0xFFC4384B) else DayflowPrimary)
+                                    .background(if (isVoiceRecording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
                                     .clickable {
                                         isVoiceRecording = !isVoiceRecording
                                         if (!isVoiceRecording) {
@@ -210,88 +179,38 @@ fun OmniInputSheet(
                             }
                             Text(
                                 text = if (isVoiceRecording) stringResource(R.string.input_voice_recording) else stringResource(R.string.input_voice_record),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = DayflowText
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
                 }
                 else -> {
-                    // Text / Document / Screenshot input field
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(110.dp)
-                            .clip(CardShape)
-                            .background(Color.White)
-                            .border(1.dp, DayflowBorder, CardShape)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
                             .padding(14.dp)
                     ) {
                         if (inputText.isEmpty()) {
                             Text(
                                 text = stringResource(R.string.input_text_hint),
-                                fontSize = 13.sp,
-                                color = DayflowTextMuted
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         BasicTextField(
                             value = inputText,
                             onValueChange = { inputText = it },
                             textStyle = TextStyle(
-                                fontSize = 13.sp,
-                                color = DayflowText,
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 lineHeight = 18.sp
                             ),
                             modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
-
-            // Quick Scenario Chips
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(
-                    text = "Quick Presets",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = DayflowTextMuted
-                )
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    item {
-                        PresetChip(
-                            label = stringResource(R.string.input_preset_message_label),
-                            onClick = {
-                                selectedTab = SourceType.MESSAGE
-                                onAnalyze(SourceType.MESSAGE, null)
-                            }
-                        )
-                    }
-                    item {
-                        PresetChip(
-                            label = stringResource(R.string.input_preset_screenshot_label),
-                            onClick = {
-                                selectedTab = SourceType.SCREENSHOT
-                                onAnalyze(SourceType.SCREENSHOT, null)
-                            }
-                        )
-                    }
-                    item {
-                        PresetChip(
-                            label = stringResource(R.string.input_preset_pdf_label),
-                            onClick = {
-                                selectedTab = SourceType.PDF
-                                onAnalyze(SourceType.PDF, null)
-                            }
-                        )
-                    }
-                    item {
-                        PresetChip(
-                            label = stringResource(R.string.input_preset_voice_label),
-                            onClick = {
-                                selectedTab = SourceType.VOICE
-                                onAnalyze(SourceType.VOICE, null)
-                            }
                         )
                     }
                 }
@@ -322,12 +241,12 @@ private fun TabButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val bgColor = if (selected) DayflowPrimarySoft else Color.Transparent
-    val contentColor = if (selected) DayflowPrimary else DayflowTextMuted
+    val bgColor = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
 
     Row(
         modifier = modifier
-            .clip(ButtonShape)
+            .clip(RoundedCornerShape(10.dp))
             .background(bgColor)
             .clickable { onClick() }
             .padding(vertical = 8.dp),
@@ -346,28 +265,6 @@ private fun TabButton(
             fontSize = 11.sp,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
             color = contentColor
-        )
-    }
-}
-
-@Composable
-private fun PresetChip(
-    label: String,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .clip(PillShape)
-            .background(Color.White)
-            .border(1.dp, DayflowBorder, PillShape)
-            .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 6.dp)
-    ) {
-        Text(
-            text = label,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            color = DayflowText
         )
     }
 }

@@ -143,4 +143,28 @@
     <string name="action_cancel">Cancelar</string>
     <string name="action_save">Guardar</string>
     <string name="action_delete">Eliminar</string>
+
+    <string name="tutorial_skip">Omitir</string>
+    <string name="tutorial_next">Siguiente</string>
+    <string name="tutorial_get_started">Comenzar</string>
+    <string name="tutorial_title_1">Información Dispersa</string>
+    <string name="tutorial_desc_1">Envía a Dayflow tus notas, capturas, documentos o mensajes de voz desde cualquier lugar de tu teléfono.</string>
+    <string name="tutorial_title_2">Dayflow Lo Entiende</string>
+    <string name="tutorial_desc_2">La IA Gemini analiza tus entradas para extraer eventos, tareas y recordatorios automáticamente.</string>
+    <string name="tutorial_title_3">Dayflow Lo Organiza</string>
+    <string name="tutorial_desc_3">Revisa y confirma elementos estructurados antes de añadirlos a tu agenda o calendario.</string>
+    <string name="tutorial_title_4">Dayflow Actúa y Verifica</string>
+    <string name="tutorial_desc_4">Tu día se mantiene limpio, estructurado y sincronizado con recordatorios oportunos.</string>
+
+
+
+
+    <string name="settings_section_appearance">APARIENCIA Y ESTILO</string>
+    <string name="settings_section_language">IDIOMA</string>
+    <string name="settings_select_language">Seleccionar idioma</string>
+    <string name="today_section_timeline">CRONOGRAMA</string>
+    <string name="today_section_tasks">TAREAS DE HOY</string>
+    <string name="today_empty_title">Tu día está libre</string>
+    <string name="today_empty_subtitle">Envía a Dayflow algo para organizar desde cualquier parte de tu teléfono.</string>
+
 </resources>

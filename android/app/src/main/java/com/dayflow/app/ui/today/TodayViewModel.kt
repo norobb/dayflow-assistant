@@ -3,6 +3,8 @@ package com.dayflow.app.ui.today
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.dayflow.app.ai.DayflowAnalyzer
+import com.dayflow.app.core.sound.SoundAndHaptics
 import com.dayflow.app.domain.model.DayflowAnalysisResult
 import com.dayflow.app.domain.model.DayflowEvent
 import com.dayflow.app.domain.model.DayflowInsight
@@ -13,12 +15,9 @@ import com.dayflow.app.domain.repository.DayflowRepository
 import com.dayflow.app.domain.repository.PreferencesRepository
 import com.dayflow.app.integrations.calendar.CalendarService
 import com.dayflow.app.integrations.notification.NotificationHelper
-import com.dayflow.app.core.sound.SoundAndHaptics
-import com.dayflow.app.ai.DayflowAnalyzer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -67,7 +66,7 @@ class TodayViewModel(
             events = events,
             tasks = tasks,
             reminders = reminders,
-            insight = if (insight.visible) insight else null,
+            insight = if (insight.visible && insight.title.isNotBlank()) insight else null,
             isAnalyzing = isAnalyzing,
             pendingVerification = verification
         )
@@ -91,15 +90,35 @@ class TodayViewModel(
         }
     }
 
-    fun startAnalysis(type: SourceType, rawInput: String? = null) {
+    fun startAnalysis(
+        type: SourceType,
+        rawInput: String? = null,
+        mediaBytes: ByteArray? = null,
+        mimeType: String? = null
+    ) {
         viewModelScope.launch {
             _isAnalyzing.value = true
             soundAndHaptics.playClick()
             val provider = preferencesRepository.getAiProvider().first()
-            val result = analyzer.analyze(provider, type, rawInput)
+            val apiKey = preferencesRepository.getGeminiApiKey().first()
+            val modelOverride = preferencesRepository.getGeminiModel().first()
+
+            val result = analyzer.analyze(
+                providerName = provider,
+                type = type,
+                rawInput = rawInput,
+                mediaBytes = mediaBytes,
+                mimeType = mimeType,
+                apiKey = apiKey,
+                modelOverride = modelOverride
+            )
             _isAnalyzing.value = false
             _pendingVerification.value = result
-            soundAndHaptics.playSuccess()
+            if (result.hasError) {
+                soundAndHaptics.playError()
+            } else {
+                soundAndHaptics.playSuccess()
+            }
         }
     }
 
@@ -107,60 +126,25 @@ class TodayViewModel(
         _pendingVerification.value = null
     }
 
-    fun addCalendarEvent(result: DayflowAnalysisResult) {
+    fun acceptVerification(result: DayflowAnalysisResult) {
         viewModelScope.launch {
-            result.events.firstOrNull()?.let { ev ->
-                val event = DayflowEvent(
-                    id = "ev-${System.currentTimeMillis()}",
-                    time = ev.time,
-                    title = ev.title,
-                    location = ev.location,
-                    dateLabel = ev.dateLabel,
-                    sourceType = result.sourceType
-                )
-                repository.insertEvent(event)
-                calendarService.insertEvent(event)
-                soundAndHaptics.playSuccess()
+            result.events.forEach { ev ->
+                repository.insertEvent(ev)
+                calendarService.insertEvent(ev)
             }
-        }
-    }
-
-    fun addTask(result: DayflowAnalysisResult) {
-        viewModelScope.launch {
-            result.tasks.firstOrNull()?.let { tk ->
-                val task = DayflowTask(
-                    id = "tk-${System.currentTimeMillis()}",
-                    title = tk.title,
-                    completed = false,
-                    dueDate = tk.dueDate,
-                    sourceType = result.sourceType
-                )
-                repository.insertTask(task)
-                soundAndHaptics.playSuccess()
+            result.tasks.forEach { tk ->
+                repository.insertTask(tk)
             }
-        }
-    }
-
-    fun addReminder(result: DayflowAnalysisResult) {
-        viewModelScope.launch {
-            result.reminders.firstOrNull()?.let { rm ->
-                val reminder = DayflowReminder(
-                    id = "rm-${System.currentTimeMillis()}",
-                    title = rm.title,
-                    timeLabel = rm.timeLabel,
-                    sourceType = result.sourceType
-                )
-                repository.insertReminder(reminder)
-                notificationHelper.scheduleReminder(reminder)
-                soundAndHaptics.playSuccess()
+            result.reminders.forEach { rm ->
+                repository.insertReminder(rm)
+                notificationHelper.scheduleReminder(rm)
             }
+            if (result.insight.visible && result.insight.title.isNotBlank()) {
+                repository.setInsight(result.insight)
+            }
+            soundAndHaptics.playSuccess()
+            _pendingVerification.value = null
         }
-    }
-
-    fun addBoth(result: DayflowAnalysisResult) {
-        addCalendarEvent(result)
-        addTask(result)
-        addReminder(result)
     }
 
     class Factory(
