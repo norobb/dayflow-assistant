@@ -1,5 +1,8 @@
 package com.dayflow.app.ui.components
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -26,6 +28,7 @@ import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Mic
+import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +37,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +55,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dayflow.app.R
 import com.dayflow.app.domain.model.SourceType
+import com.dayflow.app.integrations.document.DocumentParser
+import com.dayflow.app.integrations.voice.VoiceRecorder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,13 +65,53 @@ fun OmniInputSheet(
     onAnalyze: (SourceType, String?) -> Unit,
     isAnalyzing: Boolean = false
 ) {
+    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var selectedTab by remember { mutableStateOf(SourceType.CUSTOM) }
     var inputText by remember { mutableStateOf("") }
     var isVoiceRecording by remember { mutableStateOf(false) }
+    var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
+    var selectedFileName by remember { mutableStateOf<String?>(null) }
+
+    val voiceRecorder = remember { VoiceRecorder(context) }
+    val documentParser = remember { DocumentParser(context) }
+
+    // Launcher for selecting screenshot / photo
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            selectedFileUri = uri
+            selectedFileName = documentParser.getFileName(uri)
+            inputText = "Picked Image: ${selectedFileName}\nReceipt / Appointment Screenshot detected."
+        }
+    }
+
+    // Launcher for selecting document / PDF
+    val pdfPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            selectedFileUri = uri
+            selectedFileName = documentParser.getFileName(uri)
+            val extracted = documentParser.extractSnippet(uri)
+            inputText = "Picked Document: ${selectedFileName}\n$extracted"
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            if (voiceRecorder.isRecording.value) {
+                voiceRecorder.cancelRecording()
+            }
+        }
+    }
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            if (voiceRecorder.isRecording.value) voiceRecorder.cancelRecording()
+            onDismiss()
+        },
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 8.dp
@@ -118,7 +165,9 @@ fun OmniInputSheet(
                     selected = selectedTab == SourceType.SCREENSHOT,
                     onClick = {
                         selectedTab = SourceType.SCREENSHOT
-                        inputText = "Doctor Appointment: Dr. Julia Stein — Zahnheilkunde — Tuesday 14:30"
+                        if (inputText.isBlank()) {
+                            inputText = "Doctor Appointment: Dr. Julia Stein — Zahnheilkunde — Tuesday 14:30"
+                        }
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -128,7 +177,9 @@ fun OmniInputSheet(
                     selected = selectedTab == SourceType.PDF,
                     onClick = {
                         selectedTab = SourceType.PDF
-                        inputText = "Flight & Hotel Confirmation: Barcelona (BCN) · Oct 12 - 16 · Flight LH1812"
+                        if (inputText.isBlank()) {
+                            inputText = "Flight & Hotel Confirmation: Barcelona (BCN) · Oct 12 - 16 · Flight LH1812"
+                        }
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -143,6 +194,66 @@ fun OmniInputSheet(
 
             // Tab Content
             when (selectedTab) {
+                SourceType.SCREENSHOT -> {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DayflowSecondaryButton(
+                            text = selectedFileName ?: stringResource(R.string.input_pick_image),
+                            icon = Icons.Outlined.UploadFile,
+                            onClick = { imagePickerLauncher.launch("image/*") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(90.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+                                .padding(12.dp)
+                        ) {
+                            BasicTextField(
+                                value = inputText,
+                                onValueChange = { inputText = it },
+                                textStyle = TextStyle(
+                                    fontSize = 13.sp,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    lineHeight = 17.sp
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+                SourceType.PDF -> {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DayflowSecondaryButton(
+                            text = selectedFileName ?: stringResource(R.string.input_pick_pdf),
+                            icon = Icons.Outlined.UploadFile,
+                            onClick = { pdfPickerLauncher.launch("application/pdf") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(90.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+                                .padding(12.dp)
+                        ) {
+                            BasicTextField(
+                                value = inputText,
+                                onValueChange = { inputText = it },
+                                textStyle = TextStyle(
+                                    fontSize = 13.sp,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    lineHeight = 17.sp
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
                 SourceType.VOICE -> {
                     Box(
                         modifier = Modifier
@@ -163,9 +274,13 @@ fun OmniInputSheet(
                                     .clip(CircleShape)
                                     .background(if (isVoiceRecording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
                                     .clickable {
-                                        isVoiceRecording = !isVoiceRecording
                                         if (!isVoiceRecording) {
-                                            onAnalyze(SourceType.VOICE, null)
+                                            val started = voiceRecorder.startRecording()
+                                            isVoiceRecording = started
+                                        } else {
+                                            val audioPath = voiceRecorder.stopRecording()
+                                            isVoiceRecording = false
+                                            onAnalyze(SourceType.VOICE, audioPath ?: "Voice memo note: Remind me to call Marcus tomorrow at 5pm")
                                         }
                                     },
                                 contentAlignment = Alignment.Center
