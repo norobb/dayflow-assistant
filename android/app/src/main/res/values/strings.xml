@@ -143,4 +143,28 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_save">Save</string>
     <string name="action_delete">Delete</string>
+
+    <string name="tutorial_skip">Skip</string>
+    <string name="tutorial_next">Next</string>
+    <string name="tutorial_get_started">Get Started</string>
+    <string name="tutorial_title_1">Scattered Information</string>
+    <string name="tutorial_desc_1">Send Dayflow your notes, screenshots, documents, or voice messages from anywhere on your phone.</string>
+    <string name="tutorial_title_2">Dayflow Understands It</string>
+    <string name="tutorial_desc_2">Gemini AI analyzes your inputs to extract events, tasks, and reminders without manual entry.</string>
+    <string name="tutorial_title_3">Dayflow Organizes It</string>
+    <string name="tutorial_desc_3">Review and confirm structured items before anything is added to your timeline or calendar.</string>
+    <string name="tutorial_title_4">Dayflow Acts &amp; Verifies</string>
+    <string name="tutorial_desc_4">Your day stays clean, structured, and synchronized with live reminders and timely insights.</string>
+
+
+
+
+    <string name="settings_section_appearance">APPEARANCE &amp; STYLE</string>
+    <string name="settings_section_language">LANGUAGE</string>
+    <string name="settings_select_language">Select Language</string>
+    <string name="today_section_timeline">TIMELINE</string>
+    <string name="today_section_tasks">TODAY TASKS</string>
+    <string name="today_empty_title">Your day is clear</string>
+    <string name="today_empty_subtitle">Send Dayflow something to organize from anywhere on your phone.</string>
+
 </resources>

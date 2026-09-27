@@ -13,17 +13,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.SystemUpdate
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.Vibration
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -39,17 +48,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dayflow.app.BuildConfig
 import com.dayflow.app.R
-import com.dayflow.app.core.designsystem.ButtonShape
-import com.dayflow.app.core.designsystem.DayflowBg
-import com.dayflow.app.core.designsystem.DayflowPrimary
-import com.dayflow.app.core.designsystem.DayflowPrimarySoft
-import com.dayflow.app.core.designsystem.DayflowText
-import com.dayflow.app.core.designsystem.DayflowTextMuted
+import com.dayflow.app.core.designsystem.AppearanceMode
+import com.dayflow.app.core.designsystem.DesignSystemMode
 import com.dayflow.app.core.update.UpdateStatus
-import com.dayflow.app.ui.components.DayflowPrimaryButton
 import com.dayflow.app.ui.components.DayflowCard
+import com.dayflow.app.ui.components.DayflowPrimaryButton
 import com.dayflow.app.ui.components.DayflowSecondaryButton
 
 @Composable
@@ -58,64 +62,180 @@ fun SettingsScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val updateStatus by viewModel.updateStatus.collectAsState()
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DayflowBg)
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        // Top Bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "Back",
-                    tint = DayflowText
-                )
-            }
-            Text(
-                text = stringResource(R.string.settings_title),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = DayflowText
-            )
-        }
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item { Spacer(modifier = Modifier.height(4.dp)) }
-
-            // Section: Language
+            // Top Bar
             item {
-                SectionHeader(stringResource(R.string.settings_language))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.settings_title),
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            }
+
+            // Section: Appearance
+            item {
+                SectionHeader(stringResource(R.string.settings_section_appearance))
             }
 
             item {
                 DayflowCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Palette,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "Appearance Mode",
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            AppearanceOptionChip(
+                                label = "Light",
+                                selected = uiState.appearanceMode == AppearanceMode.LIGHT,
+                                onClick = { viewModel.setAppearanceMode(AppearanceMode.LIGHT) },
+                                modifier = Modifier.weight(1f)
+                            )
+                            AppearanceOptionChip(
+                                label = "Dark",
+                                selected = uiState.appearanceMode == AppearanceMode.DARK,
+                                onClick = { viewModel.setAppearanceMode(AppearanceMode.DARK) },
+                                modifier = Modifier.weight(1f)
+                            )
+                            AppearanceOptionChip(
+                                label = "System",
+                                selected = uiState.appearanceMode == AppearanceMode.SYSTEM,
+                                onClick = { viewModel.setAppearanceMode(AppearanceMode.SYSTEM) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Section: Design System
+            item {
+                DayflowCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Tune,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "Design Language",
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            AppearanceOptionChip(
+                                label = "Dayflow Signature",
+                                selected = uiState.designSystemMode == DesignSystemMode.DAYFLOW_SIGNATURE,
+                                onClick = { viewModel.setDesignSystemMode(DesignSystemMode.DAYFLOW_SIGNATURE) },
+                                modifier = Modifier.weight(1f)
+                            )
+                            AppearanceOptionChip(
+                                label = "Material 3",
+                                selected = uiState.designSystemMode == DesignSystemMode.MATERIAL3,
+                                onClick = { viewModel.setDesignSystemMode(DesignSystemMode.MATERIAL3) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Section: Language
+            item {
+                SectionHeader(stringResource(R.string.settings_section_language))
+            }
+
+            item {
+                DayflowCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Language,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = stringResource(R.string.settings_select_language),
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
                         LanguageRow(
-                            name = stringResource(R.string.settings_language_en),
+                            name = "English",
                             code = "en",
                             selected = uiState.language == "en",
                             onSelect = { viewModel.setLanguage("en") }
                         )
                         LanguageRow(
-                            name = stringResource(R.string.settings_language_de),
+                            name = "Deutsch",
                             code = "de",
                             selected = uiState.language == "de",
                             onSelect = { viewModel.setLanguage("de") }
                         )
                         LanguageRow(
-                            name = stringResource(R.string.settings_language_es),
+                            name = "Español",
                             code = "es",
                             selected = uiState.language == "es",
                             onSelect = { viewModel.setLanguage("es") }
@@ -124,208 +244,114 @@ fun SettingsScreen(
                 }
             }
 
-            // Section: Sound & Feedback
-            item {
-                SectionHeader(stringResource(R.string.settings_section_haptics))
-            }
-
-            item {
-                DayflowCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.settings_sound_effects),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = DayflowText
-                            )
-                            Switch(
-                                checked = uiState.isSoundEnabled,
-                                onCheckedChange = { viewModel.setSoundEnabled(it) },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = DayflowPrimary
-                                )
-                            )
-                        }
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.settings_haptics),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = DayflowText
-                            )
-                            Switch(
-                                checked = uiState.isHapticEnabled,
-                                onCheckedChange = { viewModel.setHapticEnabled(it) },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = DayflowPrimary
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Section: AI Provider
+            // Section: AI Configuration
             item {
                 SectionHeader(stringResource(R.string.settings_section_ai))
             }
 
             item {
                 DayflowCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.AutoAwesome,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "AI Provider & Model",
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
                         AiProviderRow(
-                            title = stringResource(R.string.settings_ai_provider_local),
-                            selected = uiState.aiProvider == "local",
-                            onSelect = { viewModel.setAiProvider("local") }
-                        )
-                        AiProviderRow(
-                            title = stringResource(R.string.settings_ai_provider_gemini),
+                            title = "Gemini AI (Real Multimodal)",
                             selected = uiState.aiProvider == "gemini",
                             onSelect = { viewModel.setAiProvider("gemini") }
                         )
+                        AiProviderRow(
+                            title = "Local Offline Engine",
+                            selected = uiState.aiProvider == "local",
+                            onSelect = { viewModel.setAiProvider("local") }
+                        )
+
+                        if (uiState.aiProvider == "gemini") {
+                            OutlinedTextField(
+                                value = uiState.geminiApiKey,
+                                onValueChange = { viewModel.setGeminiApiKey(it) },
+                                label = { Text("Gemini API Key") },
+                                placeholder = { Text("AIzaSy...") },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                                )
+                            )
+
+                            OutlinedTextField(
+                                value = uiState.geminiModel,
+                                onValueChange = { viewModel.setGeminiModel(it) },
+                                label = { Text("Model Identifier") },
+                                placeholder = { Text("gemini-3.6-flash") },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                                )
+                            )
+                        }
                     }
                 }
             }
 
-            // Section: Auto Updates
+            // Section: Haptics & Feedback
             item {
-                SectionHeader(stringResource(R.string.settings_section_updates))
+                SectionHeader("INTERACTION & HAPTICS")
             }
 
             item {
                 DayflowCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(
-                            text = stringResource(R.string.settings_update_channel),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = DayflowTextMuted
-                        )
-
-                        UpdateChannelRow(
-                            title = stringResource(R.string.settings_channel_releases),
-                            selected = uiState.updateChannel == "releases",
-                            onSelect = { viewModel.setUpdateChannel("releases") }
-                        )
-
-                        UpdateChannelRow(
-                            title = stringResource(R.string.settings_channel_ci),
-                            selected = uiState.updateChannel == "ci",
-                            onSelect = { viewModel.setUpdateChannel("ci") }
-                        )
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        // Status display
-                        when (val status = uiState.updateStatus) {
-                            is UpdateStatus.Checking -> {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        color = DayflowPrimary,
-                                        strokeWidth = 2.dp
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.settings_status_checking),
-                                        fontSize = 12.sp,
-                                        color = DayflowTextMuted
-                                    )
-                                }
-                            }
-                            is UpdateStatus.NoUpdateAvailable -> {
-                                Text(
-                                    text = stringResource(R.string.settings_status_up_to_date, BuildConfig.VERSION_NAME),
-                                    fontSize = 12.sp,
-                                    color = DayflowTextMuted
-                                )
-                            }
-                            is UpdateStatus.UpdateAvailable -> {
-                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    Text(
-                                        text = stringResource(R.string.settings_status_update_available, status.versionTag),
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = DayflowPrimary
-                                    )
-                                    if (status.releaseNotes.isNotEmpty()) {
-                                        Text(
-                                            text = status.releaseNotes,
-                                            fontSize = 11.sp,
-                                            color = DayflowTextMuted,
-                                            maxLines = 2
-                                        )
-                                    }
-                                    DayflowPrimaryButton(
-                                        text = stringResource(R.string.settings_btn_install_update),
-                                        icon = Icons.Outlined.Download,
-                                        onClick = { viewModel.downloadAndInstallUpdate(status) },
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
-                            }
-                            is UpdateStatus.Downloading -> {
-                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    Text(
-                                        text = stringResource(R.string.settings_status_downloading, status.progress),
-                                        fontSize = 12.sp,
-                                        color = DayflowPrimary,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                }
-                            }
-                            is UpdateStatus.ReadyToInstall -> {
-                                DayflowPrimaryButton(
-                                    text = stringResource(R.string.settings_btn_install_update),
-                                    icon = Icons.Outlined.SystemUpdate,
-                                    onClick = { viewModel.downloadAndInstallUpdate(
-                                        UpdateStatus.UpdateAvailable(
-                                            versionTag = "Downloaded",
-                                            releaseNotes = "",
-                                            downloadUrl = status.apkFile.absolutePath,
-                                            channel = uiState.updateChannel
-                                        )
-                                    ) },
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                            is UpdateStatus.Error -> {
-                                Text(
-                                    text = status.message,
-                                    fontSize = 12.sp,
-                                    color = Color(0xFFB00020)
-                                )
-                            }
-                            UpdateStatus.Idle -> {
-                                // Default state
-                            }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Vibration,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = stringResource(R.string.settings_haptics),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
-
-                        DayflowSecondaryButton(
-                            text = stringResource(R.string.settings_btn_check_updates),
-                            icon = Icons.Outlined.Refresh,
-                            onClick = { viewModel.checkForUpdates() },
-                            modifier = Modifier.fillMaxWidth()
+                        Switch(
+                            checked = uiState.hapticEnabled,
+                            onCheckedChange = { viewModel.toggleHaptic(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primary
+                            )
                         )
                     }
                 }
             }
 
-            // Section: Privacy & Reset
+            // Section: Reset & Data
             item {
                 SectionHeader(stringResource(R.string.settings_section_privacy))
             }
@@ -340,13 +366,13 @@ fun SettingsScreen(
                             Icon(
                                 imageVector = Icons.Outlined.Shield,
                                 contentDescription = null,
-                                tint = DayflowPrimary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(18.dp)
                             )
                             Text(
                                 text = stringResource(R.string.settings_privacy_info),
-                                fontSize = 12.sp,
-                                color = DayflowTextMuted
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 
@@ -360,27 +386,27 @@ fun SettingsScreen(
                 }
             }
 
-            // About Brand
+            // About Brand Footer
             item {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 12.dp),
+                        .padding(vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.dayflow_symbol_official),
                             contentDescription = "Dayflow Symbol",
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(36.dp)
                         )
                         Text(
                             text = stringResource(R.string.settings_version),
-                            fontSize = 11.sp,
-                            color = DayflowTextMuted
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -395,11 +421,37 @@ fun SettingsScreen(
 private fun SectionHeader(title: String) {
     Text(
         text = title,
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Bold,
-        color = DayflowTextMuted,
-        modifier = Modifier.padding(start = 4.dp)
+        style = MaterialTheme.typography.labelMedium.copy(
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.5.sp
+        ),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
     )
+}
+
+@Composable
+private fun AppearanceOptionChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant)
+            .clickable { onClick() }
+            .padding(vertical = 10.dp, horizontal = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }
 
 @Composable
@@ -412,8 +464,8 @@ private fun LanguageRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(ButtonShape)
-            .background(if (selected) DayflowPrimarySoft else Color.Transparent)
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
             .clickable { onSelect() }
             .padding(horizontal = 12.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -421,15 +473,16 @@ private fun LanguageRow(
     ) {
         Text(
             text = name,
-            fontSize = 13.sp,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            color = if (selected) DayflowPrimary else DayflowText
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+            ),
+            color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
         )
         if (selected) {
             Icon(
                 imageVector = Icons.Outlined.Check,
                 contentDescription = null,
-                tint = DayflowPrimary,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(16.dp)
             )
         }
@@ -445,8 +498,8 @@ private fun AiProviderRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(ButtonShape)
-            .background(if (selected) DayflowPrimarySoft else Color.Transparent)
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
             .clickable { onSelect() }
             .padding(horizontal = 12.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -454,50 +507,17 @@ private fun AiProviderRow(
     ) {
         Text(
             text = title,
-            fontSize = 12.sp,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            color = if (selected) DayflowPrimary else DayflowText,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+            ),
+            color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         if (selected) {
             Icon(
                 imageVector = Icons.Outlined.Check,
                 contentDescription = null,
-                tint = DayflowPrimary,
-                modifier = Modifier.size(16.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun UpdateChannelRow(
-    title: String,
-    selected: Boolean,
-    onSelect: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(ButtonShape)
-            .background(if (selected) DayflowPrimarySoft else Color.Transparent)
-            .clickable { onSelect() }
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            fontSize = 12.sp,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            color = if (selected) DayflowPrimary else DayflowText,
-            modifier = Modifier.weight(1f)
-        )
-        if (selected) {
-            Icon(
-                imageVector = Icons.Outlined.Check,
-                contentDescription = null,
-                tint = DayflowPrimary,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(16.dp)
             )
         }

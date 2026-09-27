@@ -10,10 +10,6 @@ import com.dayflow.app.domain.repository.DayflowRepository
 import com.dayflow.app.domain.repository.PreferencesRepository
 import com.dayflow.app.integrations.calendar.CalendarService
 import com.dayflow.app.integrations.notification.NotificationHelper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 class DayflowApplication : Application() {
 
@@ -48,14 +44,5 @@ class DayflowApplication : Application() {
         notificationHelper = NotificationHelper(this)
         calendarService = CalendarService(this)
         analyzer = DayflowAnalyzer()
-
-        // Seed initial data if empty
-        CoroutineScope(Dispatchers.IO).launch {
-            val events = repository.observeEvents().first()
-            if (events.isEmpty()) {
-                val lang = preferencesRepository.getLanguage().first()
-                repository.resetToDefaults(lang)
-            }
-        }
     }
 }
