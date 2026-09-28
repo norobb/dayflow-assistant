@@ -141,6 +141,12 @@ class UpdateManager(private val context: Context) {
             try {
                 _updateStatus.value = UpdateStatus.Downloading(0)
 
+                // SECURITY ENHANCEMENT: Enforce HTTPS scheme to prevent MITM attacks during update download
+                if (!updateInfo.downloadUrl.startsWith("https://", ignoreCase = true)) {
+                    _updateStatus.value = UpdateStatus.Error("Security error: Insecure update download URL. HTTPS is required.")
+                    return@withContext
+                }
+
                 // If downloadUrl is a web page or standard release APK
                 if (!updateInfo.downloadUrl.endsWith(".apk")) {
                     // Open browser URL for manual apk / release download
