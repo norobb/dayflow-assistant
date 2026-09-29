@@ -53,7 +53,9 @@ class GeminiProvider : AIProvider {
             )
         }
 
-        val targetModel = modelOverride.ifBlank { "gemini-3.6-flash" }
+        val rawModel = modelOverride.ifBlank { "gemini-3.6-flash" }
+        // SECURITY ENHANCEMENT: Validate model name format to prevent URL parameter injection / path traversal
+        val targetModel = if (rawModel.matches(Regex("^[a-zA-Z0-9._-]+$"))) rawModel else "gemini-3.6-flash"
 
         try {
             val systemInstruction = """
@@ -164,12 +166,12 @@ class GeminiProvider : AIProvider {
                     reminders = emptyList(),
                     insight = DayflowInsight(
                         title = "Gemini Connection Error",
-                        text = "Received HTTP $statusCode from Gemini API. Check your model ($targetModel) and key configuration.",
+                        text = sanitizeError("Received HTTP $statusCode from Gemini API. Check your model ($targetModel) and key configuration.", effectiveKey),
                         visible = true
                     ),
                     confidence = 0f,
                     hasError = true,
-                    errorMessage = "Gemini API error ($statusCode): $errorMsg"
+                    errorMessage = sanitizeError("Gemini API error ($statusCode): $errorMsg", effectiveKey)
                 )
             }
 
@@ -279,13 +281,28 @@ class GeminiProvider : AIProvider {
                 reminders = emptyList(),
                 insight = DayflowInsight(
                     title = "Analysis Exception",
-                    text = "An exception occurred while processing Gemini request: ${e.localizedMessage}",
+                    text = sanitizeError("An exception occurred while processing Gemini request: ${e.localizedMessage}", effectiveKey),
                     visible = true
                 ),
                 confidence = 0f,
                 hasError = true,
-                errorMessage = e.localizedMessage ?: "Unknown error"
+                errorMessage = sanitizeError(e.localizedMessage, effectiveKey)
             )
+        }
+    }
+
+    companion object {
+        /**
+         * SECURITY ENHANCEMENT: Redact API keys and URL key query params from error messages
+         * to prevent exposing credentials in UI cards or logs.
+         */
+        fun sanitizeError(message: String?, apiKey: String): String {
+            if (message.isNullOrBlank()) return "Unknown error"
+            var sanitized = message
+            if (apiKey.isNotBlank()) {
+                sanitized = sanitized.replace(apiKey, "[REDACTED]")
+            }
+            return sanitized.replace(Regex("key=[a-zA-Z0-9._-]+"), "key=[REDACTED]")
         }
     }
 }
