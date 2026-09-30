@@ -12,3 +12,8 @@
 **Vulnerability:** Exception messages and network error streams in HTTP clients retain sensitive URL query parameters (e.g. `?key=AIzaSy...`), leaking credentials to UI error states and logs.
 **Learning:** Java `HttpURLConnection` includes full requested URL query strings in exception messages when connections fail or return HTTP errors. Error messages must explicitly sanitize raw keys and URL query parameters before propagating them to user-facing models or loggers.
 **Prevention:** Filter input model overrides with strict regex (`^[a-zA-Z0-9._-]+$`) and pass all error text through a credential redactor that replaces matching secrets and `key=...` params with `[REDACTED]`.
+
+## 2026-09-30 - Bounded Stream Buffer Reading for Shared Document Snippets
+**Vulnerability:** Reading shared document streams line-by-line (`reader.readLine()`) without length caps allows minified files or binary streams without newlines to trigger Out-Of-Memory (OOM) Denial of Service (DoS).
+**Learning:** `BufferedReader.readLine()` buffers an entire line in memory regardless of configured downstream character snippet limits. Untrusted content streams shared via Android intents must be processed using fixed-size `Reader` buffers with hard character bounds.
+**Prevention:** Always read untrusted content streams into fixed byte/character buffers (`CharArray(512)`) enforcing explicit `maxChars` read limits.
