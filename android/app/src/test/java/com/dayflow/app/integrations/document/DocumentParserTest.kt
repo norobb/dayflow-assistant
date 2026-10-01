@@ -37,4 +37,23 @@ class DocumentParserTest {
         assertEquals(100, snippet.length)
         assertTrue(snippet.all { it == 'A' })
     }
+
+    @Test
+    fun testReadBytesWithLimitReturnsByteArrayUnderLimit() {
+        val data = ByteArray(1024) { 1 }
+        val stream = java.io.ByteArrayInputStream(data)
+        val result = DocumentParser.readBytesWithLimit(stream, maxBytes = 2048)
+
+        org.junit.Assert.assertNotNull(result)
+        assertEquals(1024, result!!.size)
+    }
+
+    @Test
+    fun testReadBytesWithLimitReturnsNullWhenExceedingLimit() {
+        val data = ByteArray(5000) { 1 }
+        val stream = java.io.ByteArrayInputStream(data)
+        val result = DocumentParser.readBytesWithLimit(stream, maxBytes = 4000)
+
+        org.junit.Assert.assertNull(result)
+    }
 }

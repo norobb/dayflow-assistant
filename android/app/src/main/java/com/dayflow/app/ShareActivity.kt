@@ -108,21 +108,26 @@ private fun ShareScreen(
                         intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
                     }
                     val mediaBytes = imageUri?.let { uri ->
-                        app.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                        app.contentResolver.openInputStream(uri)?.use { DocumentParser.readBytesWithLimit(it) }
                     }
-                    val snippet = imageUri?.let { documentParser.getFileName(it) } ?: "Shared image"
-                    val result = app.analyzer.analyze(
-                        providerName = provider,
-                        type = SourceType.SCREENSHOT,
-                        rawInput = snippet,
-                        mediaBytes = mediaBytes,
-                        mimeType = type,
-                        apiKey = apiKey,
-                        modelOverride = modelOverride
-                    )
-                    analysisResult = result
-                    isAnalyzing = false
-                    app.soundAndHaptics.playSuccess()
+                    if (imageUri != null && mediaBytes == null) {
+                        isAnalyzing = false
+                        errorMessage = "Shared image exceeds maximum size limit (10MB)."
+                    } else {
+                        val snippet = imageUri?.let { documentParser.getFileName(it) } ?: "Shared image"
+                        val result = app.analyzer.analyze(
+                            providerName = provider,
+                            type = SourceType.SCREENSHOT,
+                            rawInput = snippet,
+                            mediaBytes = mediaBytes,
+                            mimeType = type,
+                            apiKey = apiKey,
+                            modelOverride = modelOverride
+                        )
+                        analysisResult = result
+                        isAnalyzing = false
+                        app.soundAndHaptics.playSuccess()
+                    }
                 }
 
                 type == "application/pdf" || type.startsWith("application/") -> {
@@ -133,21 +138,26 @@ private fun ShareScreen(
                         intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
                     }
                     val mediaBytes = docUri?.let { uri ->
-                        app.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                        app.contentResolver.openInputStream(uri)?.use { DocumentParser.readBytesWithLimit(it) }
                     }
-                    val snippet = docUri?.let { documentParser.extractSnippet(it) } ?: "Shared PDF"
-                    val result = app.analyzer.analyze(
-                        providerName = provider,
-                        type = SourceType.PDF,
-                        rawInput = snippet,
-                        mediaBytes = mediaBytes,
-                        mimeType = type,
-                        apiKey = apiKey,
-                        modelOverride = modelOverride
-                    )
-                    analysisResult = result
-                    isAnalyzing = false
-                    app.soundAndHaptics.playSuccess()
+                    if (docUri != null && mediaBytes == null) {
+                        isAnalyzing = false
+                        errorMessage = "Shared document exceeds maximum size limit (10MB)."
+                    } else {
+                        val snippet = docUri?.let { documentParser.extractSnippet(it) } ?: "Shared PDF"
+                        val result = app.analyzer.analyze(
+                            providerName = provider,
+                            type = SourceType.PDF,
+                            rawInput = snippet,
+                            mediaBytes = mediaBytes,
+                            mimeType = type,
+                            apiKey = apiKey,
+                            modelOverride = modelOverride
+                        )
+                        analysisResult = result
+                        isAnalyzing = false
+                        app.soundAndHaptics.playSuccess()
+                    }
                 }
 
                 type.startsWith("audio/") -> {
@@ -158,20 +168,25 @@ private fun ShareScreen(
                         intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
                     }
                     val mediaBytes = audioUri?.let { uri ->
-                        app.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                        app.contentResolver.openInputStream(uri)?.use { DocumentParser.readBytesWithLimit(it) }
                     }
-                    val result = app.analyzer.analyze(
-                        providerName = provider,
-                        type = SourceType.VOICE,
-                        rawInput = "Voice input",
-                        mediaBytes = mediaBytes,
-                        mimeType = type,
-                        apiKey = apiKey,
-                        modelOverride = modelOverride
-                    )
-                    analysisResult = result
-                    isAnalyzing = false
-                    app.soundAndHaptics.playSuccess()
+                    if (audioUri != null && mediaBytes == null) {
+                        isAnalyzing = false
+                        errorMessage = "Shared audio exceeds maximum size limit (10MB)."
+                    } else {
+                        val result = app.analyzer.analyze(
+                            providerName = provider,
+                            type = SourceType.VOICE,
+                            rawInput = "Voice input",
+                            mediaBytes = mediaBytes,
+                            mimeType = type,
+                            apiKey = apiKey,
+                            modelOverride = modelOverride
+                        )
+                        analysisResult = result
+                        isAnalyzing = false
+                        app.soundAndHaptics.playSuccess()
+                    }
                 }
 
                 else -> {

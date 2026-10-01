@@ -17,3 +17,8 @@
 **Vulnerability:** Reading shared document streams line-by-line (`reader.readLine()`) without length caps allows minified files or binary streams without newlines to trigger Out-Of-Memory (OOM) Denial of Service (DoS).
 **Learning:** `BufferedReader.readLine()` buffers an entire line in memory regardless of configured downstream character snippet limits. Untrusted content streams shared via Android intents must be processed using fixed-size `Reader` buffers with hard character bounds.
 **Prevention:** Always read untrusted content streams into fixed byte/character buffers (`CharArray(512)`) enforcing explicit `maxChars` read limits.
+
+## 2026-10-01 - Bounded Byte Stream Reading for Shared Media Intake
+**Vulnerability:** Unbounded byte reading (`it.readBytes()`) on shared intent content streams in Android intake activity (`ShareActivity.kt`) allowed oversized images, PDFs, or audio files to trigger Out-Of-Memory (OOM) crashes.
+**Learning:** `InputStream.readBytes()` reads all available stream data into a dynamically resizing byte array without hard bounds checks, making Android activities accepting shared external content vulnerable to OOM Denial of Service (DoS) attacks.
+**Prevention:** Process untrusted `InputStream` binaries using bounded buffer loops (`readBytesWithLimit(stream, maxBytes)`) enforcing an explicit maximum byte threshold (e.g., 10MB) and gracefully handle size threshold violations.
