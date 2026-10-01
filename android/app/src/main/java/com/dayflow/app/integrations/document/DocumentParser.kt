@@ -68,5 +68,25 @@ class DocumentParser(private val context: Context) {
             }
             return sb.toString().trim()
         }
+
+        /**
+         * SECURITY ENHANCEMENT: Read byte stream with a hard byte limit (default 10MB).
+         * Prevents Out-Of-Memory (OOM) Denial of Service (DoS) attacks from oversized shared files.
+         * Returns null if total stream size exceeds maxBytes limit.
+         */
+        fun readBytesWithLimit(stream: InputStream, maxBytes: Int = 10 * 1024 * 1024): ByteArray? {
+            val buffer = ByteArray(8192)
+            val output = java.io.ByteArrayOutputStream()
+            var totalBytes = 0
+            var bytesRead: Int
+            while (stream.read(buffer).also { bytesRead = it } != -1) {
+                totalBytes += bytesRead
+                if (totalBytes > maxBytes) {
+                    return null
+                }
+                output.write(buffer, 0, bytesRead)
+            }
+            return output.toByteArray()
+        }
     }
 }
