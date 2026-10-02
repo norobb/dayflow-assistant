@@ -22,3 +22,8 @@
 **Vulnerability:** Unbounded byte reading (`it.readBytes()`) on shared intent content streams in Android intake activity (`ShareActivity.kt`) allowed oversized images, PDFs, or audio files to trigger Out-Of-Memory (OOM) crashes.
 **Learning:** `InputStream.readBytes()` reads all available stream data into a dynamically resizing byte array without hard bounds checks, making Android activities accepting shared external content vulnerable to OOM Denial of Service (DoS) attacks.
 **Prevention:** Process untrusted `InputStream` binaries using bounded buffer loops (`readBytesWithLimit(stream, maxBytes)`) enforcing an explicit maximum byte threshold (e.g., 10MB) and gracefully handle size threshold violations.
+
+## 2026-10-02 - Bounded Byte Stream Reading for In-App APK Updates
+**Vulnerability:** Unbounded file stream writing when downloading update packages in `UpdateManager` allowed oversized binary payloads or infinite streams to trigger storage exhaustion Denial of Service (DoS).
+**Learning:** In-app update downloaders that stream binary responses directly to local disk without byte limit bounds can fill device storage completely or crash if the remote endpoint serves an excessively large file.
+**Prevention:** Always process network download streams using bounded byte thresholds (`downloadStreamWithLimit(input, output, maxBytes)`) enforcing an explicit maximum byte cap (e.g., 100MB), deleting partial files if the limit is exceeded.
