@@ -167,20 +167,22 @@ class UpdateManager(private val context: Context) {
                 val apkFile = File(context.cacheDir, "dayflow_update.apk")
                 if (apkFile.exists()) apkFile.delete()
 
-                connection.inputStream.use { input ->
+                val success = connection.inputStream.use { input ->
                     FileOutputStream(apkFile).use { output ->
-                        val data = ByteArray(4096)
-                        var total: Long = 0
-                        var count: Int
-                        while (input.read(data).also { count = it } != -1) {
-                            total += count
-                            if (fileLength > 0) {
-                                val progress = (total * 100 / fileLength).toInt()
-                                _updateStatus.value = UpdateStatus.Downloading(progress)
-                            }
-                            output.write(data, 0, count)
-                        }
+                        downloadStreamWithLimit(
+                            input = input,
+                            output = output,
+                            maxBytes = MAX_APK_SIZE_BYTES,
+                            fileLength = fileLength,
+                            onProgress = { progress -> _updateStatus.value = UpdateStatus.Downloading(progress) }
+                        )
                     }
+                }
+
+                if (!success) {
+                    if (apkFile.exists()) apkFile.delete()
+                    _updateStatus.value = UpdateStatus.Error("Security error: Update package exceeds maximum allowed size (100MB).")
+                    return@withContext
                 }
 
                 _updateStatus.value = UpdateStatus.ReadyToInstall(apkFile)
@@ -218,5 +220,38 @@ class UpdateManager(private val context: Context) {
         val cleanRemote = remoteTag.replace("v", "").trim()
         val cleanLocal = localVersion.replace("v", "").trim()
         return cleanRemote != cleanLocal && cleanRemote.isNotEmpty()
+    }
+
+    companion object {
+        const val MAX_APK_SIZE_BYTES: Long = 100L * 1024L * 1024L // 100 MB limit
+
+        /**
+         * SECURITY ENHANCEMENT: Read input stream into output stream enforcing a maximum byte limit.
+         * Prevents unbounded file downloads from exhausting device storage space (Storage Exhaustion DoS).
+         * Returns false if total downloaded size exceeds maxBytes limit.
+         */
+        fun downloadStreamWithLimit(
+            input: java.io.InputStream,
+            output: java.io.OutputStream,
+            maxBytes: Long = MAX_APK_SIZE_BYTES,
+            fileLength: Int = -1,
+            onProgress: ((Int) -> Unit)? = null
+        ): Boolean {
+            val data = ByteArray(4096)
+            var total: Long = 0
+            var count: Int
+            while (input.read(data).also { count = it } != -1) {
+                total += count
+                if (total > maxBytes) {
+                    return false
+                }
+                if (fileLength > 0 && onProgress != null) {
+                    val progress = ((total * 100) / fileLength).toInt()
+                    onProgress(progress)
+                }
+                output.write(data, 0, count)
+            }
+            return true
+        }
     }
 }
