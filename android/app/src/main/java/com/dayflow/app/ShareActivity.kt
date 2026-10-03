@@ -88,10 +88,12 @@ private fun ShareScreen(
             when {
                 type.startsWith("text/") -> {
                     val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
+                    // SECURITY ENHANCEMENT: Bound shared text length (max 10,000 chars) to prevent memory exhaustion / DoS
+                    val sanitizedText = sharedText?.take(10000)
                     val result = app.analyzer.analyze(
                         providerName = provider,
                         type = SourceType.MESSAGE,
-                        rawInput = sharedText,
+                        rawInput = sanitizedText,
                         apiKey = apiKey,
                         modelOverride = modelOverride
                     )

@@ -27,3 +27,8 @@
 **Vulnerability:** Unbounded file stream writing when downloading update packages in `UpdateManager` allowed oversized binary payloads or infinite streams to trigger storage exhaustion Denial of Service (DoS).
 **Learning:** In-app update downloaders that stream binary responses directly to local disk without byte limit bounds can fill device storage completely or crash if the remote endpoint serves an excessively large file.
 **Prevention:** Always process network download streams using bounded byte thresholds (`downloadStreamWithLimit(input, output, maxBytes)`) enforcing an explicit maximum byte cap (e.g., 100MB), deleting partial files if the limit is exceeded.
+
+## 2026-10-03 - Bounded Character Text Length for Shared Intent Messages
+**Vulnerability:** Unbounded processing of text strings received from external share intents (`Intent.EXTRA_TEXT`) in `ShareActivity.kt` allowed excessively long text payloads to consume excessive memory/CPU or cause Out-Of-Memory (OOM) Denial of Service (DoS).
+**Learning:** Shared text intents from untrusted third-party apps can contain arbitrary payload sizes. Passing unconstrained strings directly to downstream LLM analyzers can cause memory spikes and severe UI responsiveness degradation.
+**Prevention:** Always enforce a maximum character limit (`take(10000)`) on untrusted string inputs received via external Android system intents.
