@@ -255,16 +255,20 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setSoundMuted(next);
   };
 
+  /**
+   * SECURITY ENHANCEMENT: Use cryptographically secure random values (crypto.randomUUID or
+   * crypto.getRandomValues) for unique state identifiers to prevent predictable ID guessing.
+   */
   const generateUniqueId = (prefix: string) => {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return `${prefix}-${crypto.randomUUID()}`;
     }
-    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-      const array = new Uint32Array(1);
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+      const array = new Uint32Array(2);
       crypto.getRandomValues(array);
-      return `${prefix}-${Date.now()}-${array[0].toString(36)}`;
+      return `${prefix}-${array[0].toString(36)}${array[1].toString(36)}`;
     }
-    return `${prefix}-${Date.now()}`;
+    return `${prefix}-${Date.now().toString(36)}`;
   };
 
   const getSourceLabel = (type: string) => {
