@@ -32,3 +32,8 @@
 **Vulnerability:** Unbounded processing of text strings received from external share intents (`Intent.EXTRA_TEXT`) in `ShareActivity.kt` allowed excessively long text payloads to consume excessive memory/CPU or cause Out-Of-Memory (OOM) Denial of Service (DoS).
 **Learning:** Shared text intents from untrusted third-party apps can contain arbitrary payload sizes. Passing unconstrained strings directly to downstream LLM analyzers can cause memory spikes and severe UI responsiveness degradation.
 **Prevention:** Always enforce a maximum character limit (`take(10000)`) on untrusted string inputs received via external Android system intents.
+
+## 2026-10-04 - Input Sanitization & IPC Transaction Size Capping for Calendar Events
+**Vulnerability:** Unbounded string fields (title, location) from AI analysis or external input passed directly to Android ContentResolver or Intent extras could trigger `TransactionTooLargeException` or DoS during calendar event insertion.
+**Learning:** Passing unsanitized AI output directly into Android IPC intents or ContentProviders can crash the host activity if the text contains non-printable control characters or multi-megabyte payloads.
+**Prevention:** Always sanitize text fields using `sanitizeField(value, maxLength)` to strip non-printable control characters (`[\x00-\x1F\x7F]`) and cap string lengths before passing them to Android Intents or ContentResolver.
