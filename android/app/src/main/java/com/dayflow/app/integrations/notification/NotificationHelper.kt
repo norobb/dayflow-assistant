@@ -22,6 +22,20 @@ class NotificationHelper(private val context: Context) {
         const val EXTRA_REMINDER_ID = "extra_reminder_id"
         const val EXTRA_TITLE = "extra_title"
         const val EXTRA_TIME_LABEL = "extra_time_label"
+
+        /**
+         * SECURITY ENHANCEMENT: Sanitize notification text fields (title, timeLabel) by stripping
+         * non-printable control characters and truncating long strings to prevent IPC transaction
+         * buffer overflow or rendering issues in Android notification views.
+         */
+        fun sanitizeNotificationText(value: String?, maxLength: Int = 200): String? {
+            if (value.isNullOrBlank()) return null
+            val clean = value
+                .replace(Regex("[\\x00-\\x1F\\x7F]"), "")
+                .trim()
+                .take(maxLength)
+            return clean.ifEmpty { null }
+        }
     }
 
     init {
@@ -56,6 +70,9 @@ class NotificationHelper(private val context: Context) {
     fun showReminderNotification(reminderId: String, title: String, timeLabel: String) {
         if (!PermissionUtils.hasNotificationPermission(context)) return
 
+        val cleanTitle = sanitizeNotificationText(title, 200) ?: "Reminder"
+        val cleanTime = sanitizeNotificationText(timeLabel, 100) ?: ""
+
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
@@ -66,10 +83,12 @@ class NotificationHelper(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val contentText = if (cleanTime.isNotBlank()) "$cleanTitle · $cleanTime" else cleanTitle
+
         val notification = NotificationCompat.Builder(context, CHANNEL_REMINDERS)
             .setSmallIcon(R.drawable.dayflow_symbol_official)
             .setContentTitle("Dayflow")
-            .setContentText("$title · $timeLabel")
+            .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
@@ -84,10 +103,13 @@ class NotificationHelper(private val context: Context) {
     fun scheduleReminder(reminder: DayflowReminder) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
 
+        val cleanTitle = sanitizeNotificationText(reminder.title, 200) ?: "Reminder"
+        val cleanTime = sanitizeNotificationText(reminder.timeLabel, 100) ?: ""
+
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra(EXTRA_REMINDER_ID, reminder.id)
-            putExtra(EXTRA_TITLE, reminder.title)
-            putExtra(EXTRA_TIME_LABEL, reminder.timeLabel)
+            putExtra(EXTRA_TITLE, cleanTitle)
+            putExtra(EXTRA_TIME_LABEL, cleanTime)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
