@@ -37,3 +37,8 @@
 **Vulnerability:** Unbounded string fields (title, location) from AI analysis or external input passed directly to Android ContentResolver or Intent extras could trigger `TransactionTooLargeException` or DoS during calendar event insertion.
 **Learning:** Passing unsanitized AI output directly into Android IPC intents or ContentProviders can crash the host activity if the text contains non-printable control characters or multi-megabyte payloads.
 **Prevention:** Always sanitize text fields using `sanitizeField(value, maxLength)` to strip non-printable control characters (`[\x00-\x1F\x7F]`) and cap string lengths before passing them to Android Intents or ContentResolver.
+
+## 2026-10-06 - Input Sanitization & IPC Size Capping for Notification Reminders
+**Vulnerability:** Unsanitized strings containing control characters or unbounded lengths passed to AlarmManager intent extras and system Notification builders could cause IPC transaction failure or notification rendering crashes.
+**Learning:** External or AI-extracted text passed into system `NotificationCompat.Builder` or `PendingIntent` extras can contain control characters or oversized strings that trigger system UI crashes or `TransactionTooLargeException`.
+**Prevention:** Sanitize notification title and time strings using `sanitizeNotificationText` to strip control characters (`[\x00-\x1F\x7F]`) and bound lengths before scheduling alarms or displaying notifications.
