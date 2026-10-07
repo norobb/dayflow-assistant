@@ -32,17 +32,34 @@ class TasksViewModel(
     }
 
     fun addTask(title: String, dueDate: String?) {
-        if (title.isBlank()) return
+        val cleanTitle = sanitizeTaskInput(title, maxLength = 200) ?: return
+        val cleanDue = sanitizeTaskInput(dueDate, maxLength = 100)
         viewModelScope.launch {
             val task = DayflowTask(
                 id = "tk-${System.currentTimeMillis()}",
-                title = title.trim(),
+                title = cleanTitle,
                 completed = false,
-                dueDate = dueDate?.trim()?.ifBlank { null },
+                dueDate = cleanDue,
                 sourceType = SourceType.CUSTOM
             )
             repository.insertTask(task)
             soundAndHaptics.playSuccess()
+        }
+    }
+
+    companion object {
+        /**
+         * SECURITY ENHANCEMENT: Sanitize task text fields (title, due date) by stripping
+         * non-printable control characters and truncating long strings to prevent storage
+         * or rendering buffer overflow / DoS attacks.
+         */
+        fun sanitizeTaskInput(value: String?, maxLength: Int = 200): String? {
+            if (value.isNullOrBlank()) return null
+            val clean = value
+                .replace(Regex("[\\x00-\\x1F\\x7F]"), "")
+                .trim()
+                .take(maxLength)
+            return clean.ifEmpty { null }
         }
     }
 
