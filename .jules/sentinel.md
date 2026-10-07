@@ -42,3 +42,8 @@
 **Vulnerability:** Unsanitized strings containing control characters or unbounded lengths passed to AlarmManager intent extras and system Notification builders could cause IPC transaction failure or notification rendering crashes.
 **Learning:** External or AI-extracted text passed into system `NotificationCompat.Builder` or `PendingIntent` extras can contain control characters or oversized strings that trigger system UI crashes or `TransactionTooLargeException`.
 **Prevention:** Sanitize notification title and time strings using `sanitizeNotificationText` to strip control characters (`[\x00-\x1F\x7F]`) and bound lengths before scheduling alarms or displaying notifications.
+
+## 2026-10-07 - Input Sanitization & Length Capping for Manual Task and Reminder Creation
+**Vulnerability:** Unsanitized string inputs (title, due date, time label) passed to task/reminder creation allowed control characters and unbounded string payloads into Room persistence and UI components.
+**Learning:** Manual input fields in ViewModels must sanitize strings to strip control characters (`[\x00-\x1F\x7F]`) and cap string lengths before persisting to Room DB or passing to system notification builders.
+**Prevention:** Always sanitize manual text inputs using `sanitizeInput(value, maxLength)` in ViewModels before building domain models.
