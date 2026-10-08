@@ -18,7 +18,7 @@ class LocalMockProvider : AIProvider {
         apiKey: String,
         modelOverride: String
     ): DayflowAnalysisResult {
-        val text = rawInput?.trim() ?: ""
+        val text = sanitizeInput(rawInput)
         if (text.isBlank() && (mediaBytes == null || mediaBytes.isEmpty())) {
             return DayflowAnalysisResult(
                 sourceType = type,
@@ -84,5 +84,19 @@ class LocalMockProvider : AIProvider {
             confidence = 0.8f,
             hasError = false
         )
+    }
+
+    companion object {
+        /**
+         * SECURITY ENHANCEMENT: Sanitize raw input text for offline local parsing by stripping
+         * non-printable control characters and capping length to prevent DoS or injection.
+         */
+        fun sanitizeInput(rawInput: String?, maxLength: Int = 1000): String {
+            if (rawInput.isNullOrBlank()) return ""
+            return rawInput
+                .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]"), "")
+                .trim()
+                .take(maxLength)
+        }
     }
 }
