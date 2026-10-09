@@ -53,9 +53,7 @@ class GeminiProvider : AIProvider {
             )
         }
 
-        val rawModel = modelOverride.ifBlank { "gemini-3.6-flash" }
-        // SECURITY ENHANCEMENT: Validate model name format to prevent URL parameter injection / path traversal
-        val targetModel = if (rawModel.matches(Regex("^[a-zA-Z0-9._-]+$"))) rawModel else "gemini-3.6-flash"
+        val targetModel = sanitizeModelName(modelOverride)
 
         try {
             val systemInstruction = """
@@ -292,6 +290,16 @@ class GeminiProvider : AIProvider {
     }
 
     companion object {
+        /**
+         * SECURITY ENHANCEMENT: Validate and sanitize model identifier format to prevent
+         * URL path traversal or query parameter injection attacks. Defaults safely to gemini-3.6-flash.
+         */
+        fun sanitizeModelName(rawModel: String?): String {
+            if (rawModel.isNullOrBlank()) return "gemini-3.6-flash"
+            val trimmed = rawModel.trim()
+            return if (trimmed.matches(Regex("^[a-zA-Z0-9._-]+$"))) trimmed else "gemini-3.6-flash"
+        }
+
         /**
          * SECURITY ENHANCEMENT: Redact API keys and URL key query params from error messages
          * to prevent exposing credentials in UI cards or logs.
