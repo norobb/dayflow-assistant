@@ -6,6 +6,28 @@ import org.junit.Test
 class GeminiProviderTest {
 
     @Test
+    fun testSanitizeModelNameValidIdentifiers() {
+        assertEquals("gemini-1.5-pro", GeminiProvider.sanitizeModelName("gemini-1.5-pro"))
+        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("gemini-3.6-flash"))
+        assertEquals("custom_model.v1", GeminiProvider.sanitizeModelName("custom_model.v1"))
+    }
+
+    @Test
+    fun testSanitizeModelNameRejectsPathTraversalAndQueryParams() {
+        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("../gemini"))
+        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("gemini-1.5?key=123"))
+        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("model/v1"))
+        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("gemini; rm -rf /"))
+    }
+
+    @Test
+    fun testSanitizeModelNameHandlesNullAndBlank() {
+        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName(null))
+        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName(""))
+        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("   "))
+    }
+
+    @Test
     fun testSanitizeErrorRedactsApiKey() {
         val apiKey = "AIzaSyABC123456789SecretKey"
         val rawMessage = "Failed to call endpoint with key AIzaSyABC123456789SecretKey: 403 Forbidden"
