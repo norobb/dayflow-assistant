@@ -48,4 +48,23 @@ class GeminiProviderTest {
         assertEquals("Unknown error", GeminiProvider.sanitizeError(null, "key"))
         assertEquals("Unknown error", GeminiProvider.sanitizeError("", "key"))
     }
+
+    @Test
+    fun testSanitizeApiKeyStripsWhitespaceNewlinesAndControlChars() {
+        val rawWithNewlinesAndSpaces = "  AIzaSyABC123 \r\n\t SecretKey_456  "
+        assertEquals("AIzaSyABC123SecretKey_456", GeminiProvider.sanitizeApiKey(rawWithNewlinesAndSpaces))
+    }
+
+    @Test
+    fun testSanitizeApiKeyHandlesNullAndBlank() {
+        assertEquals("", GeminiProvider.sanitizeApiKey(null))
+        assertEquals("", GeminiProvider.sanitizeApiKey(""))
+        assertEquals("", GeminiProvider.sanitizeApiKey("   \r\n  "))
+    }
+
+    @Test
+    fun testSanitizeApiKeyEnforcesLengthLimit() {
+        val longKey = "A".repeat(300)
+        assertEquals("A".repeat(256), GeminiProvider.sanitizeApiKey(longKey))
+    }
 }
