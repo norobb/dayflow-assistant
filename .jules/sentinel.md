@@ -42,3 +42,8 @@
 **Vulnerability:** Unsanitized strings containing control characters or unbounded lengths passed to AlarmManager intent extras and system Notification builders could cause IPC transaction failure or notification rendering crashes.
 **Learning:** External or AI-extracted text passed into system `NotificationCompat.Builder` or `PendingIntent` extras can contain control characters or oversized strings that trigger system UI crashes or `TransactionTooLargeException`.
 **Prevention:** Sanitize notification title and time strings using `sanitizeNotificationText` to strip control characters (`[\x00-\x1F\x7F]`) and bound lengths before scheduling alarms or displaying notifications.
+
+## 2026-10-09 - API Key Input Sanitization & Control Character Stripping
+**Vulnerability:** User-provided or configured API keys containing newline characters (`\r`, `\n`), tabs, spaces, or control characters could lead to HTTP request splitting, query injection, or malformed URL exceptions when appended to endpoint URLs.
+**Learning:** Copy-pasting API keys from web interfaces or configuration files often introduces hidden trailing newlines or whitespace. When appended to HTTP GET/POST URLs without sanitization, `URL(...)` parsers throw `IllegalArgumentException` or can enable request splitting vulnerabilities.
+**Prevention:** Sanitize raw API keys with `sanitizeApiKey` by stripping non-printable characters, whitespace, and line breaks (`[\x00-\x20\x7F-\xFF]`) and enforcing a hard maximum length limit (e.g. 256 characters).

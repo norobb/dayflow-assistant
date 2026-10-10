@@ -30,9 +30,10 @@ class GeminiProvider : AIProvider {
         apiKey: String,
         modelOverride: String
     ): DayflowAnalysisResult = withContext(Dispatchers.IO) {
-        val effectiveKey = apiKey.ifBlank {
+        val rawKey = apiKey.ifBlank {
             try { BuildConfig::class.java.getField("GEMINI_API_KEY").get(null) as? String ?: "" } catch (e: Exception) { "" }
         }
+        val effectiveKey = sanitizeApiKey(rawKey)
 
         if (effectiveKey.isBlank()) {
             return@withContext DayflowAnalysisResult(
@@ -290,6 +291,19 @@ class GeminiProvider : AIProvider {
     }
 
     companion object {
+        /**
+         * SECURITY ENHANCEMENT: Sanitize API key input by stripping whitespace, control
+         * characters, and line break characters (\r, \n) to prevent HTTP request splitting,
+         * header/query parameter injection, and malformed URL exceptions.
+         */
+        fun sanitizeApiKey(rawKey: String?, maxLength: Int = 256): String {
+            if (rawKey.isNullOrBlank()) return ""
+            return rawKey
+                .replace(Regex("[\\x00-\\x20\\x7F-\\xFF]"), "")
+                .trim()
+                .take(maxLength)
+        }
+
         /**
          * SECURITY ENHANCEMENT: Validate and sanitize model identifier format to prevent
          * URL path traversal or query parameter injection attacks. Defaults safely to gemini-3.6-flash.
