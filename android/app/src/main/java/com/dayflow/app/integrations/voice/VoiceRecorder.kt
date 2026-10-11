@@ -39,6 +39,12 @@ class VoiceRecorder(private val context: Context) {
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 setOutputFile(outputFile.absolutePath)
+                /**
+                 * SECURITY ENHANCEMENT: Bound recording duration and file size to prevent
+                 * storage exhaustion Denial of Service (DoS) from continuous background audio recording.
+                 */
+                setMaxDuration(MAX_RECORDING_DURATION_MS)
+                setMaxFileSize(MAX_RECORDING_FILE_SIZE_BYTES)
                 prepare()
                 start()
             }
@@ -88,5 +94,10 @@ class VoiceRecorder(private val context: Context) {
             0f
         }
         _amplitude.value = (maxAmp / 32767f).coerceIn(0f, 1f)
+    }
+
+    companion object {
+        const val MAX_RECORDING_DURATION_MS = 300_000 // 5 minutes
+        const val MAX_RECORDING_FILE_SIZE_BYTES = 25 * 1024 * 1024L // 25 MB
     }
 }

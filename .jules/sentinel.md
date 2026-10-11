@@ -47,3 +47,8 @@
 **Vulnerability:** User-provided or configured API keys containing newline characters (`\r`, `\n`), tabs, spaces, or control characters could lead to HTTP request splitting, query injection, or malformed URL exceptions when appended to endpoint URLs.
 **Learning:** Copy-pasting API keys from web interfaces or configuration files often introduces hidden trailing newlines or whitespace. When appended to HTTP GET/POST URLs without sanitization, `URL(...)` parsers throw `IllegalArgumentException` or can enable request splitting vulnerabilities.
 **Prevention:** Sanitize raw API keys with `sanitizeApiKey` by stripping non-printable characters, whitespace, and line breaks (`[\x00-\x20\x7F-\xFF]`) and enforcing a hard maximum length limit (e.g. 256 characters).
+
+## 2026-10-10 - Audio Recording Duration & File Size Bounds
+**Vulnerability:** Unbounded audio recording in `VoiceRecorder` allowed continuous recording without duration or file size caps, posing local storage exhaustion Denial of Service (DoS) risks.
+**Learning:** `MediaRecorder` in Android records mic input directly to local disk until explicitly stopped. If recording is left running or app remains in background, audio files can consume all available internal storage.
+**Prevention:** Always configure `setMaxDuration(maxDurationMs)` and `setMaxFileSize(maxSizeBytes)` on `MediaRecorder` before starting audio capture to enforce safety upper bounds.
