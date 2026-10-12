@@ -67,4 +67,25 @@ class GeminiProviderTest {
         val longKey = "A".repeat(300)
         assertEquals("A".repeat(256), GeminiProvider.sanitizeApiKey(longKey))
     }
+
+    @Test
+    fun testSanitizeInputStripsControlCharsAndPreservesWhitespace() {
+        val rawInput = " Meeting with\u0000 Alice\u0007\nLine 2\tTabbed "
+        val sanitized = GeminiProvider.sanitizeInput(rawInput)
+        assertEquals("Meeting with Alice\nLine 2\tTabbed", sanitized)
+    }
+
+    @Test
+    fun testSanitizeInputHandlesNullAndBlank() {
+        assertEquals("", GeminiProvider.sanitizeInput(null))
+        assertEquals("", GeminiProvider.sanitizeInput(""))
+        assertEquals("", GeminiProvider.sanitizeInput("   \u0000\u0007  "))
+    }
+
+    @Test
+    fun testSanitizeInputEnforcesLengthLimit() {
+        val longInput = "B".repeat(15000)
+        val sanitized = GeminiProvider.sanitizeInput(longInput, 10000)
+        assertEquals(10000, sanitized.length)
+    }
 }

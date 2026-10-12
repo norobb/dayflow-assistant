@@ -52,3 +52,8 @@
 **Vulnerability:** Unbounded audio recording in `VoiceRecorder` allowed continuous recording without duration or file size caps, posing local storage exhaustion Denial of Service (DoS) risks.
 **Learning:** `MediaRecorder` in Android records mic input directly to local disk until explicitly stopped. If recording is left running or app remains in background, audio files can consume all available internal storage.
 **Prevention:** Always configure `setMaxDuration(maxDurationMs)` and `setMaxFileSize(maxSizeBytes)` on `MediaRecorder` before starting audio capture to enforce safety upper bounds.
+
+## 2026-10-11 - AI Request Text Input Sanitization & Payload Bounding
+**Vulnerability:** Unbounded and unsanitized text passed to `GeminiProvider` could contain non-printable control characters or oversized string payloads that risk JSON payload corruption or Denial of Service (DoS).
+**Learning:** External text passed into AI model request generators can contain invalid control characters or megabyte-sized strings that cause JSON parsing errors or excessive memory consumption during HTTP payload construction.
+**Prevention:** Always pass raw user text through `sanitizeInput(text, maxLength)` to strip non-printable control characters (`[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]`) and cap string length before constructing AI request JSON payloads.
