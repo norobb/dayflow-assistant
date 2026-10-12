@@ -30,6 +30,7 @@ class GeminiProvider : AIProvider {
         apiKey: String,
         modelOverride: String
     ): DayflowAnalysisResult = withContext(Dispatchers.IO) {
+        val effectiveInput = sanitizeInput(rawInput)
         val rawKey = apiKey.ifBlank {
             try { BuildConfig::class.java.getField("GEMINI_API_KEY").get(null) as? String ?: "" } catch (e: Exception) { "" }
         }
@@ -38,7 +39,7 @@ class GeminiProvider : AIProvider {
         if (effectiveKey.isBlank()) {
             return@withContext DayflowAnalysisResult(
                 sourceType = type,
-                inputSnippet = rawInput ?: "",
+                inputSnippet = effectiveInput,
                 summaryText = "Gemini API key is not configured.",
                 events = emptyList(),
                 tasks = emptyList(),
@@ -102,8 +103,8 @@ class GeminiProvider : AIProvider {
             val contentObj = JSONObject()
             val partsArray = JSONArray()
 
-            if (!rawInput.isNullOrBlank()) {
-                partsArray.put(JSONObject().put("text", "Input text / description: $rawInput"))
+            if (effectiveInput.isNotBlank()) {
+                partsArray.put(JSONObject().put("text", "Input text / description: $effectiveInput"))
             }
 
             if (mediaBytes != null && mediaBytes.isNotEmpty()) {
@@ -158,7 +159,7 @@ class GeminiProvider : AIProvider {
 
                 return@withContext DayflowAnalysisResult(
                     sourceType = type,
-                    inputSnippet = rawInput ?: "",
+                    inputSnippet = effectiveInput,
                     summaryText = "Gemini API request failed.",
                     events = emptyList(),
                     tasks = emptyList(),
@@ -180,7 +181,7 @@ class GeminiProvider : AIProvider {
             if (candidates == null || candidates.length() == 0) {
                 return@withContext DayflowAnalysisResult(
                     sourceType = type,
-                    inputSnippet = rawInput ?: "",
+                    inputSnippet = effectiveInput,
                     summaryText = "No structured items detected.",
                     events = emptyList(),
                     tasks = emptyList(),
@@ -261,7 +262,7 @@ class GeminiProvider : AIProvider {
 
             DayflowAnalysisResult(
                 sourceType = type,
-                inputSnippet = rawInput ?: "",
+                inputSnippet = effectiveInput,
                 summaryText = summaryText,
                 events = eventsList,
                 tasks = tasksList,
@@ -273,7 +274,7 @@ class GeminiProvider : AIProvider {
         } catch (e: Exception) {
             DayflowAnalysisResult(
                 sourceType = type,
-                inputSnippet = rawInput ?: "",
+                inputSnippet = effectiveInput,
                 summaryText = "Failed to parse content.",
                 events = emptyList(),
                 tasks = emptyList(),
@@ -325,6 +326,18 @@ class GeminiProvider : AIProvider {
                 sanitized = sanitized.replace(apiKey, "[REDACTED]")
             }
             return sanitized.replace(Regex("key=[a-zA-Z0-9._-]+"), "key=[REDACTED]")
+        }
+
+        /**
+         * SECURITY ENHANCEMENT: Sanitize raw input text for Gemini API calls by stripping
+         * non-printable control characters and capping length to prevent DoS or injection.
+         */
+        fun sanitizeInput(rawInput: String?, maxLength: Int = 10000): String {
+            if (rawInput.isNullOrBlank()) return ""
+            return rawInput
+                .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]"), "")
+                .trim()
+                .take(maxLength)
         }
     }
 }
