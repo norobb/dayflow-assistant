@@ -52,3 +52,8 @@
 **Vulnerability:** Unbounded audio recording in `VoiceRecorder` allowed continuous recording without duration or file size caps, posing local storage exhaustion Denial of Service (DoS) risks.
 **Learning:** `MediaRecorder` in Android records mic input directly to local disk until explicitly stopped. If recording is left running or app remains in background, audio files can consume all available internal storage.
 **Prevention:** Always configure `setMaxDuration(maxDurationMs)` and `setMaxFileSize(maxSizeBytes)` on `MediaRecorder` before starting audio capture to enforce safety upper bounds.
+
+## 2026-10-13 - AI Model Response Output Field Sanitization & Bounding
+**Vulnerability:** Unsanitized AI response JSON fields (event/task titles, locations, summaries) containing control characters or unbounded payload lengths could lead to UI rendering crashes or IPC buffer overflows (`TransactionTooLargeException`) when passed downstream.
+**Learning:** Untrusted external LLM responses cannot be assumed to produce clean or bounded strings. Control characters or abnormally large strings in model responses can disrupt downstream Android UI components and database/IPC transactions.
+**Prevention:** Sanitize model response strings using `sanitizeText(value, fallback, maxLength)` to strip non-printable control characters (`[\x00-\x1F\x7F]`) and bound field string lengths before constructing domain models.
