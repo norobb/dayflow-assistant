@@ -207,10 +207,10 @@ class GeminiProvider : AIProvider {
                     eventsList.add(
                         DayflowEvent(
                             id = UUID.randomUUID().toString(),
-                            time = obj.optString("time", "12:00"),
-                            title = obj.optString("title", "Event"),
-                            location = obj.optString("location", "").ifBlank { null },
-                            dateLabel = obj.optString("date", "Today"),
+                            time = sanitizeText(obj.optString("time", "12:00"), "12:00", 100),
+                            title = sanitizeText(obj.optString("title", "Event"), "Event", 300),
+                            location = sanitizeText(obj.optString("location", ""), "", 300).ifBlank { null },
+                            dateLabel = sanitizeText(obj.optString("date", "Today"), "Today", 100),
                             sourceType = type
                         )
                     )
@@ -223,9 +223,9 @@ class GeminiProvider : AIProvider {
                     tasksList.add(
                         DayflowTask(
                             id = UUID.randomUUID().toString(),
-                            title = obj.optString("title", "Task"),
+                            title = sanitizeText(obj.optString("title", "Task"), "Task", 300),
                             completed = obj.optBoolean("completed", false),
-                            dueDate = obj.optString("due", "").ifBlank { null },
+                            dueDate = sanitizeText(obj.optString("due", ""), "", 100).ifBlank { null },
                             sourceType = type
                         )
                     )
@@ -238,16 +238,16 @@ class GeminiProvider : AIProvider {
                     remindersList.add(
                         DayflowReminder(
                             id = UUID.randomUUID().toString(),
-                            title = obj.optString("title", "Reminder"),
-                            timeLabel = obj.optString("due", "18:00"),
+                            title = sanitizeText(obj.optString("title", "Reminder"), "Reminder", 300),
+                            timeLabel = sanitizeText(obj.optString("due", "18:00"), "18:00", 100),
                             sourceType = type
                         )
                     )
                 }
             }
 
-            val summaryText = parsedJson.optString("summary", "Extracted content from input.")
-            val insightText = parsedJson.optString("insight", "")
+            val summaryText = sanitizeText(parsedJson.optString("summary", "Extracted content from input."), "Extracted content from input.", 1000)
+            val insightText = sanitizeText(parsedJson.optString("insight", ""), "", 1000)
 
             val insight = if (insightText.isNotBlank()) {
                 DayflowInsight(
@@ -312,6 +312,20 @@ class GeminiProvider : AIProvider {
             if (rawModel.isNullOrBlank()) return "gemini-3.6-flash"
             val trimmed = rawModel.trim()
             return if (trimmed.matches(Regex("^[a-zA-Z0-9._-]+$"))) trimmed else "gemini-3.6-flash"
+        }
+
+        /**
+         * SECURITY ENHANCEMENT: Sanitize AI response output text fields by stripping non-printable
+         * control characters (\x00-\x1F\x7F) and truncating strings to prevent UI layout breakage,
+         * control character injection, or IPC buffer overflow.
+         */
+        fun sanitizeText(value: String?, fallback: String = "", maxLength: Int = 500): String {
+            if (value.isNullOrBlank()) return fallback
+            val clean = value
+                .replace(Regex("[\\x00-\\x1F\\x7F]"), "")
+                .trim()
+                .take(maxLength)
+            return clean.ifEmpty { fallback }
         }
 
         /**

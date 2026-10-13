@@ -67,4 +67,27 @@ class GeminiProviderTest {
         val longKey = "A".repeat(300)
         assertEquals("A".repeat(256), GeminiProvider.sanitizeApiKey(longKey))
     }
+
+    @Test
+    fun testSanitizeTextStripsControlCharacters() {
+        val raw = "Doctor\u0000 Appointment\u0007 at 14:30"
+        val clean = GeminiProvider.sanitizeText(raw, "Fallback", 300)
+        assertEquals("Doctor Appointment at 14:30", clean)
+    }
+
+    @Test
+    fun testSanitizeTextTruncatesLongInput() {
+        val longTitle = "T".repeat(500)
+        val clean = GeminiProvider.sanitizeText(longTitle, "Fallback", 100)
+        assertEquals(100, clean.length)
+        assertEquals("T".repeat(100), clean)
+    }
+
+    @Test
+    fun testSanitizeTextHandlesNullBlankAndControlOnly() {
+        assertEquals("Default Event", GeminiProvider.sanitizeText(null, "Default Event", 300))
+        assertEquals("Default Event", GeminiProvider.sanitizeText("", "Default Event", 300))
+        assertEquals("Default Event", GeminiProvider.sanitizeText("   ", "Default Event", 300))
+        assertEquals("Default Event", GeminiProvider.sanitizeText("\u0000\u0007", "Default Event", 300))
+    }
 }
