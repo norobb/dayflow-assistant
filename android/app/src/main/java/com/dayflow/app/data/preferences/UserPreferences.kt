@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.dayflow.app.ai.GeminiProvider
 import com.dayflow.app.core.designsystem.AppearanceMode
 import com.dayflow.app.core.designsystem.DesignSystemMode
 import com.dayflow.app.domain.repository.PreferencesRepository
@@ -111,8 +112,9 @@ class UserPreferences(private val context: Context) : PreferencesRepository {
     }
 
     override suspend fun setGeminiApiKey(apiKey: String) {
+        val cleanKey = GeminiProvider.sanitizeApiKey(apiKey)
         context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.KEY_GEMINI_API_KEY] = apiKey
+            preferences[PreferencesKeys.KEY_GEMINI_API_KEY] = cleanKey
         }
     }
 
@@ -123,8 +125,9 @@ class UserPreferences(private val context: Context) : PreferencesRepository {
     }
 
     override suspend fun setGeminiModel(model: String) {
+        val cleanModel = GeminiProvider.sanitizeModelName(model)
         context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.KEY_GEMINI_MODEL] = model
+            preferences[PreferencesKeys.KEY_GEMINI_MODEL] = cleanModel
         }
     }
 
