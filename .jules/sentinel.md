@@ -57,3 +57,8 @@
 **Vulnerability:** Unsanitized AI response JSON fields (event/task titles, locations, summaries) containing control characters or unbounded payload lengths could lead to UI rendering crashes or IPC buffer overflows (`TransactionTooLargeException`) when passed downstream.
 **Learning:** Untrusted external LLM responses cannot be assumed to produce clean or bounded strings. Control characters or abnormally large strings in model responses can disrupt downstream Android UI components and database/IPC transactions.
 **Prevention:** Sanitize model response strings using `sanitizeText(value, fallback, maxLength)` to strip non-printable control characters (`[\x00-\x1F\x7F]`) and bound field string lengths before constructing domain models.
+
+## 2026-10-14 - Input Sanitization & IPC Size Capping for Tasks & Reminders Intake
+**Vulnerability:** Unsanitized task and reminder input fields (title, dueDate, timeLabel) containing control characters or unbounded lengths passed to Room DB and AlarmManager intents could cause IPC transaction failure (`TransactionTooLargeException`) or UI rendering crashes.
+**Learning:** User inputs from manual creation forms passed directly to state stores or IPC intents without control character stripping or length limits can degrade application stability or fail system notifications.
+**Prevention:** Sanitize task and reminder string fields using `sanitizeField(value, maxLength)` to strip non-printable control characters (`[\x00-\x1F\x7F]`) and cap string lengths before inserting records or scheduling system notifications.

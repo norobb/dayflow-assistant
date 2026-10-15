@@ -27,12 +27,14 @@ class RemindersViewModel(
         )
 
     fun addReminder(title: String, timeLabel: String) {
-        if (title.isBlank()) return
+        val cleanTitle = sanitizeReminderField(title, maxLength = 300)
+        if (cleanTitle.isBlank()) return
+        val cleanTime = sanitizeReminderField(timeLabel, maxLength = 100).ifBlank { "Later today" }
         viewModelScope.launch {
             val reminder = DayflowReminder(
                 id = "rm-${System.currentTimeMillis()}",
-                title = title.trim(),
-                timeLabel = timeLabel.trim().ifBlank { "Later today" },
+                title = cleanTitle,
+                timeLabel = cleanTime,
                 sourceType = SourceType.CUSTOM
             )
             repository.insertReminder(reminder)
@@ -45,6 +47,21 @@ class RemindersViewModel(
         viewModelScope.launch {
             repository.dismissReminder(reminderId)
             soundAndHaptics.performHaptic(10)
+        }
+    }
+
+    companion object {
+        /**
+         * SECURITY ENHANCEMENT: Sanitize reminder fields (title, timeLabel) by stripping
+         * non-printable control characters (\x00-\x1F\x7F) and enforcing string length limits
+         * to prevent IPC transaction failure and notification rendering crashes.
+         */
+        fun sanitizeReminderField(value: String?, maxLength: Int = 300): String {
+            if (value.isNullOrBlank()) return ""
+            return value
+                .replace(Regex("[\\x00-\\x1F\\x7F]"), "")
+                .trim()
+                .take(maxLength)
         }
     }
 
