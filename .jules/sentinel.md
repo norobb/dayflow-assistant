@@ -62,3 +62,8 @@
 **Vulnerability:** Unsanitized task and reminder input fields (title, dueDate, timeLabel) containing control characters or unbounded lengths passed to Room DB and AlarmManager intents could cause IPC transaction failure (`TransactionTooLargeException`) or UI rendering crashes.
 **Learning:** User inputs from manual creation forms passed directly to state stores or IPC intents without control character stripping or length limits can degrade application stability or fail system notifications.
 **Prevention:** Sanitize task and reminder string fields using `sanitizeField(value, maxLength)` to strip non-printable control characters (`[\x00-\x1F\x7F]`) and cap string lengths before inserting records or scheduling system notifications.
+
+## 2026-10-15 - Input Sanitization & String Bounding for Calendar Event Persistence
+**Vulnerability:** Unsanitized calendar event string fields (`time`, `title`, `location`, `dateLabel`) mapped to Room database entities without stripping control characters or enforcing character bounds allowed corrupted strings or oversized payloads into local storage.
+**Learning:** Converting domain models to Room DB entities (`fromDomain`) without input sanitization can store non-printable control characters or multi-megabyte payloads in SQLite, causing UI rendering crashes and database transaction errors.
+**Prevention:** Always sanitize text fields during domain model to DB entity mapping (`EventEntity.fromDomain`) using `sanitizeText` to strip control characters (`[\x00-\x1F\x7F]`) and cap string lengths before Room database persistence.
