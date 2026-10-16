@@ -26,12 +26,26 @@ data class EventEntity(
     )
 
     companion object {
+        /**
+         * SECURITY ENHANCEMENT: Sanitize event text fields by stripping non-printable
+         * control characters (\x00-\x1F\x7F) and truncating strings to prevent database payload
+         * corruption, UI rendering crashes, and IPC transaction size overflows.
+         */
+        fun sanitizeText(value: String?, fallback: String = "", maxLength: Int = 300): String {
+            if (value.isNullOrBlank()) return fallback
+            val clean = value
+                .replace(Regex("[\\x00-\\x1F\\x7F]"), "")
+                .trim()
+                .take(maxLength)
+            return clean.ifEmpty { fallback }
+        }
+
         fun fromDomain(event: DayflowEvent) = EventEntity(
             id = event.id,
-            time = event.time,
-            title = event.title,
-            location = event.location,
-            dateLabel = event.dateLabel,
+            time = sanitizeText(event.time, "12:00", 100),
+            title = sanitizeText(event.title, "Event", 300),
+            location = event.location?.let { sanitizeText(it, "", 300) }?.ifBlank { null },
+            dateLabel = sanitizeText(event.dateLabel, "Today", 100),
             sourceType = event.sourceType.identifier,
             createdAt = event.createdAt
         )
