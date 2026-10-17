@@ -271,6 +271,18 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return `${prefix}-${Date.now().toString(36)}`;
   };
 
+  /**
+   * SECURITY ENHANCEMENT: Sanitize text fields by stripping non-printable control
+   * characters (\x00-\x1F\x7F) and enforcing string length limits to prevent UI corruption or DoS.
+   */
+  const sanitizeText = (value?: string, maxLength = 300): string => {
+    if (!value) return '';
+    return value
+      .replace(/[\x00-\x1F\x7F]/g, '')
+      .trim()
+      .slice(0, maxLength);
+  };
+
   const getSourceLabel = (type: string) => {
     if (language === 'de') {
       if (type === 'message') return 'Nachricht';
@@ -299,8 +311,15 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addEvent = (event: Omit<DayflowEvent, 'id' | 'createdAt'>) => {
     sounds.playSuccess();
     const newId = generateUniqueId('ev');
+    const cleanTitle = sanitizeText(event.title, 300) || 'Event';
+    const cleanLocation = event.location ? sanitizeText(event.location, 300) : undefined;
+    const cleanTime = sanitizeText(event.time, 100) || '12:00';
+
     const newEvent: DayflowEvent = {
       ...event,
+      title: cleanTitle,
+      location: cleanLocation,
+      time: cleanTime,
       id: newId,
       createdAt: new Date().toISOString(),
     };
@@ -310,8 +329,8 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setTodayUnderstood((prev) => [
       {
         id: generateUniqueId('und'),
-        timeOrDate: event.time,
-        title: event.title,
+        timeOrDate: cleanTime,
+        title: cleanTitle,
         kind: 'Calendar',
         source: getSourceLabel(event.sourceType),
       },
@@ -325,7 +344,7 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
         id: notifId,
         app: 'Dayflow',
         title: 'Dayflow',
-        body: `${event.title} (${event.time})`,
+        body: `${cleanTitle} (${cleanTime})`,
         time: getJustNowLabel(),
         type: 'event',
       },
@@ -336,8 +355,13 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addTask = (task: Omit<DayflowTask, 'id' | 'completed'>) => {
     sounds.playSuccess();
     const newId = generateUniqueId('tk');
+    const cleanTitle = sanitizeText(task.title, 300) || 'Task';
+    const cleanDueDate = task.dueDate ? sanitizeText(task.dueDate, 100) : undefined;
+
     const newTask: DayflowTask = {
       ...task,
+      title: cleanTitle,
+      dueDate: cleanDueDate,
       id: newId,
       completed: false,
     };
@@ -346,8 +370,8 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setTodayUnderstood((prev) => [
       {
         id: generateUniqueId('und'),
-        timeOrDate: task.dueDate || (language === 'de' ? 'Heute' : language === 'es' ? 'Hoy' : 'Today'),
-        title: task.title,
+        timeOrDate: cleanDueDate || (language === 'de' ? 'Heute' : language === 'es' ? 'Hoy' : 'Today'),
+        title: cleanTitle,
         kind: 'Task',
         source: getSourceLabel(task.sourceType),
       },
@@ -360,7 +384,7 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
         id: notifId,
         app: 'Dayflow',
         title: 'Dayflow',
-        body: task.title,
+        body: cleanTitle,
         time: getJustNowLabel(),
         type: 'task',
       },
@@ -371,8 +395,13 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addReminder = (reminder: Omit<DayflowReminder, 'id'>) => {
     sounds.playSuccess();
     const newId = generateUniqueId('rm');
+    const cleanTitle = sanitizeText(reminder.title, 300) || 'Reminder';
+    const cleanTimeLabel = sanitizeText(reminder.timeLabel, 100) || 'Later';
+
     const newReminder: DayflowReminder = {
       ...reminder,
+      title: cleanTitle,
+      timeLabel: cleanTimeLabel,
       id: newId,
     };
     setReminders((prev) => [newReminder, ...prev]);
@@ -380,8 +409,8 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setTodayUnderstood((prev) => [
       {
         id: generateUniqueId('und'),
-        timeOrDate: reminder.timeLabel,
-        title: reminder.title,
+        timeOrDate: cleanTimeLabel,
+        title: cleanTitle,
         kind: 'Reminder',
         source: getSourceLabel(reminder.sourceType),
       },
@@ -394,7 +423,7 @@ export const DayflowProvider: React.FC<{ children: React.ReactNode }> = ({ child
         id: notifId,
         app: 'Dayflow',
         title: 'Dayflow',
-        body: `${reminder.title} • ${reminder.timeLabel}`,
+        body: `${cleanTitle} • ${cleanTimeLabel}`,
         time: getJustNowLabel(),
         type: 'reminder',
       },
