@@ -62,3 +62,8 @@
 **Vulnerability:** Unsanitized task and reminder input fields (title, dueDate, timeLabel) containing control characters or unbounded lengths passed to Room DB and AlarmManager intents could cause IPC transaction failure (`TransactionTooLargeException`) or UI rendering crashes.
 **Learning:** User inputs from manual creation forms passed directly to state stores or IPC intents without control character stripping or length limits can degrade application stability or fail system notifications.
 **Prevention:** Sanitize task and reminder string fields using `sanitizeField(value, maxLength)` to strip non-printable control characters (`[\x00-\x1F\x7F]`) and cap string lengths before inserting records or scheduling system notifications.
+
+## 2026-10-15 - Input Sanitization & Length Bounding for Notification Listener & Receiver Intake
+**Vulnerability:** Unsanitized notification titles, texts, and reminder IDs received from third-party app notifications (`DayflowNotificationListenerService`) or broadcast intent extras (`ReminderReceiver`) could contain control characters or unbounded payload lengths, risking memory spikes or control character injection.
+**Learning:** External notifications and broadcast intent extras from third-party applications can carry arbitrary control characters or multi-megabyte strings. Parsing notification text without bounding and stripping control characters before processing creates memory allocation risks and UI rendering issues.
+**Prevention:** Always sanitize and bound external notification fields using `sanitizeNotificationText` before passing them to internal domain models or system notification managers.
