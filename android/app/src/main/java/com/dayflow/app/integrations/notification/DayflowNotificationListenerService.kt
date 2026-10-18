@@ -18,8 +18,13 @@ class DayflowNotificationListenerService : NotificationListenerService() {
         val notification = sbn.notification ?: return
         val extras = notification.extras ?: return
 
-        val title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString() ?: ""
-        val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
+        // SECURITY ENHANCEMENT: Sanitize title and text extracted from third-party app notifications
+        // to strip non-printable control characters and enforce strict string length bounds.
+        val rawTitle = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+        val rawText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+
+        val title = NotificationHelper.sanitizeNotificationText(rawTitle, maxLength = 200) ?: ""
+        val text = NotificationHelper.sanitizeNotificationText(rawText, maxLength = 1000) ?: ""
 
         if (title.isBlank() && text.isBlank()) return
 

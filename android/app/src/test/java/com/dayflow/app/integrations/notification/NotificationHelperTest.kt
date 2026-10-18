@@ -34,4 +34,24 @@ class NotificationHelperTest {
         val valid = "Doctor appointment at 14:30"
         assertEquals(valid, NotificationHelper.sanitizeNotificationText(valid))
     }
+
+    @Test
+    fun testSanitizeNotificationListenerTitleAndBody() {
+        val rawTitle = "Calendar Alert\u0000\u001F"
+        val rawBody = "You have a meeting with \u0000Dr. Smith at 15:00\u007F"
+
+        val cleanTitle = NotificationHelper.sanitizeNotificationText(rawTitle, maxLength = 200)
+        val cleanBody = NotificationHelper.sanitizeNotificationText(rawBody, maxLength = 1000)
+
+        assertEquals("Calendar Alert", cleanTitle)
+        assertEquals("You have a meeting with Dr. Smith at 15:00", cleanBody)
+    }
+
+    @Test
+    fun testSanitizeReminderIdInBroadcastIntent() {
+        val rawReminderId = "rm-123456789\u0000-id"
+        val cleanReminderId = NotificationHelper.sanitizeNotificationText(rawReminderId, maxLength = 100)
+
+        assertEquals("rm-123456789-id", cleanReminderId)
+    }
 }
