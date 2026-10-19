@@ -62,3 +62,8 @@
 **Vulnerability:** Unsanitized task and reminder input fields (title, dueDate, timeLabel) containing control characters or unbounded lengths passed to Room DB and AlarmManager intents could cause IPC transaction failure (`TransactionTooLargeException`) or UI rendering crashes.
 **Learning:** User inputs from manual creation forms passed directly to state stores or IPC intents without control character stripping or length limits can degrade application stability or fail system notifications.
 **Prevention:** Sanitize task and reminder string fields using `sanitizeField(value, maxLength)` to strip non-printable control characters (`[\x00-\x1F\x7F]`) and cap string lengths before inserting records or scheduling system notifications.
+
+## 2026-10-15 - State Store Intake Input Sanitization & Control Character Stripping
+**Vulnerability:** Raw string payloads (title, time, location) passed directly to React state dispatchers (`addEvent`, `addTask`, `addReminder`) without control character stripping or length limits allowed malformed or excessively long strings to persist in state and disrupt UI rendering or cause memory bloat.
+**Learning:** Client state stores accepting multi-modal analysis results or direct user inputs must sanitize string fields at the store boundary to ensure control characters (`[\x00-\x1F\x7F]`) are stripped and payload bounds are consistently enforced before state propagation.
+**Prevention:** Sanitize incoming event, task, and reminder fields using `sanitizeStoreField(value, maxLength)` in state providers before prepending items to state collections and live notification streams.
