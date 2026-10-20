@@ -34,8 +34,16 @@ class SoundSystem {
   /** Subtle haptic tap (graceful fallback if unsupported) */
   public triggerHaptic(durationMs: number = 8) {
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+      // SECURITY ENHANCEMENT: Validate and bound vibration duration to prevent infinite or excessive hardware vibration (0 - 1000ms)
+      const safeDuration =
+        typeof durationMs === 'number' && !Number.isNaN(durationMs)
+          ? Math.max(0, Math.min(1000, Math.floor(durationMs)))
+          : 8;
+
+      if (safeDuration === 0) return;
+
       try {
-        navigator.vibrate(durationMs);
+        navigator.vibrate(safeDuration);
       } catch {
         // Ignored if user blocked or unsupported
       }
