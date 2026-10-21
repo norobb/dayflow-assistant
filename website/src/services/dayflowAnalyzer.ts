@@ -240,8 +240,21 @@ class GeminiProvider implements AIProvider {
       .slice(0, 1000);
 
     const text = sanitized || 'New custom input';
+    // SECURITY ENHANCEMENT: Use cryptographically secure random values for unique analysis identifiers
+    // to prevent predictable ID guessing or sequence prediction.
+    let uniqueId: string;
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      uniqueId = crypto.randomUUID();
+    } else if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+      const array = new Uint32Array(2);
+      crypto.getRandomValues(array);
+      uniqueId = `${array[0].toString(36)}${array[1].toString(36)}`;
+    } else {
+      uniqueId = Date.now().toString(36);
+    }
+
     return {
-      id: `analysis-${Date.now()}`,
+      id: `analysis-${uniqueId}`,
       sourceType: 'custom',
       inputSnippet: text,
       summary: 'Extracted 1 event and 1 task from your input.',
