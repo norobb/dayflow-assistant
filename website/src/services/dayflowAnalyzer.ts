@@ -205,6 +205,22 @@ const PRESETS: Record<string, DayflowAnalysisResult> = {
 };
 
 /**
+ * SECURITY ENHANCEMENT: Generate cryptographically secure unique analysis identifiers
+ * using crypto.randomUUID or crypto.getRandomValues to prevent predictable state ID guessing.
+ */
+function generateSecureAnalysisId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `analysis-${crypto.randomUUID()}`;
+  }
+  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+    const array = new Uint32Array(2);
+    crypto.getRandomValues(array);
+    return `analysis-${array[0].toString(36)}${array[1].toString(36)}`;
+  }
+  return `analysis-${Date.now().toString(36)}`;
+}
+
+/**
  * Gemini Provider Implementation
  * (Configured for direct, reliable analysis without requiring client secrets)
  */
@@ -241,7 +257,7 @@ class GeminiProvider implements AIProvider {
 
     const text = sanitized || 'New custom input';
     return {
-      id: `analysis-${Date.now()}`,
+      id: generateSecureAnalysisId(),
       sourceType: 'custom',
       inputSnippet: text,
       summary: 'Extracted 1 event and 1 task from your input.',
