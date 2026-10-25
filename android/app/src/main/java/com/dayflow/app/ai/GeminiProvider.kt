@@ -55,6 +55,7 @@ class GeminiProvider : AIProvider {
         }
 
         val targetModel = sanitizeModelName(modelOverride)
+        val sanitizedInput = sanitizeRawInput(rawInput)
 
         try {
             val systemInstruction = """
@@ -102,8 +103,8 @@ class GeminiProvider : AIProvider {
             val contentObj = JSONObject()
             val partsArray = JSONArray()
 
-            if (!rawInput.isNullOrBlank()) {
-                partsArray.put(JSONObject().put("text", "Input text / description: $rawInput"))
+            if (sanitizedInput.isNotBlank()) {
+                partsArray.put(JSONObject().put("text", "Input text / description: $sanitizedInput"))
             }
 
             if (mediaBytes != null && mediaBytes.isNotEmpty()) {
@@ -158,7 +159,7 @@ class GeminiProvider : AIProvider {
 
                 return@withContext DayflowAnalysisResult(
                     sourceType = type,
-                    inputSnippet = rawInput ?: "",
+                    inputSnippet = sanitizedInput,
                     summaryText = "Gemini API request failed.",
                     events = emptyList(),
                     tasks = emptyList(),
@@ -180,7 +181,7 @@ class GeminiProvider : AIProvider {
             if (candidates == null || candidates.length() == 0) {
                 return@withContext DayflowAnalysisResult(
                     sourceType = type,
-                    inputSnippet = rawInput ?: "",
+                    inputSnippet = sanitizedInput,
                     summaryText = "No structured items detected.",
                     events = emptyList(),
                     tasks = emptyList(),
@@ -261,7 +262,7 @@ class GeminiProvider : AIProvider {
 
             DayflowAnalysisResult(
                 sourceType = type,
-                inputSnippet = rawInput ?: "",
+                inputSnippet = sanitizedInput,
                 summaryText = summaryText,
                 events = eventsList,
                 tasks = tasksList,
@@ -273,7 +274,7 @@ class GeminiProvider : AIProvider {
         } catch (e: Exception) {
             DayflowAnalysisResult(
                 sourceType = type,
-                inputSnippet = rawInput ?: "",
+                inputSnippet = sanitizedInput,
                 summaryText = "Failed to parse content.",
                 events = emptyList(),
                 tasks = emptyList(),
@@ -291,6 +292,19 @@ class GeminiProvider : AIProvider {
     }
 
     companion object {
+        /**
+         * SECURITY ENHANCEMENT: Sanitize raw text input by stripping non-printable
+         * control characters while preserving line breaks (\n, \r) and tabs (\t),
+         * and capping string length to prevent memory exhaustion and request payload bloat.
+         */
+        fun sanitizeRawInput(rawInput: String?, maxLength: Int = 10000): String {
+            if (rawInput.isNullOrBlank()) return ""
+            return rawInput
+                .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]"), "")
+                .trim()
+                .take(maxLength)
+        }
+
         /**
          * SECURITY ENHANCEMENT: Sanitize API key input by stripping whitespace, control
          * characters, and line break characters (\r, \n) to prevent HTTP request splitting,
