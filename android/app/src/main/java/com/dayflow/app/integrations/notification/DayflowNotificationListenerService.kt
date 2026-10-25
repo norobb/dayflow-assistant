@@ -18,11 +18,30 @@ class DayflowNotificationListenerService : NotificationListenerService() {
         val notification = sbn.notification ?: return
         val extras = notification.extras ?: return
 
-        val title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString() ?: ""
-        val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
+        val rawTitle = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+        val rawText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+
+        val title = sanitizeNotificationText(rawTitle)
+        val text = sanitizeNotificationText(rawText)
 
         if (title.isBlank() && text.isBlank()) return
 
         // Optionally send a broadcast or allow explicit user click to analyze
+    }
+
+    companion object {
+        /**
+         * SECURITY ENHANCEMENT: Sanitize notification strings received from external apps.
+         * Strips non-printable control characters (\x00-\x1F\x7F) and enforces a hard length
+         * bound (default 500 chars) to prevent UI crashes, control character injection, or DoS
+         * from untrusted system notification payloads.
+         */
+        fun sanitizeNotificationText(text: String?, maxLength: Int = 500): String {
+            if (text.isNullOrBlank()) return ""
+            return text
+                .replace(Regex("[\\x00-\\x1F\\x7F]"), "")
+                .trim()
+                .take(maxLength)
+        }
     }
 }
