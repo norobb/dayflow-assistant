@@ -90,4 +90,15 @@ class GeminiProviderTest {
         assertEquals("Default Event", GeminiProvider.sanitizeText("   ", "Default Event", 300))
         assertEquals("Default Event", GeminiProvider.sanitizeText("\u0000\u0007", "Default Event", 300))
     }
+
+    @Test
+    fun testSanitizeTextEnforcesRawInputBoundsAndControlCharStripping() {
+        val rawInput = "Meeting with\u0000 Alice\u0007 at coffee shop"
+        val clean = GeminiProvider.sanitizeText(rawInput, "", 10000)
+        assertEquals("Meeting with Alice at coffee shop", clean)
+
+        val longInput = "A".repeat(15000)
+        val bounded = GeminiProvider.sanitizeText(longInput, "", 10000)
+        assertEquals(10000, bounded.length)
+    }
 }
