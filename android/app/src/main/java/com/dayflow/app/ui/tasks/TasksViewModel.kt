@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.dayflow.app.core.sound.SoundAndHaptics
 import com.dayflow.app.domain.model.DayflowTask
 import com.dayflow.app.domain.model.SourceType
+import java.util.UUID
 import com.dayflow.app.domain.repository.DayflowRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -36,8 +37,9 @@ class TasksViewModel(
         if (cleanTitle.isBlank()) return
         val cleanDueDate = sanitizeTaskField(dueDate, maxLength = 100).ifBlank { null }
         viewModelScope.launch {
+            // SECURITY ENHANCEMENT: Use cryptographically secure UUID for unique task identifier
             val task = DayflowTask(
-                id = "tk-${System.currentTimeMillis()}",
+                id = "tk-${UUID.randomUUID()}",
                 title = cleanTitle,
                 completed = false,
                 dueDate = cleanDueDate,

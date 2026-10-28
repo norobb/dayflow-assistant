@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.dayflow.app.core.sound.SoundAndHaptics
 import com.dayflow.app.domain.model.DayflowReminder
 import com.dayflow.app.domain.model.SourceType
+import java.util.UUID
 import com.dayflow.app.domain.repository.DayflowRepository
 import com.dayflow.app.integrations.notification.NotificationHelper
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,8 +32,9 @@ class RemindersViewModel(
         if (cleanTitle.isBlank()) return
         val cleanTime = sanitizeReminderField(timeLabel, maxLength = 100).ifBlank { "Later today" }
         viewModelScope.launch {
+            // SECURITY ENHANCEMENT: Use cryptographically secure UUID for unique reminder identifier
             val reminder = DayflowReminder(
-                id = "rm-${System.currentTimeMillis()}",
+                id = "rm-${UUID.randomUUID()}",
                 title = cleanTitle,
                 timeLabel = cleanTime,
                 sourceType = SourceType.CUSTOM
