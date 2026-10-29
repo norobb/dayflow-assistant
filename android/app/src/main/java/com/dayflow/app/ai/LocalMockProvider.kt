@@ -37,11 +37,13 @@ class LocalMockProvider : AIProvider {
         val remindersList = mutableListOf<DayflowReminder>()
 
         val lower = text.lowercase()
+        // SECURITY ENHANCEMENT: Sanitize item titles by stripping non-printable control characters (\x00-\x1F\x7F)
+        // and capping title length to 300 characters to prevent IPC buffer overflow or UI crashes.
         if (lower.contains("remind") || lower.contains("erinnere") || lower.contains("recuérdame")) {
             remindersList.add(
                 DayflowReminder(
                     id = java.util.UUID.randomUUID().toString(),
-                    title = text.ifBlank { "Reminder" },
+                    title = GeminiProvider.sanitizeText(text, "Reminder", 300),
                     timeLabel = "Today 18:00",
                     sourceType = type
                 )
@@ -50,7 +52,7 @@ class LocalMockProvider : AIProvider {
             tasksList.add(
                 DayflowTask(
                     id = java.util.UUID.randomUUID().toString(),
-                    title = text.ifBlank { "New Task" },
+                    title = GeminiProvider.sanitizeText(text, "New Task", 300),
                     completed = false,
                     dueDate = "Today",
                     sourceType = type
@@ -61,7 +63,7 @@ class LocalMockProvider : AIProvider {
                 DayflowEvent(
                     id = java.util.UUID.randomUUID().toString(),
                     time = "12:00 - 13:00",
-                    title = text.ifBlank { "Organized Item" },
+                    title = GeminiProvider.sanitizeText(text, "Organized Item", 300),
                     location = null,
                     dateLabel = "Today",
                     sourceType = type
