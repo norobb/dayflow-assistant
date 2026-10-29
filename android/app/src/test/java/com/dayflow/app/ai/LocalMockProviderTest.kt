@@ -1,9 +1,29 @@
 package com.dayflow.app.ai
 
+import com.dayflow.app.domain.model.SourceType
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class LocalMockProviderTest {
+
+    @Test
+    fun testAnalyzeSanitizesExtractedItemTitleAndBoundsLength() {
+        runBlocking {
+            val provider = LocalMockProvider()
+            val longTitleWithControlChars = "Remind me to buy\u0000 milk\u0007 " + "x".repeat(400)
+
+            val result = provider.analyze(
+                type = SourceType.CUSTOM,
+                rawInput = longTitleWithControlChars
+            )
+
+            assertEquals(1, result.reminders.size)
+            val reminder = result.reminders[0]
+            assertEquals(300, reminder.title.length)
+            assertEquals("Remind me to buy milk " + "x".repeat(278), reminder.title)
+        }
+    }
 
     @Test
     fun testSanitizeInputStripsControlCharactersAndPreservesNewlines() {
