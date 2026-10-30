@@ -67,3 +67,8 @@
 **Vulnerability:** Raw string payloads (title, time, location) passed directly to React state dispatchers (`addEvent`, `addTask`, `addReminder`) without control character stripping or length limits allowed malformed or excessively long strings to persist in state and disrupt UI rendering or cause memory bloat.
 **Learning:** Client state stores accepting multi-modal analysis results or direct user inputs must sanitize string fields at the store boundary to ensure control characters (`[\x00-\x1F\x7F]`) are stripped and payload bounds are consistently enforced before state propagation.
 **Prevention:** Sanitize incoming event, task, and reminder fields using `sanitizeStoreField(value, maxLength)` in state providers before prepending items to state collections and live notification streams.
+
+## 2026-10-16 - Room Entity Persistence Input Sanitization & Control Character Stripping
+**Vulnerability:** Unsanitized domain models containing control characters or unbounded string lengths passed directly to Room database entities (`EventEntity`) could persist corrupt strings or trigger UI rendering/IPC transaction failures.
+**Learning:** Domain entities constructed from third-party inputs or multi-modal analysis must sanitize string fields at the Room entity conversion boundary (`fromDomain`) to guarantee control character stripping (`[\x00-\x1F\x7F]`) and string bounding before database insertion.
+**Prevention:** Sanitize entity text fields using `sanitizeEntityField(value, fallback, maxLength)` in Room `Companion.fromDomain` methods prior to database persistence.
