@@ -26,10 +26,24 @@ data class ReminderEntity(
     )
 
     companion object {
+        /**
+         * SECURITY ENHANCEMENT: Sanitize reminder entity string fields before persisting to Room DB
+         * by stripping non-printable control characters (\x00-\x1F\x7F) and enforcing maximum
+         * field string lengths to prevent DB corruption, UI rendering crashes, or IPC buffer overflow.
+         */
+        fun sanitizeEntityField(value: String?, fallback: String = "", maxLength: Int = 300): String {
+            if (value.isNullOrBlank()) return fallback
+            val clean = value
+                .replace(Regex("[\\x00-\\x1F\\x7F]"), "")
+                .trim()
+                .take(maxLength)
+            return clean.ifEmpty { fallback }
+        }
+
         fun fromDomain(reminder: DayflowReminder) = ReminderEntity(
             id = reminder.id,
-            title = reminder.title,
-            timeLabel = reminder.timeLabel,
+            title = sanitizeEntityField(reminder.title, fallback = "Reminder", maxLength = 300),
+            timeLabel = sanitizeEntityField(reminder.timeLabel, fallback = "Later today", maxLength = 100),
             scheduledTimeMillis = reminder.scheduledTimeMillis,
             sourceType = reminder.sourceType.identifier,
             dismissed = reminder.dismissed,
