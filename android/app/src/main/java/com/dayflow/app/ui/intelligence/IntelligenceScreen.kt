@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -55,6 +57,7 @@ import com.dayflow.app.ui.components.ProductStateBadge
 import com.dayflow.app.ui.components.DayflowCard
 import com.dayflow.app.ui.components.DayflowLogoHeader
 import com.dayflow.app.ui.components.DayflowMessageOverlay
+import com.dayflow.app.integrations.notification.NotificationInsightBus
 import com.dayflow.app.ui.components.DayflowSecondaryButton
 
 @Composable
@@ -84,6 +87,8 @@ fun IntelligenceScreen(
         ),
         label = "pulseAlpha"
     )
+
+    val insights by NotificationInsightBus.history.collectAsState()
 
     Box(
         modifier = modifier
@@ -200,6 +205,35 @@ fun IntelligenceScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     lineHeight = 20.sp
                                 )
+                            }
+                        }
+                    }
+                }
+
+                if (insights.isNotEmpty()) {
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                text = "Understood Notifications",
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                            insights.forEach { insight ->
+                                DayflowCard {
+                                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Text(
+                                            text = insight.sender,
+                                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = insight.content,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
