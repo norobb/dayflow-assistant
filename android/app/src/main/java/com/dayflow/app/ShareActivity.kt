@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,7 +39,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dayflow.app.domain.model.DayflowAnalysisResult
+import com.dayflow.app.domain.model.DayflowEvent
 import com.dayflow.app.domain.model.SourceType
+import com.dayflow.app.core.designsystem.DayflowTheme
+import com.dayflow.app.core.util.DayflowLocaleProvider
 import com.dayflow.app.integrations.document.DocumentParser
 import com.dayflow.app.ui.components.VerificationCard
 import kotlinx.coroutines.flow.first
@@ -52,7 +56,7 @@ class ShareActivity : ComponentActivity() {
         val app = application as DayflowApplication
 
         setContent {
-            MaterialTheme {
+            DayflowTheme {
                 ShareScreen(
                     intent = intent,
                     app = app,
@@ -75,8 +79,13 @@ private fun ShareScreen(
     var isAnalyzing by remember { mutableStateOf(true) }
     var analysisResult by remember { mutableStateOf<DayflowAnalysisResult?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var failedCalendarEvents by remember { mutableStateOf<List<DayflowEvent>>(emptyList()) }
+    var isRetryingCalendar by remember { mutableStateOf(false) }
+    var hasAcceptedResult by remember { mutableStateOf(false) }
+    var language by remember { mutableStateOf("en") }
 
     LaunchedEffect(intent) {
+        language = app.preferencesRepository.getLanguage().first()
         val action = intent.action
         val type = intent.type
 
@@ -146,7 +155,7 @@ private fun ShareScreen(
                         isAnalyzing = false
                         errorMessage = "Shared document exceeds maximum size limit (10MB)."
                     } else {
-                        val snippet = docUri?.let { documentParser.extractSnippet(it) } ?: "Shared PDF"
+                        val snippet = docUri?.let { documentParser.getFileName(it) } ?: "Shared PDF"
                         val result = app.analyzer.analyze(
                             providerName = provider,
                             type = SourceType.PDF,
@@ -202,12 +211,13 @@ private fun ShareScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
-    ) {
+    DayflowLocaleProvider(language) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp)
+        ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -266,25 +276,64 @@ private fun ShareScreen(
                         )
                     }
                 }
+            } else if (failedCalendarEvents.isNotEmpty()) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.plurals.calendar_open_failed, failedCalendarEvents.size),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(
+                            enabled = !isRetryingCalendar,
+                            onClick = {
+                                if (!isRetryingCalendar) {
+                                    coroutineScope.launch {
+                                        isRetryingCalendar = true
+                                        val remaining = failedCalendarEvents.filterNot { event ->
+                                            app.calendarService.insertEvent(event)
+                                        }
+                                        failedCalendarEvents = remaining
+                                        isRetryingCalendar = false
+                                        if (remaining.isEmpty()) onFinish()
+                                    }
+                                }
+                            }
+                        ) {
+                            Text(stringResource(R.string.calendar_retry))
+                        }
+                        TextButton(onClick = onFinish) {
+                            Text(stringResource(R.string.calendar_dismiss))
+                        }
+                    }
+                }
             } else if (analysisResult != null) {
                 val result = analysisResult!!
                 VerificationCard(
                     result = result,
                     onAccept = {
-                        coroutineScope.launch {
-                            result.events.forEach { ev ->
-                                app.repository.insertEvent(ev)
-                                app.calendarService.insertEvent(ev)
+                        if (!hasAcceptedResult) {
+                            hasAcceptedResult = true
+                            coroutineScope.launch {
+                                val failed = mutableListOf<DayflowEvent>()
+                                result.events.forEach { ev ->
+                                    app.repository.insertEvent(ev)
+                                    if (!app.calendarService.insertEvent(ev)) failed += ev
+                                }
+                                result.tasks.forEach { tk ->
+                                    app.repository.insertTask(tk)
+                                }
+                                result.reminders.forEach { rm ->
+                                    app.repository.insertReminder(rm)
+                                    app.notificationHelper.scheduleReminder(rm)
+                                }
+                                app.soundAndHaptics.playSuccess()
+                                if (failed.isEmpty()) onFinish() else failedCalendarEvents = failed
                             }
-                            result.tasks.forEach { tk ->
-                                app.repository.insertTask(tk)
-                            }
-                            result.reminders.forEach { rm ->
-                                app.repository.insertReminder(rm)
-                                app.notificationHelper.scheduleReminder(rm)
-                            }
-                            app.soundAndHaptics.playSuccess()
-                            onFinish()
                         }
                     },
                     onDismiss = onFinish
@@ -303,6 +352,7 @@ private fun ShareScreen(
                     )
                 }
             }
+        }
         }
     }
 }

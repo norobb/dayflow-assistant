@@ -22,3 +22,7 @@ Thumbs.db
 
 # AI Studio internal artifacts
 .aistudio/
+
+# IDE / tooling artifacts
+.idea/
+.playwright-mcp/

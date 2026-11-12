@@ -20,6 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dayflow.app.DayflowApplication
 import com.dayflow.app.core.designsystem.DayflowTheme
+import com.dayflow.app.core.util.DayflowLocaleProvider
 import com.dayflow.app.ui.components.DayflowBottomBar
 import com.dayflow.app.ui.components.OmniInputSheet
 import com.dayflow.app.ui.intelligence.IntelligenceScreen
@@ -56,6 +57,7 @@ fun DayflowApp(
     val appearanceMode by settingsViewModel.appearanceMode.collectAsState()
     val designSystemMode by settingsViewModel.designSystemMode.collectAsState()
     val isTutorialCompleted by settingsViewModel.isTutorialCompleted.collectAsState()
+    val settingsState by settingsViewModel.uiState.collectAsState()
 
     val startDestination = if (isTutorialCompleted) Screen.Today.route else Screen.Tutorial.route
 
@@ -93,7 +95,8 @@ fun DayflowApp(
         appearanceMode = appearanceMode,
         designSystemMode = designSystemMode
     ) {
-        Scaffold(
+        DayflowLocaleProvider(settingsState.language) {
+            Scaffold(
             bottomBar = {
                 if (showBottomBar) {
                     DayflowBottomBar(
@@ -171,16 +174,17 @@ fun DayflowApp(
                 if (showInputSheet) {
                     OmniInputSheet(
                         onDismiss = { showInputSheet = false },
-                        onAnalyze = { type, text ->
+                        onAnalyze = { type, text, mediaBytes, mimeType ->
                             showInputSheet = false
                             navController.navigate(Screen.Today.route) {
                                 popUpTo(Screen.Today.route) { inclusive = false }
                             }
-                            todayViewModel.startAnalysis(type, text)
+                            todayViewModel.startAnalysis(type, text, mediaBytes, mimeType)
                         },
                         isAnalyzing = false
                     )
                 }
+            }
             }
         }
     }

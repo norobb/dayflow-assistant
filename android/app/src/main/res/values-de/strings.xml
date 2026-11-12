@@ -71,6 +71,10 @@
     <string name="input_preset_voice_label">Sprachnotiz (Aufnahme)</string>
     <string name="input_pick_image">Screenshot / Bild wählen</string>
     <string name="input_pick_pdf">PDF-Datei auswählen</string>
+    <string name="input_media_too_large">Die Datei ist größer als 10 MB. Wähle eine kleinere Datei aus.</string>
+    <string name="input_media_read_error">Die Datei konnte nicht gelesen werden. Wähle sie erneut aus und versuche es noch einmal.</string>
+    <string name="input_mic_permission_denied">Für eine Sprachnotiz ist der Zugriff auf das Mikrofon erforderlich.</string>
+    <string name="input_voice_start_error">Die Aufnahme konnte nicht gestartet werden. Prüfe den Mikrofonzugriff und versuche es erneut.</string>
     <string name="input_voice_record">Tippen zum Aufnehmen</string>
     <string name="input_voice_recording">Nehme Sprachnotiz auf…</string>
     <string name="input_voice_stop">Stoppen &amp; Analysieren</string>
@@ -86,6 +90,12 @@
     <string name="verification_btn_add_reminder">Erinnerung erstellen</string>
     <string name="verification_btn_add_both">Beides hinzufügen</string>
     <string name="verification_btn_added">Zum Smartphone hinzugefügt</string>
+    <string name="calendar_retry">Kalender erneut öffnen</string>
+    <string name="calendar_dismiss">Schließen</string>
+    <plurals name="calendar_open_failed">
+        <item quantity="one">1 Termin ist in Dayflow gespeichert, aber keine Kalender-App konnte geöffnet werden.</item>
+        <item quantity="other">%1$d Termine sind in Dayflow gespeichert, aber keine Kalender-App konnte geöffnet werden.</item>
+    </plurals>
 
     <!-- Android Integration / Share Target -->
     <string name="share_received_title">Mit Dayflow geteilt</string>
@@ -166,5 +176,33 @@
     <string name="today_section_tasks">HEUTIGE AUFGABEN</string>
     <string name="today_empty_title">Dein Tag ist übersichtlich</string>
     <string name="today_empty_subtitle">Sende Dayflow Notizen oder Dokumente, um sie automatisch zu organisieren.</string>
+
+    <!-- Settings: additional localized strings -->
+    <string name="settings_back">Zurück</string>
+    <string name="settings_appearance_mode">Erscheinungsmodus</string>
+    <string name="settings_mode_light">Hell</string>
+    <string name="settings_mode_dark">Dunkel</string>
+    <string name="settings_mode_system">System</string>
+    <string name="settings_design_language">Design-Sprache</string>
+    <string name="settings_design_dayflow">Dayflow Signatur</string>
+    <string name="settings_design_material3">Material 3</string>
+    <string name="settings_ai_provider_model">KI-Anbieter &amp; Modell</string>
+    <string name="settings_ai_gemini">Gemini KI (Echt Multimodal)</string>
+    <string name="settings_ai_local">Lokale Offline-Engine</string>
+    <string name="settings_ai_gemini_key">Gemini-API-Schlüssel</string>
+    <string name="settings_ai_model_id">Modellbezeichner</string>
+    <string name="settings_section_interaction">INTERAKTION &amp; HAPTIK</string>
+    <string name="settings_section_permissions">BERECHTIGUNGEN &amp; OVERLAY-INTEGRATIONEN</string>
+    <string name="settings_system_permissions">Systemberechtigungen</string>
+    <string name="settings_perm_notifications">Benachrichtigungsberechtigung</string>
+    <string name="settings_perm_calendar">Kalender-Sync-Berechtigung</string>
+    <string name="settings_perm_microphone">Mikrofonberechtigung</string>
+    <string name="settings_perm_photos">Fotos &amp; Medienzugriff</string>
+    <string name="settings_perm_notif_listener">Benachrichtigungs-Listener (Nachrichten-Overlay)</string>
+    <string name="settings_status_ready">Update bereit zur Installation</string>
+    <string name="settings_status_error">Update-Fehler: %1$s</string>
+    <string name="settings_chip_releases">Releases</string>
+    <string name="settings_chip_ci">CI-Build</string>
+    <string name="permission_granted">Erteilt</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package com.dayflow.app.ui.components
 
+import android.Manifest
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,12 +59,18 @@ import com.dayflow.app.R
 import com.dayflow.app.domain.model.SourceType
 import com.dayflow.app.integrations.document.DocumentParser
 import com.dayflow.app.integrations.voice.VoiceRecorder
+import com.dayflow.app.core.util.PermissionUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OmniInputSheet(
     onDismiss: () -> Unit,
-    onAnalyze: (SourceType, String?) -> Unit,
+    onAnalyze: (SourceType, String?, ByteArray?, String?) -> Unit,
     isAnalyzing: Boolean = false
 ) {
     val context = LocalContext.current
@@ -72,7 +80,11 @@ fun OmniInputSheet(
     var isVoiceRecording by remember { mutableStateOf(false) }
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedFileName by remember { mutableStateOf<String?>(null) }
+    var selectedFileMimeType by remember { mutableStateOf<String?>(null) }
+    var isReadingMedia by remember { mutableStateOf(false) }
+    var mediaReadError by remember { mutableStateOf<String?>(null) }
 
+    val coroutineScope = rememberCoroutineScope()
     val voiceRecorder = remember { VoiceRecorder(context) }
     val documentParser = remember { DocumentParser(context) }
 
@@ -82,7 +94,9 @@ fun OmniInputSheet(
     ) { uri: Uri? ->
         if (uri != null) {
             selectedFileUri = uri
+            selectedFileMimeType = context.contentResolver.getType(uri) ?: "image/*"
             selectedFileName = documentParser.getFileName(uri)
+            mediaReadError = null
             inputText = "Picked Image: ${selectedFileName}\nReceipt / Appointment Screenshot detected."
         }
     }
@@ -93,9 +107,20 @@ fun OmniInputSheet(
     ) { uri: Uri? ->
         if (uri != null) {
             selectedFileUri = uri
+            selectedFileMimeType = context.contentResolver.getType(uri) ?: "application/pdf"
             selectedFileName = documentParser.getFileName(uri)
-            val extracted = documentParser.extractSnippet(uri)
-            inputText = "Picked Document: ${selectedFileName}\n$extracted"
+            mediaReadError = null
+            inputText = "Picked PDF: ${selectedFileName}"
+        }
+    }
+    val microphonePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            isVoiceRecording = voiceRecorder.startRecording()
+            if (!isVoiceRecording) mediaReadError = context.getString(R.string.input_voice_start_error)
+        } else {
+            mediaReadError = context.getString(R.string.input_mic_permission_denied)
         }
     }
 
@@ -165,6 +190,10 @@ fun OmniInputSheet(
                     selected = selectedTab == SourceType.SCREENSHOT,
                     onClick = {
                         selectedTab = SourceType.SCREENSHOT
+                        selectedFileUri = null
+                        selectedFileMimeType = null
+                        selectedFileName = null
+                        mediaReadError = null
                         if (inputText.isBlank()) {
                             inputText = "Doctor Appointment: Dr. Julia Stein — Zahnheilkunde — Tuesday 14:30"
                         }
@@ -177,6 +206,10 @@ fun OmniInputSheet(
                     selected = selectedTab == SourceType.PDF,
                     onClick = {
                         selectedTab = SourceType.PDF
+                        selectedFileUri = null
+                        selectedFileMimeType = null
+                        selectedFileName = null
+                        mediaReadError = null
                         if (inputText.isBlank()) {
                             inputText = "Flight & Hotel Confirmation: Barcelona (BCN) · Oct 12 - 16 · Flight LH1812"
                         }
@@ -187,7 +220,10 @@ fun OmniInputSheet(
                     icon = Icons.Outlined.Mic,
                     label = stringResource(R.string.input_tab_voice),
                     selected = selectedTab == SourceType.VOICE,
-                    onClick = { selectedTab = SourceType.VOICE },
+                    onClick = {
+                        selectedTab = SourceType.VOICE
+                        mediaReadError = null
+                    },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -273,14 +309,41 @@ fun OmniInputSheet(
                                     .size(54.dp)
                                     .clip(CircleShape)
                                     .background(if (isVoiceRecording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
-                                    .clickable {
+                                    .clickable(enabled = !isReadingMedia) {
                                         if (!isVoiceRecording) {
-                                            val started = voiceRecorder.startRecording()
-                                            isVoiceRecording = started
+                                            mediaReadError = null
+                                            if (PermissionUtils.hasMicrophonePermission(context)) {
+                                                isVoiceRecording = voiceRecorder.startRecording()
+                                                if (!isVoiceRecording) mediaReadError = context.getString(R.string.input_voice_start_error)
+                                            } else {
+                                                microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                            }
                                         } else {
                                             val audioPath = voiceRecorder.stopRecording()
                                             isVoiceRecording = false
-                                            onAnalyze(SourceType.VOICE, audioPath ?: "Voice memo note: Remind me to call Marcus tomorrow at 5pm")
+                                            if (audioPath == null) {
+                                                mediaReadError = context.getString(R.string.input_media_read_error)
+                                            } else {
+                                                coroutineScope.launch {
+                                                    isReadingMedia = true
+                                                    val audioBytes = try {
+                                                        withContext(Dispatchers.IO) {
+                                                            File(audioPath).inputStream().use { DocumentParser.readBytesWithLimit(it) }
+                                                        }
+                                                    } catch (_: Exception) {
+                                                        mediaReadError = context.getString(R.string.input_media_read_error)
+                                                        null
+                                                    } finally {
+                                                        withContext(NonCancellable + Dispatchers.IO) { File(audioPath).delete() }
+                                                    }
+                                                    isReadingMedia = false
+                                                    if (audioBytes == null && mediaReadError == null) {
+                                                        mediaReadError = context.getString(R.string.input_media_too_large)
+                                                    } else if (audioBytes != null) {
+                                                        onAnalyze(SourceType.VOICE, "Voice recording", audioBytes, "audio/mp4")
+                                                    }
+                                                }
+                                            }
                                         }
                                     },
                                 contentAlignment = Alignment.Center
@@ -331,15 +394,43 @@ fun OmniInputSheet(
                 }
             }
 
+            mediaReadError?.let { error ->
+                Text(error, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            }
+
             // Understand Action
             if (selectedTab != SourceType.VOICE) {
                 DayflowPrimaryButton(
-                    text = if (isAnalyzing) stringResource(R.string.input_action_analyzing) else stringResource(R.string.input_action_understand),
+                    text = if (isAnalyzing || isReadingMedia) stringResource(R.string.input_action_analyzing) else stringResource(R.string.input_action_understand),
                     icon = Icons.Outlined.AutoAwesome,
-                    isLoading = isAnalyzing,
+                    isLoading = isAnalyzing || isReadingMedia,
                     onClick = {
                         val type = if (inputText.isNotBlank()) selectedTab else SourceType.MESSAGE
-                        onAnalyze(type, inputText.ifBlank { null })
+                        val input = inputText.ifBlank { null }
+                        val uri = selectedFileUri
+                        val mimeType = selectedFileMimeType
+                        coroutineScope.launch {
+                            isReadingMedia = uri != null
+                            mediaReadError = null
+                            val mediaBytes = try {
+                                uri?.let { selectedUri ->
+                                    withContext(Dispatchers.IO) {
+                                        val stream = context.contentResolver.openInputStream(selectedUri)
+                                            ?: throw IllegalStateException("Unable to open selected content")
+                                        stream.use { DocumentParser.readBytesWithLimit(it) }
+                                    }
+                                }
+                            } catch (_: Exception) {
+                                mediaReadError = context.getString(R.string.input_media_read_error)
+                                null
+                            }
+                            isReadingMedia = false
+                            if (uri != null && mediaBytes == null && mediaReadError == null) {
+                                mediaReadError = context.getString(R.string.input_media_too_large)
+                            } else if (uri == null || mediaBytes != null) {
+                                onAnalyze(type, input, mediaBytes, mimeType)
+                            }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 )

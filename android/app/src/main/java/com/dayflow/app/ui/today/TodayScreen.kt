@@ -37,7 +37,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -62,7 +65,6 @@ import com.dayflow.app.ui.components.DayflowLogoHeader
 import com.dayflow.app.ui.components.SourceBadge
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 @Composable
 fun TodayScreen(
@@ -71,7 +73,7 @@ fun TodayScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    val currentDateStr = SimpleDateFormat("EEEE, MMMM d", Locale.getDefault()).format(Date())
+    val currentDateStr = SimpleDateFormat("EEEE, MMMM d", LocalConfiguration.current.locales[0]).format(Date())
 
     Box(
         modifier = Modifier
@@ -218,6 +220,26 @@ fun TodayScreen(
                     onAccept = { viewModel.acceptVerification(result) },
                     onDismiss = { viewModel.dismissVerification() }
                 )
+            }
+        }
+
+        if (state.failedCalendarEvents.isNotEmpty()) {
+            Snackbar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp),
+                action = {
+                    TextButton(onClick = viewModel::retryCalendarInsertion) {
+                        Text(stringResource(R.string.calendar_retry))
+                    }
+                },
+                dismissAction = {
+                    TextButton(onClick = viewModel::dismissCalendarWarning) {
+                        Text(stringResource(R.string.calendar_dismiss))
+                    }
+                }
+            ) {
+                Text(stringResource(R.plurals.calendar_open_failed, state.failedCalendarEvents.size))
             }
         }
     }

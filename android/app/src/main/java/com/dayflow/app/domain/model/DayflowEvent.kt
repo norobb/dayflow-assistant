@@ -1,7 +1,7 @@
 package com.dayflow.app.domain.model
 
 data class DayflowEvent(
-    val id: String,
+    val id: String = java.util.UUID.randomUUID().toString(),
     val time: String,
     val title: String,
     val location: String? = null,

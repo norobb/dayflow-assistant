@@ -101,7 +101,7 @@ fun SettingsScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.settings_back),
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -136,7 +136,7 @@ fun SettingsScreen(
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = "Appearance Mode",
+                                text = stringResource(R.string.settings_appearance_mode),
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -147,19 +147,19 @@ fun SettingsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             AppearanceOptionChip(
-                                label = "Light",
+                                label = stringResource(R.string.settings_mode_light),
                                 selected = uiState.appearanceMode == AppearanceMode.LIGHT,
                                 onClick = { viewModel.setAppearanceMode(AppearanceMode.LIGHT) },
                                 modifier = Modifier.weight(1f)
                             )
                             AppearanceOptionChip(
-                                label = "Dark",
+                                label = stringResource(R.string.settings_mode_dark),
                                 selected = uiState.appearanceMode == AppearanceMode.DARK,
                                 onClick = { viewModel.setAppearanceMode(AppearanceMode.DARK) },
                                 modifier = Modifier.weight(1f)
                             )
                             AppearanceOptionChip(
-                                label = "System",
+                                label = stringResource(R.string.settings_mode_system),
                                 selected = uiState.appearanceMode == AppearanceMode.SYSTEM,
                                 onClick = { viewModel.setAppearanceMode(AppearanceMode.SYSTEM) },
                                 modifier = Modifier.weight(1f)
@@ -184,7 +184,7 @@ fun SettingsScreen(
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = "Design Language",
+                                text = stringResource(R.string.settings_design_language),
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -195,13 +195,13 @@ fun SettingsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             AppearanceOptionChip(
-                                label = "Dayflow Signature",
+                                label = stringResource(R.string.settings_design_dayflow),
                                 selected = uiState.designSystemMode == DesignSystemMode.DAYFLOW_SIGNATURE,
                                 onClick = { viewModel.setDesignSystemMode(DesignSystemMode.DAYFLOW_SIGNATURE) },
                                 modifier = Modifier.weight(1f)
                             )
                             AppearanceOptionChip(
-                                label = "Material 3",
+                                label = stringResource(R.string.settings_design_material3),
                                 selected = uiState.designSystemMode == DesignSystemMode.MATERIAL3,
                                 onClick = { viewModel.setDesignSystemMode(DesignSystemMode.MATERIAL3) },
                                 modifier = Modifier.weight(1f)
@@ -278,19 +278,19 @@ fun SettingsScreen(
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = "AI Provider & Model",
+                                text = stringResource(R.string.settings_ai_provider_model),
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }
 
                         AiProviderRow(
-                            title = "Gemini AI (Real Multimodal)",
+                            title = stringResource(R.string.settings_ai_gemini),
                             selected = uiState.aiProvider == "gemini",
                             onSelect = { viewModel.setAiProvider("gemini") }
                         )
                         AiProviderRow(
-                            title = "Local Offline Engine",
+                            title = stringResource(R.string.settings_ai_local),
                             selected = uiState.aiProvider == "local",
                             onSelect = { viewModel.setAiProvider("local") }
                         )
@@ -299,7 +299,7 @@ fun SettingsScreen(
                             OutlinedTextField(
                                 value = uiState.geminiApiKey,
                                 onValueChange = { viewModel.setGeminiApiKey(it) },
-                                label = { Text("Gemini API Key") },
+                                label = { Text(stringResource(R.string.settings_ai_gemini_key)) },
                                 placeholder = { Text("AIzaSy...") },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
@@ -312,7 +312,7 @@ fun SettingsScreen(
                             OutlinedTextField(
                                 value = uiState.geminiModel,
                                 onValueChange = { viewModel.setGeminiModel(it) },
-                                label = { Text("Model Identifier") },
+                                label = { Text(stringResource(R.string.settings_ai_model_id)) },
                                 placeholder = { Text("gemini-3.6-flash") },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
@@ -328,7 +328,7 @@ fun SettingsScreen(
 
             // Section: Haptics & Feedback
             item {
-                SectionHeader("INTERACTION & HAPTICS")
+                SectionHeader(stringResource(R.string.settings_section_interaction))
             }
 
             item {
@@ -368,7 +368,7 @@ fun SettingsScreen(
 
             // Section: Permissions & System Integrations
             item {
-                SectionHeader("PERMISSIONS & OVERLAY INTEGRATIONS")
+                SectionHeader(stringResource(R.string.settings_section_permissions))
             }
 
             item {
@@ -407,7 +407,7 @@ fun SettingsScreen(
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = "System Permissions",
+                                text = stringResource(R.string.settings_system_permissions),
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -415,7 +415,7 @@ fun SettingsScreen(
 
                         PermissionRow(
                             icon = Icons.Outlined.Notifications,
-                            title = "Notifications Permission",
+                            title = stringResource(R.string.settings_perm_notifications),
                             granted = notifGranted,
                             onRequest = {
                                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -426,7 +426,7 @@ fun SettingsScreen(
 
                         PermissionRow(
                             icon = Icons.Outlined.CalendarToday,
-                            title = "Calendar Sync Permission",
+                            title = stringResource(R.string.settings_perm_calendar),
                             granted = calGranted,
                             onRequest = {
                                 calLauncher.launch(
@@ -440,7 +440,7 @@ fun SettingsScreen(
 
                         PermissionRow(
                             icon = Icons.Outlined.Mic,
-                            title = "Microphone Permission",
+                            title = stringResource(R.string.settings_perm_microphone),
                             granted = micGranted,
                             onRequest = {
                                 micLauncher.launch(Manifest.permission.RECORD_AUDIO)
@@ -449,7 +449,7 @@ fun SettingsScreen(
 
                         PermissionRow(
                             icon = Icons.Outlined.Image,
-                            title = "Photos & Media Access",
+                            title = stringResource(R.string.settings_perm_photos),
                             granted = photosGranted,
                             onRequest = {
                                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -462,7 +462,7 @@ fun SettingsScreen(
 
                         PermissionRow(
                             icon = Icons.Outlined.Notifications,
-                            title = "Notification Listener (Message Overlay)",
+                            title = stringResource(R.string.settings_perm_notif_listener),
                             granted = false,
                             onRequest = {
                                 try {
@@ -507,8 +507,8 @@ fun SettingsScreen(
                             is UpdateStatus.NoUpdateAvailable -> stringResource(R.string.settings_status_up_to_date, status.currentVersion)
                             is UpdateStatus.UpdateAvailable -> stringResource(R.string.settings_status_update_available, status.versionTag)
                             is UpdateStatus.Downloading -> stringResource(R.string.settings_status_downloading, status.progress)
-                            is UpdateStatus.ReadyToInstall -> "Ready to install update"
-                            is UpdateStatus.Error -> "Update error: ${status.message}"
+                            is UpdateStatus.ReadyToInstall -> stringResource(R.string.settings_status_ready)
+                            is UpdateStatus.Error -> stringResource(R.string.settings_status_error, status.message)
                         }
 
                         var updateChannel by remember { mutableStateOf("releases") }
@@ -518,13 +518,13 @@ fun SettingsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             AppearanceOptionChip(
-                                label = "Releases",
+                                label = stringResource(R.string.settings_chip_releases),
                                 selected = updateChannel == "releases",
                                 onClick = { updateChannel = "releases" },
                                 modifier = Modifier.weight(1f)
                             )
                             AppearanceOptionChip(
-                                label = "CI Build",
+                                label = stringResource(R.string.settings_chip_ci),
                                 selected = updateChannel == "ci",
                                 onClick = { updateChannel = "ci" },
                                 modifier = Modifier.weight(1f)
@@ -663,7 +663,7 @@ private fun PermissionRow(
                 .padding(horizontal = 10.dp, vertical = 4.dp)
         ) {
             Text(
-                text = if (granted) "Granted" else "Grant",
+                text = if (granted) stringResource(R.string.permission_granted) else stringResource(R.string.permission_grant),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant

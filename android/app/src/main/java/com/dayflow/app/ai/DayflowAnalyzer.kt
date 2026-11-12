@@ -16,7 +16,7 @@ class DayflowAnalyzer(
         apiKey: String = "",
         modelOverride: String = ""
     ): DayflowAnalysisResult {
-        val provider = if (providerName.equals("gemini", ignoreCase = true)) {
+        val provider = if (providerName.equals("gemini", ignoreCase = true) && apiKey.isNotBlank()) {
             geminiProvider
         } else {
             localProvider

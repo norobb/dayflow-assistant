@@ -1,7 +1,7 @@
 package com.dayflow.app.domain.model
 
 data class DayflowReminder(
-    val id: String,
+    val id: String = java.util.UUID.randomUUID().toString(),
     val title: String,
     val timeLabel: String,
     val scheduledTimeMillis: Long = System.currentTimeMillis() + 3600000L,

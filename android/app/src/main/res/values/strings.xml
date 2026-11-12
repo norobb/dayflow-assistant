@@ -71,6 +71,10 @@
     <string name="input_preset_voice_label">Voice Memo (Recording)</string>
     <string name="input_pick_image">Choose Screenshot / Image</string>
     <string name="input_pick_pdf">Choose PDF File</string>
+    <string name="input_media_too_large">The selected file is larger than 10 MB. Choose a smaller file.</string>
+    <string name="input_media_read_error">Could not read the selected file. Choose it again and retry.</string>
+    <string name="input_mic_permission_denied">Microphone permission is required to record a voice note.</string>
+    <string name="input_voice_start_error">Could not start recording. Check microphone access and try again.</string>
     <string name="input_voice_record">Hold or Tap to Record</string>
     <string name="input_voice_recording">Recording voice note…</string>
     <string name="input_voice_stop">Stop &amp; Analyze</string>
@@ -86,6 +90,12 @@
     <string name="verification_btn_add_reminder">Create Reminder</string>
     <string name="verification_btn_add_both">Add Both</string>
     <string name="verification_btn_added">Added to Phone</string>
+    <string name="calendar_retry">Retry calendar</string>
+    <string name="calendar_dismiss">Dismiss</string>
+    <plurals name="calendar_open_failed">
+        <item quantity="one">Saved 1 event in Dayflow, but couldn’t open a calendar app.</item>
+        <item quantity="other">Saved %1$d events in Dayflow, but couldn’t open a calendar app.</item>
+    </plurals>
 
     <!-- Android Integration / Share Target -->
     <string name="share_received_title">Shared with Dayflow</string>
@@ -166,5 +176,33 @@
     <string name="today_section_tasks">TODAY TASKS</string>
     <string name="today_empty_title">Your day is clear</string>
     <string name="today_empty_subtitle">Send Dayflow something to organize from anywhere on your phone.</string>
+
+    <!-- Settings: additional localized strings -->
+    <string name="settings_back">Back</string>
+    <string name="settings_appearance_mode">Appearance Mode</string>
+    <string name="settings_mode_light">Light</string>
+    <string name="settings_mode_dark">Dark</string>
+    <string name="settings_mode_system">System</string>
+    <string name="settings_design_language">Design Language</string>
+    <string name="settings_design_dayflow">Dayflow Signature</string>
+    <string name="settings_design_material3">Material 3</string>
+    <string name="settings_ai_provider_model">AI Provider &amp; Model</string>
+    <string name="settings_ai_gemini">Gemini AI (Real Multimodal)</string>
+    <string name="settings_ai_local">Local Offline Engine</string>
+    <string name="settings_ai_gemini_key">Gemini API Key</string>
+    <string name="settings_ai_model_id">Model Identifier</string>
+    <string name="settings_section_interaction">INTERACTION &amp; HAPTICS</string>
+    <string name="settings_section_permissions">PERMISSIONS &amp; OVERLAY INTEGRATIONS</string>
+    <string name="settings_system_permissions">System Permissions</string>
+    <string name="settings_perm_notifications">Notifications Permission</string>
+    <string name="settings_perm_calendar">Calendar Sync Permission</string>
+    <string name="settings_perm_microphone">Microphone Permission</string>
+    <string name="settings_perm_photos">Photos &amp; Media Access</string>
+    <string name="settings_perm_notif_listener">Notification Listener (Message Overlay)</string>
+    <string name="settings_status_ready">Ready to install update</string>
+    <string name="settings_status_error">Update error: %1$s</string>
+    <string name="settings_chip_releases">Releases</string>
+    <string name="settings_chip_ci">CI Build</string>
+    <string name="permission_granted">Granted</string>
 
 </resources>

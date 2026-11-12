@@ -29,7 +29,8 @@ data class TodayUiState(
     val reminders: List<DayflowReminder> = emptyList(),
     val insight: DayflowInsight? = null,
     val isAnalyzing: Boolean = false,
-    val pendingVerification: DayflowAnalysisResult? = null
+    val pendingVerification: DayflowAnalysisResult? = null,
+    val failedCalendarEvents: List<DayflowEvent> = emptyList()
 )
 
 class TodayViewModel(
@@ -43,6 +44,8 @@ class TodayViewModel(
 
     private val _isAnalyzing = MutableStateFlow(false)
     private val _pendingVerification = MutableStateFlow<DayflowAnalysisResult?>(null)
+    private val _failedCalendarEvents = MutableStateFlow<List<DayflowEvent>>(emptyList())
+    private var isRetryingCalendar = false
 
     val uiState: StateFlow<TodayUiState> = combine(
         repository.observeEvents(),
@@ -50,7 +53,8 @@ class TodayViewModel(
         repository.observeReminders(),
         repository.observeInsight(),
         _isAnalyzing,
-        _pendingVerification
+        _pendingVerification,
+        _failedCalendarEvents
     ) { flows ->
         @Suppress("UNCHECKED_CAST")
         val events = flows[0] as List<DayflowEvent>
@@ -61,6 +65,8 @@ class TodayViewModel(
         val insight = flows[3] as DayflowInsight
         val isAnalyzing = flows[4] as Boolean
         val verification = flows[5] as DayflowAnalysisResult?
+        @Suppress("UNCHECKED_CAST")
+        val failedCalendarEvents = flows[6] as List<DayflowEvent>
 
         TodayUiState(
             events = events,
@@ -68,7 +74,8 @@ class TodayViewModel(
             reminders = reminders,
             insight = if (insight.visible && insight.title.isNotBlank()) insight else null,
             isAnalyzing = isAnalyzing,
-            pendingVerification = verification
+            pendingVerification = verification,
+            failedCalendarEvents = failedCalendarEvents
         )
     }.stateIn(
         scope = viewModelScope,
@@ -126,12 +133,33 @@ class TodayViewModel(
         _pendingVerification.value = null
     }
 
+    fun retryCalendarInsertion() {
+        if (isRetryingCalendar) return
+        isRetryingCalendar = true
+        viewModelScope.launch {
+            try {
+                val stillFailed = _failedCalendarEvents.value.filterNot { event ->
+                    calendarService.insertEvent(event)
+                }
+                _failedCalendarEvents.value = stillFailed
+            } finally {
+                isRetryingCalendar = false
+            }
+        }
+    }
+
+    fun dismissCalendarWarning() {
+        _failedCalendarEvents.value = emptyList()
+    }
+
     fun acceptVerification(result: DayflowAnalysisResult) {
         viewModelScope.launch {
+            val failedCalendarEvents = mutableListOf<DayflowEvent>()
             result.events.forEach { ev ->
                 repository.insertEvent(ev)
-                calendarService.insertEvent(ev)
+                if (!calendarService.insertEvent(ev)) failedCalendarEvents += ev
             }
+            _failedCalendarEvents.value = failedCalendarEvents
             result.tasks.forEach { tk ->
                 repository.insertTask(tk)
             }
