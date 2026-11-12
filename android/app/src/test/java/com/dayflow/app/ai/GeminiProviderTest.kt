@@ -90,4 +90,27 @@ class GeminiProviderTest {
         assertEquals("Default Event", GeminiProvider.sanitizeText("   ", "Default Event", 300))
         assertEquals("Default Event", GeminiProvider.sanitizeText("\u0000\u0007", "Default Event", 300))
     }
+
+    @Test
+    fun testSanitizeRawInputStripsControlCharsAndPreservesLineBreaks() {
+        val raw = "  Meeting\u0000 tomorrow at 14:00.\nBring\u0007 presentation slides.  "
+        val clean = GeminiProvider.sanitizeRawInput(raw)
+        assertEquals("Meeting tomorrow at 14:00.\nBring presentation slides.", clean)
+    }
+
+    @Test
+    fun testSanitizeRawInputTruncatesExcessiveLength() {
+        val longInput = "A".repeat(15000)
+        val clean = GeminiProvider.sanitizeRawInput(longInput, 10000)
+        assertEquals(10000, clean.length)
+        assertEquals("A".repeat(10000), clean)
+    }
+
+    @Test
+    fun testSanitizeRawInputHandlesNullAndBlank() {
+        assertEquals("", GeminiProvider.sanitizeRawInput(null))
+        assertEquals("", GeminiProvider.sanitizeRawInput(""))
+        assertEquals("", GeminiProvider.sanitizeRawInput("   "))
+        assertEquals("", GeminiProvider.sanitizeRawInput("\u0000\u0007"))
+    }
 }

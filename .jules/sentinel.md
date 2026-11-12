@@ -67,3 +67,8 @@
 **Vulnerability:** Raw string payloads (title, time, location) passed directly to React state dispatchers (`addEvent`, `addTask`, `addReminder`) without control character stripping or length limits allowed malformed or excessively long strings to persist in state and disrupt UI rendering or cause memory bloat.
 **Learning:** Client state stores accepting multi-modal analysis results or direct user inputs must sanitize string fields at the store boundary to ensure control characters (`[\x00-\x1F\x7F]`) are stripped and payload bounds are consistently enforced before state propagation.
 **Prevention:** Sanitize incoming event, task, and reminder fields using `sanitizeStoreField(value, maxLength)` in state providers before prepending items to state collections and live notification streams.
+
+## 2026-10-18 - Input Sanitization & Payload Bounding for AI Multimodal API Requests
+**Vulnerability:** Raw string inputs passed directly to Gemini JSON request bodies without control character stripping or length caps allowed invalid control characters (\x00-\x1F\x7F) or multi-megabyte payloads to cause JSON serialization failures or HTTP request payload bloat DoS.
+**Learning:** External LLM API clients must sanitize user-provided text inputs before embedding them in request JSON payloads, stripping non-printable control characters while preserving standard whitespace and line breaks.
+**Prevention:** Always pass raw text inputs through `sanitizeRawInput(input, maxChars)` to strip control characters (`[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]`) and bound payload length before constructing API request bodies.
