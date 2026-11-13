@@ -33,6 +33,8 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.Notifications
+
+import androidx.compose.material.icons.outlined.Accessibility
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.SystemUpdate
@@ -467,6 +469,24 @@ fun SettingsScreen(
                             onRequest = {
                                 try {
                                     val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            }
+                        )
+
+                        val accessibilityGranted = try {
+                            val enabled = Settings.Secure.getInt(context.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 0) == 1
+                            val services = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES).orEmpty()
+                            enabled && services.contains(context.packageName)
+                        } catch (_: Exception) { false }
+
+                        PermissionRow(
+                            icon = Icons.Outlined.Accessibility,
+                            title = stringResource(R.string.settings_perm_accessibility),
+                            granted = accessibilityGranted,
+                            onRequest = {
+                                try {
+                                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                                     context.startActivity(intent)
                                 } catch (_: Exception) {}
                             }

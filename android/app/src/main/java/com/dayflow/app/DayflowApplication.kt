@@ -11,7 +11,6 @@ import com.dayflow.app.domain.repository.DayflowRepository
 import com.dayflow.app.domain.repository.PreferencesRepository
 import com.dayflow.app.integrations.calendar.CalendarService
 import com.dayflow.app.integrations.notification.NotificationHelper
-import com.dayflow.app.integrations.overlay.DayflowOverlayService
 
 class DayflowApplication : Application() {
 
@@ -46,6 +45,8 @@ class DayflowApplication : Application() {
         notificationHelper = NotificationHelper(this)
         calendarService = CalendarService(this)
         analyzer = DayflowAnalyzer()
-        startService(Intent(this, DayflowOverlayService::class.java))
+        // DayflowOverlayService is started from MainActivity (foreground) instead —
+        // starting it here would crash with IllegalStateException whenever the process
+        // boots in the background (e.g. bound accessibility / notification listener).
     }
 }

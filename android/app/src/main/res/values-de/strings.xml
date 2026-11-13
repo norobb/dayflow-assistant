@@ -44,7 +44,7 @@
 
     <!-- Intelligence / Context Screen -->
     <string name="intelligence_title">Kontextfluss</string>
-    <string name="intelligence_badge_soon">DEMNÄCHST</string>
+    <string name="intelligence_badge_beta">BETA</string>
     <string name="intelligence_headline">Systemweites Kontextverständnis</string>
     <string name="intelligence_description">Dayflow erkennt Kontextinformationen auf deinem Bildschirm und schlägt verifizierte Aktionen vor – ohne manuelles Kopieren.</string>
     <string name="intelligence_flow_title">Aktive Kontextquellen</string>
@@ -199,10 +199,25 @@
     <string name="settings_perm_microphone">Mikrofonberechtigung</string>
     <string name="settings_perm_photos">Fotos &amp; Medienzugriff</string>
     <string name="settings_perm_notif_listener">Benachrichtigungs-Listener (Nachrichten-Overlay)</string>
+<string name="settings_perm_accessibility">Bedienungshilfen / Bildschirm-Intelligenz</string>
+<string name="accessibility_service_description">Dayflow Bildschirm-Intelligenz liest Bildschirminhalte.</string>
     <string name="settings_status_ready">Update bereit zur Installation</string>
     <string name="settings_status_error">Update-Fehler: %1$s</string>
     <string name="settings_chip_releases">Releases</string>
     <string name="settings_chip_ci">CI-Build</string>
     <string name="permission_granted">Erteilt</string>
 
+
+    <!-- Intelligence-Bildschirm: Steuerungsebene -->
+    <string name="intelligence_screen_section">Verstandener Bildschirminhalt</string>
+    <string name="intelligence_notif_section">Verstandene Benachrichtigungen</string>
+    <string name="intelligence_control_title">Bildschirmsteuerung</string>
+    <string name="intelligence_control_scan">Bildschirm scannen</string>
+    <string name="intelligence_control_tap">Tippen</string>
+    <string name="intelligence_control_swipe_up">Nach oben scrollen</string>
+    <string name="intelligence_control_swipe_down">Nach unten scrollen</string>
+    <string name="intelligence_control_back">Zurück</string>
+    <string name="intelligence_control_no_service">Bedienungshilfen-Service ist noch nicht aktiv</string>
+    <string name="intelligence_control_empty">Keine interaktiven Elemente gefunden</string>
+    <string name="intelligence_control_safety">Bank- und Authentifizierungs-Apps werden nie gesteuert, und Passwörter oder Codes werden nie eingegeben.</string>
 </resources>

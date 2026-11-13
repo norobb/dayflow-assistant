@@ -44,7 +44,7 @@
 
     <!-- Intelligence / Context Screen -->
     <string name="intelligence_title">Context Flow</string>
-    <string name="intelligence_badge_soon">COMING SOON</string>
+    <string name="intelligence_badge_beta">BETA</string>
     <string name="intelligence_headline">System-Level Context Understanding</string>
     <string name="intelligence_description">Dayflow is designed to securely observe on-screen contextual cues and propose smart verified actions without constant manual copy-pasting.</string>
     <string name="intelligence_flow_title">Active Context Streams</string>
@@ -199,10 +199,25 @@
     <string name="settings_perm_microphone">Microphone Permission</string>
     <string name="settings_perm_photos">Photos &amp; Media Access</string>
     <string name="settings_perm_notif_listener">Notification Listener (Message Overlay)</string>
+<string name="settings_perm_accessibility">Accessibility / Screen Intelligence</string>
+<string name="accessibility_service_description">Dayflow Screen Intelligence reads on-screen content to understand your day.</string>
     <string name="settings_status_ready">Ready to install update</string>
     <string name="settings_status_error">Update error: %1$s</string>
     <string name="settings_chip_releases">Releases</string>
     <string name="settings_chip_ci">CI Build</string>
     <string name="permission_granted">Granted</string>
 
+
+    <!-- Intelligence screen: control layer -->
+    <string name="intelligence_screen_section">Understood Screen Content</string>
+    <string name="intelligence_notif_section">Understood Notifications</string>
+    <string name="intelligence_control_title">Screen Control</string>
+    <string name="intelligence_control_scan">Scan screen</string>
+    <string name="intelligence_control_tap">Tap</string>
+    <string name="intelligence_control_swipe_up">Scroll up</string>
+    <string name="intelligence_control_swipe_down">Scroll down</string>
+    <string name="intelligence_control_back">Back</string>
+    <string name="intelligence_control_no_service">Accessibility service is not active yet</string>
+    <string name="intelligence_control_empty">No interactive elements found</string>
+    <string name="intelligence_control_safety">Banking and authentication apps are never driven, and no passwords or codes are ever typed.</string>
 </resources>

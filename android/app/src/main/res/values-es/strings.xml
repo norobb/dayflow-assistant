@@ -44,7 +44,7 @@
 
     <!-- Intelligence / Context Screen -->
     <string name="intelligence_title">Flujo de contexto</string>
-    <string name="intelligence_badge_soon">PRÓXIMAMENTE</string>
+    <string name="intelligence_badge_beta">BETA</string>
     <string name="intelligence_headline">Comprensión contextual a nivel de sistema</string>
     <string name="intelligence_description">Dayflow reconoce información contextual en pantalla y sugiere acciones verificadas sin necesidad de copiar y pegar.</string>
     <string name="intelligence_flow_title">Canales de contexto activos</string>
@@ -199,10 +199,25 @@
     <string name="settings_perm_microphone">Permiso de micrófono</string>
     <string name="settings_perm_photos">Acceso a fotos y medios</string>
     <string name="settings_perm_notif_listener">Escucha de notificaciones (overlay de mensajes)</string>
+<string name="settings_perm_accessibility">Accesibilidad / Inteligencia de pantalla</string>
+<string name="accessibility_service_description">Dayflow Screen Intelligence lee el contenido en pantalla.</string>
     <string name="settings_status_ready">Listo para instalar la actualización</string>
     <string name="settings_status_error">Error de actualización: %1$s</string>
     <string name="settings_chip_releases">Versiones</string>
     <string name="settings_chip_ci">Build de CI</string>
     <string name="permission_granted">Concedido</string>
 
+
+    <!-- Pantalla de inteligencia: capa de control -->
+    <string name="intelligence_screen_section">Contenido de pantalla entendido</string>
+    <string name="intelligence_notif_section">Notificaciones entendidas</string>
+    <string name="intelligence_control_title">Control de pantalla</string>
+    <string name="intelligence_control_scan">Escanear pantalla</string>
+    <string name="intelligence_control_tap">Tocar</string>
+    <string name="intelligence_control_swipe_up">Deslizar arriba</string>
+    <string name="intelligence_control_swipe_down">Deslizar abajo</string>
+    <string name="intelligence_control_back">Atrás</string>
+    <string name="intelligence_control_no_service">El servicio de accesibilidad aún no está activo</string>
+    <string name="intelligence_control_empty">No se encontraron elementos interactivos</string>
+    <string name="intelligence_control_safety">Las apps de banca y autenticación nunca se controlan, y nunca se escriben contraseñas ni códigos.</string>
 </resources>

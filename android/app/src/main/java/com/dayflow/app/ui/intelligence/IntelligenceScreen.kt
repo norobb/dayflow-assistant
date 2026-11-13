@@ -8,6 +8,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,11 +54,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.dayflow.app.R
+import com.dayflow.app.integrations.accessibility.control.ScreenActionBus
 import com.dayflow.app.ui.components.ProductStateBadge
 import com.dayflow.app.ui.components.DayflowCard
 import com.dayflow.app.ui.components.DayflowLogoHeader
 import com.dayflow.app.ui.components.DayflowMessageOverlay
 import com.dayflow.app.integrations.notification.NotificationInsightBus
+import com.dayflow.app.integrations.accessibility.DayflowAccessibilityService
 import com.dayflow.app.ui.components.DayflowSecondaryButton
 
 @Composable
@@ -89,6 +92,12 @@ fun IntelligenceScreen(
     )
 
     val insights by NotificationInsightBus.history.collectAsState()
+    val screenInsights = insights.filter { it.sender == DayflowAccessibilityService.SCREEN_SENDER }
+    val notificationInsights = insights.filterNot { it.sender == DayflowAccessibilityService.SCREEN_SENDER }
+
+    val screenElements by ScreenActionBus.elements.collectAsState()
+    val actionResult by ScreenActionBus.result.collectAsState()
+    val serviceActive = DayflowAccessibilityService.instance != null
 
     Box(
         modifier = modifier
@@ -147,12 +156,12 @@ fun IntelligenceScreen(
                             .padding(horizontal = 14.dp, vertical = 6.dp)
                     ) {
                         Text(
-                            text = stringResource(R.string.intelligence_badge_soon),
+                            text = stringResource(R.string.intelligence_badge_beta),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Transparent
                         )
                     }
-                    ProductStateBadge(text = stringResource(R.string.intelligence_badge_soon))
+                    ProductStateBadge(text = stringResource(R.string.intelligence_badge_beta))
                 }
             }
 
@@ -210,16 +219,55 @@ fun IntelligenceScreen(
                     }
                 }
 
-                if (insights.isNotEmpty()) {
+                // Screen Control panel (AURA-inspired control layer).
+                item {
+                    ScreenControlPanel(
+                        elements = screenElements,
+                        result = actionResult,
+                        serviceActive = serviceActive
+                    )
+                }
+
+                if (screenInsights.isNotEmpty()) {
                     item {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
-                                text = "Understood Notifications",
+                                text = stringResource(R.string.intelligence_screen_section),
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(top = 8.dp)
                             )
-                            insights.forEach { insight ->
+                            screenInsights.forEach { insight ->
+                                DayflowCard {
+                                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Text(
+                                            text = insight.packageName,
+                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            text = insight.content,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 4
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (notificationInsights.isNotEmpty()) {
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                text = stringResource(R.string.intelligence_notif_section),
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                            notificationInsights.forEach { insight ->
                                 DayflowCard {
                                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                         Text(
@@ -301,8 +349,7 @@ private fun StreamChannelCard(
     icon: ImageVector,
     title: String,
     desc: String
-) {
-    DayflowCard {
+) {    DayflowCard {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -326,6 +373,156 @@ private fun StreamChannelCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 16.sp
                 )
+            }
+        }
+    }
+}
+
+/**
+ * AURA-inspired control panel: scan the foreground screen into numbered
+ * interactive elements, then act on them (tap / scroll / back) through the
+ * accessibility service's humanized gesture pipeline. Requests flow through
+ * [ScreenActionBus]; the safety gate inside the service blocks banking and
+ * credential typing regardless of what this UI offers.
+ */
+@Composable
+private fun ScreenControlPanel(
+    elements: List<ScreenActionBus.ScreenElement>,
+    result: ScreenActionBus.ActionResult,
+    serviceActive: Boolean
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.AutoAwesome,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = stringResource(R.string.intelligence_control_title),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
+        DayflowCard {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (!serviceActive) {
+                    Text(
+                        text = stringResource(R.string.intelligence_control_no_service),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DayflowSecondaryButton(
+                            text = stringResource(R.string.intelligence_control_scan),
+                            icon = Icons.Outlined.AutoAwesome,
+                            onClick = { ScreenActionBus.post(ScreenActionBus.Request(ScreenActionBus.Action.SCAN)) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        DayflowSecondaryButton(
+                            text = stringResource(R.string.intelligence_control_back),
+                            icon = Icons.AutoMirrored.Outlined.ReceiptLong,
+                            onClick = { ScreenActionBus.post(ScreenActionBus.Request(ScreenActionBus.Action.BACK)) },
+                            modifier = Modifier.weight(0.7f)
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DayflowSecondaryButton(
+                            text = stringResource(R.string.intelligence_control_swipe_up),
+                            icon = Icons.Outlined.AutoAwesome,
+                            onClick = { ScreenActionBus.post(ScreenActionBus.Request(ScreenActionBus.Action.SWIPE_UP)) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        DayflowSecondaryButton(
+                            text = stringResource(R.string.intelligence_control_swipe_down),
+                            icon = Icons.Outlined.AutoAwesome,
+                            onClick = { ScreenActionBus.post(ScreenActionBus.Request(ScreenActionBus.Action.SWIPE_DOWN)) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    // Action status line.
+                    when (val r = result) {
+                        is ScreenActionBus.ActionResult.Done -> Text(
+                            text = r.message,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        is ScreenActionBus.ActionResult.Failed -> Text(
+                            text = r.message,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        is ScreenActionBus.ActionResult.Running -> Text(
+                            text = "…",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        is ScreenActionBus.ActionResult.Idle -> {}
+                    }
+
+                    // Numbered interactive elements from the last scan.
+                    if (elements.isEmpty()) {
+                        if (result is ScreenActionBus.ActionResult.Done) {
+                            Text(
+                                text = stringResource(R.string.intelligence_control_empty),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            elements.take(12).forEach { element ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Text(
+                                        text = "${element.id}.",
+                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = element.label,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.intelligence_control_tap),
+                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .clickable {
+                                                ScreenActionBus.post(
+                                                    ScreenActionBus.Request(
+                                                        ScreenActionBus.Action.TAP_ELEMENT,
+                                                        element.id
+                                                    )
+                                                )
+                                            }
+                                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Text(
+                        text = stringResource(R.string.intelligence_control_safety),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
