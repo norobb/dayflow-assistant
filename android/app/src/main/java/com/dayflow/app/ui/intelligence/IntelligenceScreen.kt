@@ -37,9 +37,11 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -65,6 +67,8 @@ import androidx.compose.runtime.setValue
 import com.dayflow.app.R
 import com.dayflow.app.core.designsystem.rememberReducedMotion
 import com.dayflow.app.integrations.accessibility.control.ScreenActionBus
+import com.dayflow.app.integrations.accessibility.control.ScreenAgent
+import com.dayflow.app.integrations.accessibility.control.ScreenAgentBus
 import com.dayflow.app.ui.components.ProductStateBadge
 import com.dayflow.app.ui.components.DayflowCard
 import com.dayflow.app.ui.components.DayflowLogoHeader
@@ -117,6 +121,11 @@ fun IntelligenceScreen(
     val screenElements by ScreenActionBus.elements.collectAsState()
     val actionResult by ScreenActionBus.result.collectAsState()
     val serviceActive = DayflowAccessibilityService.instance != null
+
+    val agentSteps by ScreenAgentBus.steps.collectAsState()
+    val agentRunning by ScreenAgentBus.running.collectAsState()
+    val agent = remember { ScreenAgent() }
+    var agentGoal by remember { mutableStateOf("") }
 
     Box(
         modifier = modifier
@@ -244,6 +253,21 @@ fun IntelligenceScreen(
                         elements = screenElements,
                         result = actionResult,
                         serviceActive = serviceActive
+                    )
+                }
+
+                // Screen Agent: natural-language goal -> on-screen execution.
+                item {
+                    AgentPanel(
+                        goal = agentGoal,
+                        onGoalChange = { agentGoal = it },
+                        running = agentRunning,
+                        steps = agentSteps,
+                        serviceActive = serviceActive,
+                        onRun = {
+                            if (agentGoal.isNotBlank()) agent.run(agentGoal)
+                        },
+                        onStop = { ScreenAgentBus.cancel() }
                     )
                 }
 
@@ -572,4 +596,91 @@ private fun statusStringRes(code: String): Int = when (code) {
     ScreenActionBus.Codes.BACK -> R.string.intelligence_status_back
     ScreenActionBus.Codes.GATE_BLOCKED -> R.string.intelligence_status_gate
     else -> R.string.intelligence_status_error
+}
+
+@Composable
+private fun AgentPanel(
+    goal: String,
+    onGoalChange: (String) -> Unit,
+    running: Boolean,
+    steps: List<ScreenAgentBus.Step>,
+    serviceActive: Boolean,
+    onRun: () -> Unit,
+    onStop: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.AutoAwesome,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = stringResource(R.string.intelligence_agent_title),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
+        DayflowCard {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (!serviceActive) {
+                    Text(
+                        text = stringResource(R.string.intelligence_agent_no_service),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = goal,
+                        onValueChange = onGoalChange,
+                        placeholder = {
+                            Text(
+                                text = stringResource(R.string.intelligence_agent_hint),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !running,
+                        singleLine = true
+                    )
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = onRun,
+                            enabled = !running && goal.isNotBlank(),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(text = stringResource(R.string.intelligence_agent_run))
+                        }
+                        Button(
+                            onClick = onStop,
+                            enabled = running,
+                            modifier = Modifier.weight(0.6f)
+                        ) {
+                            Text(text = stringResource(R.string.intelligence_agent_stop))
+                        }
+                    }
+
+                    steps.forEach { step ->
+                        Text(
+                            text = stringResource(
+                                R.string.intelligence_agent_step,
+                                step.index,
+                                step.action,
+                                step.reason
+                            ),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (step.done) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

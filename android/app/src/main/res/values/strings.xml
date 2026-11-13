@@ -230,4 +230,11 @@
     <string name="intelligence_status_back">Went back</string>
     <string name="intelligence_status_gate">%1$s is protected — Dayflow stays passive there</string>
     <string name="intelligence_status_error">Error: %1$s</string>
+
+    <string name="intelligence_agent_title">Screen Agent</string>
+    <string name="intelligence_agent_hint">Tell Dayflow what to do on screen…</string>
+    <string name="intelligence_agent_run">Run</string>
+    <string name="intelligence_agent_stop">Stop</string>
+    <string name="intelligence_agent_no_service">Accessibility service is not active yet</string>
+    <string name="intelligence_agent_step">Step %1$d: %2$s — %3$s</string>
 </resources>

@@ -290,6 +290,57 @@ class GeminiProvider : AIProvider {
         }
     }
 
+    /**
+     * Raw text completion (no structured DayflowAnalysisResult). Used by the
+     * Screen Agent to ask the model for the next on-screen action as JSON.
+     */
+    suspend fun complete(prompt: String, apiKey: String, modelOverride: String = ""): String =
+        withContext(Dispatchers.IO) {
+            val rawKey = apiKey.ifBlank {
+                try { BuildConfig::class.java.getField("GEMINI_API_KEY").get(null) as? String ?: "" } catch (e: Exception) { "" }
+            }
+            val effectiveKey = sanitizeApiKey(rawKey)
+            if (effectiveKey.isBlank()) return@withContext ""
+
+            val targetModel = sanitizeModelName(modelOverride.ifBlank { "gemini-2.0-flash" })
+            try {
+                val requestBody = JSONObject()
+                val contentsArray = JSONArray()
+                val content = JSONObject()
+                val partsArray = JSONArray()
+                val part = JSONObject().put("text", prompt)
+                partsArray.put(part)
+                content.put("parts", partsArray)
+                contentsArray.put(content)
+                requestBody.put("contents", contentsArray)
+
+                val genConfig = JSONObject()
+                    .put("temperature", 0.1)
+                    .put("responseMimeType", "application/json")
+                requestBody.put("generationConfig", genConfig)
+
+                val endpointUrl = "https://generativelanguage.googleapis.com/v1beta/models/$targetModel:generateContent?key=$effectiveKey"
+                val connection = (URL(endpointUrl).openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json")
+                    doOutput = true
+                    connectTimeout = 15000
+                    readTimeout = 20000
+                }
+                OutputStreamWriter(connection.outputStream).use { it.write(requestBody.toString()); it.flush() }
+                if (connection.responseCode != 200) return@withContext ""
+                val responseText = BufferedReader(InputStreamReader(connection.inputStream)).use { it.readText() }
+                val json = JSONObject(responseText)
+                val candidates = json.optJSONArray("candidates") ?: return@withContext ""
+                if (candidates.length() == 0) return@withContext ""
+                val parts = candidates.getJSONObject(0).optJSONObject("content")?.optJSONArray("parts") ?: return@withContext ""
+                if (parts.length() == 0) return@withContext ""
+                parts.getJSONObject(0).optString("text", "")
+            } catch (e: Exception) {
+                ""
+            }
+        }
+
     companion object {
         /**
          * SECURITY ENHANCEMENT: Sanitize API key input by stripping whitespace, control

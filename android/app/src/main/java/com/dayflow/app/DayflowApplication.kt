@@ -37,6 +37,7 @@ class DayflowApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
 
         database = AppDatabase.getInstance(this)
         repository = DayflowRepositoryImpl(database)
@@ -48,5 +49,11 @@ class DayflowApplication : Application() {
         // DayflowOverlayService is started from MainActivity (foreground) instead —
         // starting it here would crash with IllegalStateException whenever the process
         // boots in the background (e.g. bound accessibility / notification listener).
+    }
+
+    companion object {
+        @Volatile
+        var instance: DayflowApplication? = null
+            private set
     }
 }
