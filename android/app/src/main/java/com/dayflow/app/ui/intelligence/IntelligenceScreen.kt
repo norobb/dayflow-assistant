@@ -1,6 +1,8 @@
 package com.dayflow.app.ui.intelligence
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,12 +27,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,13 +54,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.State
 import androidx.compose.runtime.setValue
 import com.dayflow.app.R
+import com.dayflow.app.core.designsystem.rememberReducedMotion
 import com.dayflow.app.integrations.accessibility.control.ScreenActionBus
 import com.dayflow.app.ui.components.ProductStateBadge
 import com.dayflow.app.ui.components.DayflowCard
@@ -70,26 +80,35 @@ fun IntelligenceScreen(
 ) {
     var showOverlayDemo by remember { mutableStateOf(false) }
 
-    // Pulsing animation transition
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.96f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseScale"
-    )
-    val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.35f,
-        targetValue = 0.75f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseAlpha"
-    )
+    // Ambient pulse, gated on the system "Remove animations" preference
+    // (the Android equivalent of prefers-reduced-motion): static glow there.
+    val reducedMotion = rememberReducedMotion()
+    val pulseScale: State<Float>
+    val pulseAlpha: State<Float>
+    if (reducedMotion) {
+        pulseScale = remember { mutableStateOf(1f) }
+        pulseAlpha = remember { mutableStateOf(0.55f) }
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+        pulseScale = infiniteTransition.animateFloat(
+            initialValue = 0.96f,
+            targetValue = 1.05f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulseScale"
+        )
+        pulseAlpha = infiniteTransition.animateFloat(
+            initialValue = 0.35f,
+            targetValue = 0.75f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulseAlpha"
+        )
+    }
 
     val insights by NotificationInsightBus.history.collectAsState()
     val screenInsights = insights.filter { it.sender == DayflowAccessibilityService.SCREEN_SENDER }
@@ -147,10 +166,10 @@ fun IntelligenceScreen(
                 Box(contentAlignment = Alignment.Center) {
                     Box(
                         modifier = Modifier
-                            .scale(pulseScale)
+                            .scale(pulseScale.value)
                             .blur(12.dp)
                             .background(
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha),
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha.value),
                                 shape = RoundedCornerShape(20.dp)
                             )
                             .padding(horizontal = 14.dp, vertical = 6.dp)
@@ -177,12 +196,12 @@ fun IntelligenceScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(130.dp)
-                                .scale(pulseScale)
+                                .scale(pulseScale.value)
                                 .blur(24.dp)
                                 .background(
                                     brush = Brush.radialGradient(
                                         colors = listOf(
-                                            MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha * 0.4f),
+                                            MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha.value * 0.4f),
                                             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
                                         )
                                     ),
@@ -391,6 +410,15 @@ private fun ScreenControlPanel(
     result: ScreenActionBus.ActionResult,
     serviceActive: Boolean
 ) {
+    val reducedMotion = rememberReducedMotion()
+    val cardModifier = if (reducedMotion) {
+        Modifier
+    } else {
+        Modifier.animateContentSize(
+            animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
+        )
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -409,7 +437,7 @@ private fun ScreenControlPanel(
             )
         }
 
-        DayflowCard {
+        DayflowCard(modifier = cardModifier) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (!serviceActive) {
                     Text(
@@ -421,13 +449,13 @@ private fun ScreenControlPanel(
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         DayflowSecondaryButton(
                             text = stringResource(R.string.intelligence_control_scan),
-                            icon = Icons.Outlined.AutoAwesome,
+                            icon = Icons.Outlined.Search,
                             onClick = { ScreenActionBus.post(ScreenActionBus.Request(ScreenActionBus.Action.SCAN)) },
                             modifier = Modifier.weight(1f)
                         )
                         DayflowSecondaryButton(
                             text = stringResource(R.string.intelligence_control_back),
-                            icon = Icons.AutoMirrored.Outlined.ReceiptLong,
+                            icon = Icons.AutoMirrored.Outlined.ArrowBack,
                             onClick = { ScreenActionBus.post(ScreenActionBus.Request(ScreenActionBus.Action.BACK)) },
                             modifier = Modifier.weight(0.7f)
                         )
@@ -435,27 +463,28 @@ private fun ScreenControlPanel(
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         DayflowSecondaryButton(
                             text = stringResource(R.string.intelligence_control_swipe_up),
-                            icon = Icons.Outlined.AutoAwesome,
+                            icon = Icons.Outlined.KeyboardArrowUp,
                             onClick = { ScreenActionBus.post(ScreenActionBus.Request(ScreenActionBus.Action.SWIPE_UP)) },
                             modifier = Modifier.weight(1f)
                         )
                         DayflowSecondaryButton(
                             text = stringResource(R.string.intelligence_control_swipe_down),
-                            icon = Icons.Outlined.AutoAwesome,
+                            icon = Icons.Outlined.KeyboardArrowDown,
                             onClick = { ScreenActionBus.post(ScreenActionBus.Request(ScreenActionBus.Action.SWIPE_DOWN)) },
                             modifier = Modifier.weight(1f)
                         )
                     }
 
-                    // Action status line.
+                    // Action status line, rendered from the structured result
+                    // code in the user's language.
                     when (val r = result) {
                         is ScreenActionBus.ActionResult.Done -> Text(
-                            text = r.message,
+                            text = stringResource(statusStringRes(r.code), *r.args.toTypedArray()),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
                         is ScreenActionBus.ActionResult.Failed -> Text(
-                            text = r.message,
+                            text = stringResource(statusStringRes(r.code), *r.args.toTypedArray()),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -494,8 +523,11 @@ private fun ScreenControlPanel(
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
                                         modifier = Modifier.weight(1f)
                                     )
+                                    // Minimum 48dp touch target (Material touch
+                                    // guidance): padding sits inside clickable.
                                     Text(
                                         text = stringResource(R.string.intelligence_control_tap),
                                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
@@ -510,7 +542,8 @@ private fun ScreenControlPanel(
                                                     )
                                                 )
                                             }
-                                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                                            .heightIn(min = 48.dp)
+                                            .padding(horizontal = 10.dp)
                                     )
                                 }
                             }
@@ -526,4 +559,17 @@ private fun ScreenControlPanel(
             }
         }
     }
+}
+
+/** Maps a [ScreenActionBus.ActionResult] code to its string resource. */
+private fun statusStringRes(code: String): Int = when (code) {
+    ScreenActionBus.Codes.SCAN_DONE -> R.string.intelligence_status_scanned
+    ScreenActionBus.Codes.TAP_DONE -> R.string.intelligence_status_tapped
+    ScreenActionBus.Codes.TAP_FAILED -> R.string.intelligence_status_tap_failed
+    ScreenActionBus.Codes.SWIPE_UP -> R.string.intelligence_status_swipe_up
+    ScreenActionBus.Codes.SWIPE_DOWN -> R.string.intelligence_status_swipe_down
+    ScreenActionBus.Codes.SWIPE_REJECTED -> R.string.intelligence_status_swipe_rejected
+    ScreenActionBus.Codes.BACK -> R.string.intelligence_status_back
+    ScreenActionBus.Codes.GATE_BLOCKED -> R.string.intelligence_status_gate
+    else -> R.string.intelligence_status_error
 }

@@ -220,4 +220,14 @@
     <string name="intelligence_control_no_service">Accessibility service is not active yet</string>
     <string name="intelligence_control_empty">No interactive elements found</string>
     <string name="intelligence_control_safety">Banking and authentication apps are never driven, and no passwords or codes are ever typed.</string>
+
+    <string name="intelligence_status_scanned">Scanned %1$s elements in %2$s</string>
+    <string name="intelligence_status_tapped">Tapped element #%1$s</string>
+    <string name="intelligence_status_tap_failed">Could not tap element #%1$s</string>
+    <string name="intelligence_status_swipe_up">Scrolled up</string>
+    <string name="intelligence_status_swipe_down">Scrolled down</string>
+    <string name="intelligence_status_swipe_rejected">Gesture rejected</string>
+    <string name="intelligence_status_back">Went back</string>
+    <string name="intelligence_status_gate">%1$s is protected — Dayflow stays passive there</string>
+    <string name="intelligence_status_error">Error: %1$s</string>
 </resources>

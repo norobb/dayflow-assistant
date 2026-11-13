@@ -36,8 +36,26 @@ object ScreenActionBus {
     sealed class ActionResult {
         data object Idle : ActionResult()
         data object Running : ActionResult()
-        data class Done(val message: String) : ActionResult()
-        data class Failed(val message: String) : ActionResult()
+
+        /**
+         * Outcomes are structured (code + args) so the UI renders them in the
+         * user's language via string resources; the service never builds
+         * display text itself.
+         */
+        data class Done(val code: String, val args: List<String> = emptyList()) : ActionResult()
+        data class Failed(val code: String, val args: List<String> = emptyList()) : ActionResult()
+    }
+
+    object Codes {
+        const val SCAN_DONE = "scan_done"
+        const val TAP_DONE = "tap_done"
+        const val TAP_FAILED = "tap_failed"
+        const val SWIPE_UP = "swipe_up"
+        const val SWIPE_DOWN = "swipe_down"
+        const val SWIPE_REJECTED = "swipe_rejected"
+        const val BACK = "back"
+        const val GATE_BLOCKED = "gate_blocked"
+        const val ERROR = "error"
     }
 
     private val _requests = MutableStateFlow<Request?>(null)

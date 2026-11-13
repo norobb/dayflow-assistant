@@ -220,4 +220,14 @@
     <string name="intelligence_control_no_service">Bedienungshilfen-Service ist noch nicht aktiv</string>
     <string name="intelligence_control_empty">Keine interaktiven Elemente gefunden</string>
     <string name="intelligence_control_safety">Bank- und Authentifizierungs-Apps werden nie gesteuert, und Passwörter oder Codes werden nie eingegeben.</string>
+
+    <string name="intelligence_status_scanned">%1$s Elemente in %2$s gescannt</string>
+    <string name="intelligence_status_tapped">Element #%1$s angetippt</string>
+    <string name="intelligence_status_tap_failed">Element #%1$s konnte nicht angetippt werden</string>
+    <string name="intelligence_status_swipe_up">Nach oben gescrollt</string>
+    <string name="intelligence_status_swipe_down">Nach unten gescrollt</string>
+    <string name="intelligence_status_swipe_rejected">Geste abgelehnt</string>
+    <string name="intelligence_status_back">Zurückgegangen</string>
+    <string name="intelligence_status_gate">%1$s ist geschützt — Dayflow bleibt dort passiv</string>
+    <string name="intelligence_status_error">Fehler: %1$s</string>
 </resources>

@@ -127,7 +127,12 @@ class DayflowAccessibilityService : AccessibilityService() {
             val foreground = root?.packageName?.toString().orEmpty()
             val gate = safetyGate.checkPackage(foreground)
             if (!gate.allowed) {
-                ScreenActionBus.report(ScreenActionBus.ActionResult.Failed(gate.reason))
+                ScreenActionBus.report(
+                    ScreenActionBus.ActionResult.Failed(
+                        ScreenActionBus.Codes.GATE_BLOCKED,
+                        listOf(foreground)
+                    )
+                )
                 return
             }
 
@@ -138,29 +143,41 @@ class DayflowAccessibilityService : AccessibilityService() {
                     ScreenActionBus.publishElements(elements)
                     ScreenActionBus.report(
                         ScreenActionBus.ActionResult.Done(
-                            "scanned ${elements.size} elements in $foreground"
+                            ScreenActionBus.Codes.SCAN_DONE,
+                            listOf(elements.size.toString(), foreground)
                         )
                     )
                 }
 
                 ScreenActionBus.Action.TAP_ELEMENT -> {
                     val dispatched = gestures.clickElementById(request.elementId)
-                    val message = if (dispatched) {
-                        "tapped element #${request.elementId} (node action)"
-                    } else {
-                        // Coordinate fallback via humanized gesture.
-                        val element = ScreenActionBus.elements.value
-                            .firstOrNull { it.id == request.elementId }
-                        if (element != null && gestures.tap(element.centerX.toFloat(), element.centerY.toFloat())) {
-                            "tapped element #${request.elementId} (gesture)"
-                        } else {
-                            ScreenActionBus.report(
-                                ScreenActionBus.ActionResult.Failed("could not tap element #${request.elementId}")
+                    if (dispatched) {
+                        ScreenActionBus.report(
+                            ScreenActionBus.ActionResult.Done(
+                                ScreenActionBus.Codes.TAP_DONE,
+                                listOf(request.elementId.toString())
                             )
-                            return
-                        }
+                        )
+                        return
                     }
-                    ScreenActionBus.report(ScreenActionBus.ActionResult.Done(message))
+                    // Coordinate fallback via humanized gesture.
+                    val element = ScreenActionBus.elements.value
+                        .firstOrNull { it.id == request.elementId }
+                    val ok = element != null &&
+                        gestures.tap(element.centerX.toFloat(), element.centerY.toFloat())
+                    ScreenActionBus.report(
+                        if (ok) {
+                            ScreenActionBus.ActionResult.Done(
+                                ScreenActionBus.Codes.TAP_DONE,
+                                listOf(request.elementId.toString())
+                            )
+                        } else {
+                            ScreenActionBus.ActionResult.Failed(
+                                ScreenActionBus.Codes.TAP_FAILED,
+                                listOf(request.elementId.toString())
+                            )
+                        }
+                    )
                 }
 
                 ScreenActionBus.Action.SWIPE_UP -> {
@@ -168,8 +185,8 @@ class DayflowAccessibilityService : AccessibilityService() {
                     val cx = m.widthPixels / 2f
                     val ok = gestures.swipe(cx, m.heightPixels * 0.75f, cx, m.heightPixels * 0.30f)
                     ScreenActionBus.report(
-                        if (ok) ScreenActionBus.ActionResult.Done("swiped up")
-                        else ScreenActionBus.ActionResult.Failed("swipe rejected")
+                        if (ok) ScreenActionBus.ActionResult.Done(ScreenActionBus.Codes.SWIPE_UP)
+                        else ScreenActionBus.ActionResult.Failed(ScreenActionBus.Codes.SWIPE_REJECTED)
                     )
                 }
 
@@ -178,19 +195,22 @@ class DayflowAccessibilityService : AccessibilityService() {
                     val cx = m.widthPixels / 2f
                     val ok = gestures.swipe(cx, m.heightPixels * 0.30f, cx, m.heightPixels * 0.75f)
                     ScreenActionBus.report(
-                        if (ok) ScreenActionBus.ActionResult.Done("swiped down")
-                        else ScreenActionBus.ActionResult.Failed("swipe rejected")
+                        if (ok) ScreenActionBus.ActionResult.Done(ScreenActionBus.Codes.SWIPE_DOWN)
+                        else ScreenActionBus.ActionResult.Failed(ScreenActionBus.Codes.SWIPE_REJECTED)
                     )
                 }
 
                 ScreenActionBus.Action.BACK -> {
                     performGlobalAction(GLOBAL_ACTION_BACK)
-                    ScreenActionBus.report(ScreenActionBus.ActionResult.Done("back"))
+                    ScreenActionBus.report(ScreenActionBus.ActionResult.Done(ScreenActionBus.Codes.BACK))
                 }
             }
         } catch (e: Exception) {
             ScreenActionBus.report(
-                ScreenActionBus.ActionResult.Failed("error: ${e.message ?: "unknown"}")
+                ScreenActionBus.ActionResult.Failed(
+                    ScreenActionBus.Codes.ERROR,
+                    listOf(e.message ?: "unknown")
+                )
             )
         }
     }
