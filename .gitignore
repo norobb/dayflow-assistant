@@ -26,3 +26,10 @@ Thumbs.db
 # IDE / tooling artifacts
 .idea/
 .playwright-mcp/
+
+# Intro-Video (Blender)
+*.blend
+*.blend1
+*.mp4
+dayflow_intro*
+dayflow_app_intro*
