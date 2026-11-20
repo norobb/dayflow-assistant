@@ -139,7 +139,7 @@ export const AndroidSimulator: React.FC = () => {
                   <span className="text-[11px] font-bold text-[#1E1B19] truncate">
                     {notifications[0].title}
                   </span>
-                  <span className="text-[9px] text-[#6B635B]">{notifications[0].time}</span>
+                  <span className="text-[10px] text-[#6B635B]">{notifications[0].time}</span>
                 </div>
                 <p className="text-[11px] text-[#6B635B] truncate mt-0.5">
                   {notifications[0].body}
@@ -166,7 +166,7 @@ export const AndroidSimulator: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">{t.dashboard.title}</h4>
-                  <span className="text-[9px] text-[#641C24] bg-[#641C24]/10 px-1.5 py-0.5 rounded-full font-medium">← {t.phone.todayTab ? "Swipe" : "Swipe"} →</span>
+                  <span className="text-[10px] text-[#641C24] bg-[#641C24]/10 px-1.5 py-0.5 rounded-full font-medium">← {t.phone.todayTab ? "Swipe" : "Swipe"} →</span>
                 </div>
                 <span className="text-[10px] text-[#6B635B] font-medium">{events.length}</span>
               </div>
@@ -204,7 +204,7 @@ export const AndroidSimulator: React.FC = () => {
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-[#641C24]">{ev.time}</span>
-                        <span className="text-[9px] uppercase tracking-wider text-[#6B635B] bg-[#FAF6F0] px-2 py-0.5 rounded-full border border-[#D8CFC2]">
+                        <span className="text-[10px] uppercase tracking-wider text-[#6B635B] bg-[#FAF6F0] px-2 py-0.5 rounded-full border border-[#D8CFC2]">
                           {ev.sourceType === 'default' ? t.phone.scheduledLabel : t.phone.organizedLabel}
                         </span>
                       </div>
@@ -277,7 +277,7 @@ export const AndroidSimulator: React.FC = () => {
                           {task.title}
                         </div>
                         {task.dueDate && (
-                          <div className="text-[9px] text-[#6B635B] mt-0.5">{task.dueDate}</div>
+                          <div className="text-[10px] text-[#6B635B] mt-0.5">{task.dueDate}</div>
                         )}
                       </div>
                     </motion.button>
@@ -346,7 +346,7 @@ export const AndroidSimulator: React.FC = () => {
                 <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">
                   {t.concepts.screenTitle}
                 </h4>
-                <span className="text-[9px] text-[#8C5E28] font-bold">
+                <span className="text-[10px] text-[#8C5E28] font-bold">
                   {t.concepts.comingSoon}
                 </span>
               </div>
@@ -378,7 +378,7 @@ export const AndroidSimulator: React.FC = () => {
           }`}
         >
           <Calendar className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{t.phone.todayTab}</span>
+          <span className="text-[10px] font-bold">{t.phone.todayTab}</span>
         </motion.button>
 
         <motion.button
@@ -389,7 +389,7 @@ export const AndroidSimulator: React.FC = () => {
           }`}
         >
           <CheckCircle2 className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{t.phone.tasksTab}</span>
+          <span className="text-[10px] font-bold">{t.phone.tasksTab}</span>
         </motion.button>
 
         <motion.button
@@ -400,7 +400,7 @@ export const AndroidSimulator: React.FC = () => {
           }`}
         >
           <Bell className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{t.phone.notificationsTab}</span>
+          <span className="text-[10px] font-bold">{t.phone.notificationsTab}</span>
         </motion.button>
 
         <motion.button
@@ -411,7 +411,7 @@ export const AndroidSimulator: React.FC = () => {
           }`}
         >
           <ScanLine className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{t.phone.intelligenceTab}</span>
+          <span className="text-[10px] font-bold">{t.phone.intelligenceTab}</span>
         </motion.button>
       </div>
 

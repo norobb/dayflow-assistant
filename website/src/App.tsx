@@ -246,7 +246,7 @@ export default function App() {
                     },
                   },
                 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1E1B19] leading-[1.12]"
+                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-balance text-[#1E1B19] leading-[1.12]"
               >
                 {(() => {
                   const parts = t.hero.titlePart1.endsWith('.')
@@ -712,7 +712,7 @@ export default function App() {
       {/* 13. Final CTA & Footer */}
       <footer className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-[#D8CFC2]/70 text-center space-y-8">
         <div className="max-w-xl mx-auto space-y-4">
-          <h2 className="text-3xl font-extrabold text-[#1E1B19]">
+          <h2 className="text-balance text-3xl font-extrabold tracking-tight text-[#1E1B19]">
             {t.footer.readyTitle}
           </h2>
           <p className="text-base text-[#6B635B]">

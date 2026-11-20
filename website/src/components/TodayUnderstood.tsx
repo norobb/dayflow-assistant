@@ -13,7 +13,7 @@ export const TodayUnderstood: React.FC = () => {
             <span className="text-xs font-bold uppercase tracking-widest text-[#641C24] block mb-2">
               {t.todayUnderstood.badge}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1E1B19]">
+            <h2 className="text-balance text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1E1B19]">
               {t.todayUnderstood.title}
             </h2>
             <p className="text-sm text-[#6B635B] mt-1 max-w-xl">
@@ -52,7 +52,7 @@ export const TodayUnderstood: React.FC = () => {
                         {item.timeOrDate}
                       </span>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                           isCalendar
                             ? 'bg-[#641C24]/10 text-[#641C24]'
                             : isReminder

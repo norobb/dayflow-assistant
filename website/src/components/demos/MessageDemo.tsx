@@ -184,7 +184,7 @@ export const MessageDemo: React.FC = () => {
                   className="p-4 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] space-y-2 shadow-xs"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#641C24] bg-[#641C24]/10 px-2 py-0.5 rounded">
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#641C24] bg-[#641C24]/10 px-2 py-0.5 rounded">
                       {t.demo.eventDetected}
                     </span>
                     <span className="text-xs font-bold text-[#1E1B19]">
@@ -213,7 +213,7 @@ export const MessageDemo: React.FC = () => {
                   className="p-4 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] space-y-2 shadow-xs"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#2E5C38] bg-[#2E5C38]/10 px-2 py-0.5 rounded">
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#2E5C38] bg-[#2E5C38]/10 px-2 py-0.5 rounded">
                       {t.demo.taskDetected}
                     </span>
                     <span className="text-xs text-[#6B635B]">

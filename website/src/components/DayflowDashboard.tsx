@@ -40,7 +40,7 @@ export const DayflowDashboard: React.FC = () => {
           <span className="text-xs font-semibold uppercase tracking-wider text-[#641C24] block">
             {t.dashboard.badge}
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1E1B19] mt-0.5">
+          <h2 className="text-balance text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1E1B19] mt-0.5">
             {t.dashboard.title}
           </h2>
           <p className="text-xs sm:text-sm text-[#6B635B] mt-0.5">
@@ -132,7 +132,7 @@ export const DayflowDashboard: React.FC = () => {
                       <span className="text-xs font-bold text-[#641C24]">
                         {ev.time}
                       </span>
-                      <span className="text-[10px] text-[#6B635B] uppercase tracking-wider bg-[#FAF6F0] px-2 py-0.5 rounded-md border border-[#D8CFC2]/60">
+                      <span className="text-[11px] text-[#6B635B] uppercase tracking-wider bg-[#FAF6F0] px-2 py-0.5 rounded-md border border-[#D8CFC2]/60">
                         {ev.sourceType === 'default' ? t.phone.scheduledLabel : t.phone.organizedLabel}
                       </span>
                     </div>
@@ -196,7 +196,7 @@ export const DayflowDashboard: React.FC = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div
-                        className={`text-xs sm:text-sm font-medium leading-tight transition-colors ${
+                        className={`text-xs sm:text-sm font-medium leading-snug transition-colors ${
                           task.completed ? 'line-through text-[#6B635B]' : 'text-[#1E1B19]'
                         }`}
                       >

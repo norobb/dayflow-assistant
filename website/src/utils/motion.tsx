@@ -202,7 +202,7 @@ export const SectionHeaderReveal: React.FC<{
       <div className={`space-y-3 mb-12 ${align === 'center' ? 'text-center max-w-3xl mx-auto' : 'text-left'} ${className}`}>
         {badge}
         {typeof title === 'string' ? (
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
+          <h2 className="text-balance text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
             {title}
           </h2>
         ) : (
@@ -256,7 +256,7 @@ export const SectionHeaderReveal: React.FC<{
         }}
       >
         {typeof title === 'string' ? (
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
+          <h2 className="text-balance text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
             {title}
           </h2>
         ) : (

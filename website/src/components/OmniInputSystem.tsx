@@ -49,7 +49,7 @@ export const OmniInputSystem: React.FC<OmniInputProps> = ({ onSelectScenario }) 
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="text-xs sm:text-sm md:text-base font-medium text-[#1E1B19] py-1 select-none break-words min-w-0"
+              className="text-xs sm:text-sm md:text-base font-medium text-[#1E1B19] py-1 break-words min-w-0"
             >
               {activePreset === 'message' && t.demo.messageText}
               {activePreset === 'screenshot' && `${t.demo.screenshotType}: ${t.demo.screenshotDoctor} • ${t.demo.screenshotTime}`}

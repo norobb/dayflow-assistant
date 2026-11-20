@@ -35,7 +35,7 @@ export const ProductConceptSections: React.FC = () => {
                 <ProductStateBadge state="COMING SOON" />
               </div>
 
-              <h2 className="text-3xl font-extrabold text-[#1E1B19] tracking-tight">
+              <h2 className="text-balance text-3xl font-extrabold text-[#1E1B19] tracking-tight">
                 {t.concepts.androidTitle}
               </h2>
 
@@ -91,7 +91,7 @@ export const ProductConceptSections: React.FC = () => {
 
                 <div className="bg-white/10 p-3 rounded-2xl border border-white/10 space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-md bg-[#641C24] text-white flex items-center justify-center font-bold text-[10px]">
+                    <div className="w-6 h-6 rounded-md bg-[#641C24] text-white flex items-center justify-center font-bold text-[11px]">
                       DF
                     </div>
                     <span className="text-xs font-bold">
@@ -106,7 +106,7 @@ export const ProductConceptSections: React.FC = () => {
                     <button className="px-3 py-1.5 rounded-lg bg-[#641C24] text-white text-[11px] font-semibold flex items-center gap-1 cursor-default">
                       <span>{t.demo.analyzeBtn}</span>
                     </button>
-                    <span className="text-[10px] text-white/60">
+                    <span className="text-[11px] text-white/60">
                       {t.concepts.comingSoon}
                     </span>
                   </div>
@@ -128,7 +128,7 @@ export const ProductConceptSections: React.FC = () => {
               </span>
               <ProductStateBadge state="COMING SOON" />
             </div>
-            <h2 className="text-3xl font-extrabold text-[#1E1B19] tracking-tight">
+            <h2 className="text-balance text-3xl font-extrabold text-[#1E1B19] tracking-tight">
               {t.concepts.screenTitle}
             </h2>
             <p className="text-sm text-[#6B635B] mt-2 leading-relaxed">
@@ -142,7 +142,7 @@ export const ProductConceptSections: React.FC = () => {
                 whileHover={{ y: -2, transition: { duration: 0.2 } }}
                 className="p-4 rounded-2xl border-2 border-[#641C24]/30 bg-[#641C24]/5 space-y-1 cursor-default"
               >
-                <span className="text-[10px] font-bold text-[#641C24] uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-[#641C24] uppercase tracking-wider block">
                   {t.concepts.screenDetectedLabel}
                 </span>
                 <div className="text-xs font-bold text-[#1E1B19]">
@@ -157,7 +157,7 @@ export const ProductConceptSections: React.FC = () => {
                 whileHover={{ y: -2, transition: { duration: 0.2 } }}
                 className="p-4 rounded-2xl border-2 border-[#2E5C38]/30 bg-[#2E5C38]/5 space-y-1 cursor-default"
               >
-                <span className="text-[10px] font-bold text-[#2E5C38] uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-[#2E5C38] uppercase tracking-wider block">
                   {t.concepts.screenActionLabel}
                 </span>
                 <div className="text-xs font-bold text-[#1E1B19]">
@@ -192,7 +192,7 @@ export const ProductConceptSections: React.FC = () => {
               </span>
               <ProductStateBadge state="COMING SOON" />
             </div>
-            <h2 className="text-3xl font-extrabold text-[#1E1B19] tracking-tight">
+            <h2 className="text-balance text-3xl font-extrabold text-[#1E1B19] tracking-tight">
               {t.concepts.actionsTitle}
             </h2>
             <p className="text-sm text-[#6B635B] mt-2 leading-relaxed">
@@ -247,7 +247,7 @@ export const ProductConceptSections: React.FC = () => {
               </span>
               <ProductStateBadge state="COMING SOON" />
             </div>
-            <h2 className="text-3xl font-extrabold text-[#1E1B19] tracking-tight">
+            <h2 className="text-balance text-3xl font-extrabold text-[#1E1B19] tracking-tight">
               {t.concepts.personalTitle}
             </h2>
             <p className="text-sm text-[#6B635B] mt-2 leading-relaxed">
@@ -263,7 +263,7 @@ export const ProductConceptSections: React.FC = () => {
           <div className="w-12 h-12 rounded-2xl bg-[#641C24]/10 text-[#641C24] flex items-center justify-center mx-auto">
             <ShieldCheck className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1E1B19]">
+          <h2 className="text-balance text-2xl sm:text-3xl font-extrabold text-[#1E1B19]">
             {t.concepts.privacyTitle}
           </h2>
           <p className="text-sm text-[#6B635B] leading-relaxed max-w-2xl mx-auto">
