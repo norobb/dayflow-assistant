@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDayflowStore } from '../store/dayflowStore';
 import {
   Calendar,
@@ -22,8 +22,20 @@ export const DayflowDashboard: React.FC = () => {
     t,
   } = useDayflowStore();
 
+  // Two-step reset: first press arms, second within 4s confirms
+  const [confirmReset, setConfirmReset] = useState(false);
+  useEffect(() => {
+    if (!confirmReset) return;
+    const id = setTimeout(() => setConfirmReset(false), 4000);
+    return () => clearTimeout(id);
+  }, [confirmReset]);
   const handleReset = () => {
-    sounds.playClick();
+    if (!confirmReset) {
+      sounds.playClick();
+      setConfirmReset(true);
+      return;
+    }
+    setConfirmReset(false);
     resetToDefaults();
   };
 
@@ -33,17 +45,17 @@ export const DayflowDashboard: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-[#FAF6F0] rounded-3xl border border-[#D8CFC2] p-5 sm:p-7 lg:p-9 shadow-sm text-left">
+    <div className="w-full bg-card rounded-3xl border border-line p-5 sm:p-7 lg:p-9 shadow-sm text-start">
       {/* Top Greeting & State Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#D8CFC2]/70 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-line/70 gap-4">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#641C24] block">
+          <span className="text-xs font-semibold uppercase tracking-wider text-primary block">
             {t.dashboard.badge}
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1E1B19] mt-0.5">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-ink mt-0.5">
             {t.dashboard.title}
           </h2>
-          <p className="text-xs sm:text-sm text-[#6B635B] mt-0.5">
+          <p className="text-xs sm:text-sm text-muted mt-0.5">
             {t.dashboard.dateSubtitle}
           </p>
         </div>
@@ -53,11 +65,11 @@ export const DayflowDashboard: React.FC = () => {
             whileHover={{ y: -1 }}
             whileTap={{ scale: 0.96 }}
             onClick={handleReset}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#D8CFC2] bg-white hover:bg-[#F5EFE6] text-xs font-medium text-[#1E1B19] transition-all cursor-pointer shadow-xs"
-            title="Reset interactive states to default"
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition cursor-pointer shadow-xs ${confirmReset ? "border-primary bg-primary text-white" : "border-line bg-white hover:bg-canvas text-ink"}`}
+            title={t.dashboard.resetHint}
           >
-            <RefreshCw className="w-3.5 h-3.5 text-[#6B635B]" />
-            <span>{t.dashboard.resetState}</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${confirmReset ? "text-white" : "text-muted"}`} />
+            <span aria-live="polite">{confirmReset ? t.dashboard.resetConfirm : t.dashboard.resetState}</span>
           </motion.button>
         </div>
       </div>
@@ -72,15 +84,15 @@ export const DayflowDashboard: React.FC = () => {
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-line shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#641C24]" />
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                  <span className="w-2 h-2 rounded-full bg-primary" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
                     {t.dashboard.insightTitle}
                   </h4>
                 </div>
-                <p className="text-xs sm:text-sm text-[#1E1B19] font-medium">
+                <p className="text-xs sm:text-sm text-ink font-medium">
                   {t.dashboard.insightDesc}
                 </p>
               </div>
@@ -89,7 +101,7 @@ export const DayflowDashboard: React.FC = () => {
                   whileHover={{ y: -1 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={snoozeInsight}
-                  className="px-3 py-1.5 rounded-xl border border-[#D8CFC2] bg-[#FAF6F0] hover:bg-[#F5EFE6] text-xs font-medium text-[#1E1B19] transition-all cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-line bg-card hover:bg-canvas text-xs font-medium text-ink transition cursor-pointer"
                 >
                   {t.dashboard.snooze}
                 </motion.button>
@@ -103,14 +115,14 @@ export const DayflowDashboard: React.FC = () => {
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Timeline Column */}
         <div className="lg:col-span-6 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-[#D8CFC2]/60">
+          <div className="flex items-center justify-between pb-2 border-b border-line/60">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#641C24]" />
-              <h3 className="font-bold text-sm text-[#1E1B19]">
+              <Calendar className="w-4 h-4 text-primary" />
+              <h3 className="font-bold text-sm text-ink">
                 {t.dashboard.timelineTitle}
               </h3>
             </div>
-            <span className="text-xs text-[#6B635B] font-medium">
+            <span className="text-xs text-muted font-medium">
               {events.length}
             </span>
           </div>
@@ -125,22 +137,22 @@ export const DayflowDashboard: React.FC = () => {
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                   whileHover={{ y: -1 }}
-                  className="bg-white rounded-2xl p-4 border border-[#D8CFC2] shadow-xs hover:border-[#641C24]/30 transition-all flex items-start justify-between cursor-default"
+                  className="bg-white rounded-2xl p-4 border border-line shadow-xs hover:border-primary/30 transition flex items-start justify-between cursor-default"
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-[#641C24]">
+                      <span className="text-xs font-bold text-primary">
                         {ev.time}
                       </span>
-                      <span className="text-[10px] text-[#6B635B] uppercase tracking-wider bg-[#FAF6F0] px-2 py-0.5 rounded-md border border-[#D8CFC2]/60">
+                      <span className="text-[11px] text-muted uppercase tracking-wider bg-card px-2 py-0.5 rounded-md border border-line/60">
                         {ev.sourceType === 'default' ? t.phone.scheduledLabel : t.phone.organizedLabel}
                       </span>
                     </div>
-                    <h4 className="font-bold text-sm text-[#1E1B19] mt-1">
+                    <h4 className="font-bold text-sm text-ink mt-1">
                       {ev.title}
                     </h4>
                     {ev.location && (
-                      <span className="text-xs text-[#6B635B] mt-0.5 block">
+                      <span className="text-xs text-muted mt-0.5 block">
                         {ev.location}
                       </span>
                     )}
@@ -155,14 +167,14 @@ export const DayflowDashboard: React.FC = () => {
         <div className="lg:col-span-6 space-y-6">
           {/* Tasks Section */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#D8CFC2]/60">
+            <div className="flex items-center justify-between pb-2 border-b border-line/60">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#2E5C38]" />
-                <h3 className="font-bold text-sm text-[#1E1B19]">
+                <CheckCircle2 className="w-4 h-4 text-success" />
+                <h3 className="font-bold text-sm text-ink">
                   {t.dashboard.tasksTitle}
                 </h3>
               </div>
-              <span className="text-xs text-[#6B635B] font-medium">
+              <span className="text-xs text-muted font-medium">
                 {tasks.filter((tk) => tk.completed).length}/{tasks.length}
               </span>
             </div>
@@ -177,9 +189,9 @@ export const DayflowDashboard: React.FC = () => {
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                     whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => handleToggle(task.id)}
-                    className="w-full text-left bg-white rounded-2xl p-3.5 border border-[#D8CFC2] shadow-xs hover:border-[#641C24]/30 transition-all flex items-start gap-3 cursor-pointer"
+                    className="w-full text-start bg-white rounded-2xl p-3.5 border border-line shadow-xs hover:border-primary/30 transition flex items-start gap-3 cursor-pointer"
                   >
                     <div className="mt-0.5 shrink-0">
                       {task.completed ? (
@@ -188,22 +200,22 @@ export const DayflowDashboard: React.FC = () => {
                           animate={{ scale: 1 }}
                           transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                         >
-                          <CheckCircle2 className="w-4 h-4 text-[#2E5C38]" />
+                          <CheckCircle2 className="w-4 h-4 text-success" />
                         </motion.div>
                       ) : (
-                        <Circle className="w-4 h-4 text-[#D8CFC2]" />
+                        <Circle className="w-4 h-4 text-muted" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div
                         className={`text-xs sm:text-sm font-medium leading-tight transition-colors ${
-                          task.completed ? 'line-through text-[#6B635B]' : 'text-[#1E1B19]'
+                          task.completed ? 'line-through text-muted' : 'text-ink'
                         }`}
                       >
                         {task.title}
                       </div>
                       {task.dueDate && (
-                        <div className="text-[11px] text-[#6B635B] mt-1">
+                        <div className="text-[11px] text-muted mt-1">
                           {task.dueDate}
                         </div>
                       )}
@@ -216,14 +228,14 @@ export const DayflowDashboard: React.FC = () => {
 
           {/* Reminders Section */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#D8CFC2]/60">
+            <div className="flex items-center justify-between pb-2 border-b border-line/60">
               <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-[#641C24]" />
-                <h3 className="font-bold text-sm text-[#1E1B19]">
+                <Bell className="w-4 h-4 text-primary" />
+                <h3 className="font-bold text-sm text-ink">
                   {t.dashboard.remindersTitle}
                 </h3>
               </div>
-              <span className="text-xs text-[#6B635B] font-medium">
+              <span className="text-xs text-muted font-medium">
                 {reminders.length}
               </span>
             </div>
@@ -238,13 +250,13 @@ export const DayflowDashboard: React.FC = () => {
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                     whileHover={{ y: -1 }}
-                    className="bg-white rounded-2xl p-3.5 border border-[#D8CFC2] shadow-xs flex items-center justify-between cursor-default"
+                    className="bg-white rounded-2xl p-3.5 border border-line shadow-xs flex items-center justify-between cursor-default"
                   >
                     <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-[#1E1B19]">
+                      <h4 className="text-xs sm:text-sm font-bold text-ink">
                         {rem.title}
                       </h4>
-                      <span className="text-xs text-[#641C24] font-medium">
+                      <span className="text-xs text-primary font-medium">
                         {rem.timeLabel}
                       </span>
                     </div>

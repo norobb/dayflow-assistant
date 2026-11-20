@@ -6,24 +6,24 @@ export const TodayUnderstood: React.FC = () => {
   const { todayUnderstood, t } = useDayflowStore();
 
   return (
-    <div className="w-full bg-[#FAF6F0] border-y border-[#D8CFC2] py-10 px-4 sm:px-6 lg:px-8">
+    <div className="w-full bg-card border-y border-line py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-[#641C24] block mb-2">
+            <span className="text-xs font-bold uppercase tracking-widest text-primary block mb-2">
               {t.todayUnderstood.badge}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1E1B19]">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-ink">
               {t.todayUnderstood.title}
             </h2>
-            <p className="text-sm text-[#6B635B] mt-1 max-w-xl">
+            <p className="text-sm text-muted mt-1 max-w-xl">
               {t.todayUnderstood.subtitle}
             </p>
           </div>
 
-          <div className="text-left md:text-right">
-            <span className="text-xs font-semibold text-[#6B635B] block">{t.todayUnderstood.organizedLabel}</span>
-            <span className="text-sm font-bold text-[#1E1B19]">
+          <div className="text-start md:text-end">
+            <span className="text-xs font-semibold text-muted block">{t.todayUnderstood.organizedLabel}</span>
+            <span className="text-sm font-bold text-ink">
               {todayUnderstood.length} {t.todayUnderstood.countLabel}
             </span>
           </div>
@@ -44,34 +44,34 @@ export const TodayUnderstood: React.FC = () => {
                   exit={{ opacity: 0, y: -6, scale: 0.98 }}
                   transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                   whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                  className="bg-white rounded-2xl p-5 border border-[#D8CFC2] shadow-xs hover:border-[#641C24]/30 transition-all flex flex-col justify-between cursor-default"
+                  className="bg-white rounded-2xl p-5 border border-line shadow-xs hover:border-primary/30 transition flex flex-col justify-between cursor-default"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
+                      <span className="text-xs font-bold text-primary uppercase tracking-wider">
                         {item.timeOrDate}
                       </span>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                           isCalendar
-                            ? 'bg-[#641C24]/10 text-[#641C24]'
+                            ? 'bg-primary/10 text-primary'
                             : isReminder
-                            ? 'bg-[#8C5E28]/10 text-[#8C5E28]'
-                            : 'bg-[#2E5C38]/10 text-[#2E5C38]'
+                            ? 'bg-amber/10 text-amber'
+                            : 'bg-success/10 text-success'
                         }`}
                       >
                         {item.kind}
                       </span>
                     </div>
 
-                    <h4 className="text-base font-bold text-[#1E1B19] tracking-tight">
+                    <h4 className="text-base font-bold text-ink tracking-tight">
                       {item.title}
                     </h4>
                   </div>
 
-                  <div className="pt-4 mt-4 border-t border-[#D8CFC2]/50 flex items-center justify-between text-xs text-[#6B635B]">
+                  <div className="pt-4 mt-4 border-t border-line/50 flex items-center justify-between text-xs text-muted">
                     <span>{t.todayUnderstood.sourcePrefix}: {item.source}</span>
-                    <span className="text-[#2E5C38] font-medium">{t.todayUnderstood.syncedLabel}</span>
+                    <span className="text-success font-medium">{t.todayUnderstood.syncedLabel}</span>
                   </div>
                 </motion.div>
               );

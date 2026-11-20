@@ -110,11 +110,11 @@ export const PdfDemo: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-white rounded-3xl border border-[#D8CFC2] p-6 lg:p-8 shadow-sm text-left">
-      <div className="flex items-center justify-between pb-4 border-b border-[#D8CFC2]/60">
+    <div className="w-full bg-white rounded-3xl border border-line p-6 lg:p-8 shadow-sm text-start">
+      <div className="flex items-center justify-between pb-4 border-b border-line/60">
         <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-[#641C24]" />
-          <h3 className="font-bold text-[#1E1B19] text-base sm:text-lg">
+          <FileText className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-ink text-base sm:text-lg">
             {t.demo.tabPdf}
           </h3>
         </div>
@@ -123,28 +123,28 @@ export const PdfDemo: React.FC = () => {
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left: Document representation */}
         <div className="lg:col-span-6 space-y-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#6B635B]">
+          <span className="text-xs font-bold uppercase tracking-wider text-muted">
             {t.demo.tabPdf}
           </span>
 
-          <div className="p-5 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] space-y-3">
+          <div className="p-5 rounded-2xl bg-card border border-line space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#641C24] bg-[#641C24]/10 px-2.5 py-0.5 rounded">
+              <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded">
                 PDF
               </span>
-              <span className="text-xs text-[#6B635B]">{t.demo.pdfMeta}</span>
+              <span className="text-xs text-muted">{t.demo.pdfMeta}</span>
             </div>
 
             <div className="space-y-1">
-              <h4 className="text-lg font-extrabold text-[#1E1B19]">
+              <h4 className="text-lg font-extrabold text-ink">
                 {t.demo.pdfTitle}
               </h4>
-              <p className="text-xs text-[#6B635B] leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 {t.demo.pdfDesc}
               </p>
             </div>
 
-            <div className="pt-2 border-t border-[#D8CFC2]/60 flex items-center justify-between text-xs text-[#6B635B]">
+            <div className="pt-2 border-t border-line/60 flex items-center justify-between text-xs text-muted">
               <span>Document</span>
               <span>4 pages</span>
             </div>
@@ -155,7 +155,7 @@ export const PdfDemo: React.FC = () => {
             whileTap={{ scale: 0.97 }}
             onClick={handleAnalyze}
             disabled={analyzing}
-            className="w-full py-3.5 px-4 rounded-xl bg-[#641C24] hover:bg-[#7E242F] disabled:bg-[#8C555C] text-[#F5EFE6] font-bold text-sm transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 px-4 rounded-xl bg-primary hover:bg-primary-light disabled:bg-[#8C555C] text-canvas font-bold text-sm transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
           >
             {analyzing ? (
               <>
@@ -173,7 +173,7 @@ export const PdfDemo: React.FC = () => {
 
         {/* Right: Detected Structure */}
         <div className="lg:col-span-6 space-y-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#6B635B]">
+          <span className="text-xs font-bold uppercase tracking-wider text-muted">
             {t.todayUnderstood.title}
           </span>
 
@@ -184,9 +184,9 @@ export const PdfDemo: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="h-64 rounded-2xl border-2 border-dashed border-[#D8CFC2] flex flex-col items-center justify-center p-6 text-center text-[#6B635B] space-y-2"
+                className="h-64 rounded-2xl border-2 border-dashed border-line flex flex-col items-center justify-center p-6 text-center text-muted space-y-2"
               >
-                <FileText className="w-8 h-8 text-[#D8CFC2]" />
+                <FileText className="w-8 h-8 text-line" />
                 <p className="text-xs font-medium">
                   {t.demo.pdfAnalyzeBtn}
                 </p>
@@ -199,10 +199,10 @@ export const PdfDemo: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="h-64 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] flex flex-col items-center justify-center p-6 text-center space-y-3"
+                className="h-64 rounded-2xl bg-card border border-line flex flex-col items-center justify-center p-6 text-center space-y-3"
               >
-                <div className="w-10 h-10 rounded-full border-3 border-[#641C24]/20 border-t-[#641C24] animate-spin" />
-                <div className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                <div className="w-10 h-10 rounded-full border-3 border-primary/20 border-t-primary animate-spin" />
+                <div className="text-xs font-bold uppercase tracking-wider text-primary">
                   {t.demo.analyzing}
                 </div>
               </motion.div>
@@ -219,18 +219,18 @@ export const PdfDemo: React.FC = () => {
                 {/* Summary Stats & Add All */}
                 <motion.div
                   variants={resultStaggerItem}
-                  className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] shadow-xs"
+                  className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-2xl bg-card border border-line shadow-xs"
                 >
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#1E1B19]">
-                    <span className="text-[#641C24]">{t.demo.pdfDatesDetected}</span>
+                  <div className="flex items-center gap-2 text-xs font-bold text-ink">
+                    <span className="text-primary">{t.demo.pdfDatesDetected}</span>
                     <span>•</span>
-                    <span className="text-[#2E5C38]">{t.demo.pdfTasksDetected}</span>
+                    <span className="text-success">{t.demo.pdfTasksDetected}</span>
                   </div>
                   <motion.button
                     whileHover={{ y: -1 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={handleAddAll}
-                    className="px-3 py-1.5 rounded-xl bg-[#641C24] hover:bg-[#7E242F] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-primary hover:bg-primary-light text-white text-xs font-bold transition shadow-xs cursor-pointer"
                   >
                     {t.demo.pdfAddAll}
                   </motion.button>
@@ -239,36 +239,36 @@ export const PdfDemo: React.FC = () => {
                 {/* Expandable Dates Section */}
                 <motion.div
                   variants={resultStaggerItem}
-                  className="rounded-2xl border border-[#D8CFC2] overflow-hidden bg-white shadow-xs"
+                  className="rounded-2xl border border-line overflow-hidden bg-white shadow-xs"
                 >
                   <button
                     onClick={() => setExpandedDates(!expandedDates)}
-                    className="w-full p-3.5 bg-[#FAF6F0] flex items-center justify-between text-xs font-bold text-[#1E1B19] cursor-pointer"
+                    className="w-full p-3.5 bg-card flex items-center justify-between text-xs font-bold text-ink cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-[#641C24]" />
+                      <Calendar className="w-4 h-4 text-primary" />
                       <span>{t.demo.pdfDatesDetected}</span>
                     </div>
                     {expandedDates ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
 
                   {expandedDates && (
-                    <div className="p-3 space-y-2 divide-y divide-[#D8CFC2]/40">
+                    <div className="p-3 space-y-2 divide-y divide-line/40">
                       {localizedEvents.map((ev) => (
                         <div key={ev.id} className="pt-2 first:pt-0 flex items-center justify-between text-xs gap-2">
                           <div>
-                            <div className="font-bold text-[#1E1B19]">{ev.title}</div>
-                            <div className="text-[11px] text-[#6B635B]">{ev.dateLabel} • {ev.time} ({ev.location})</div>
+                            <div className="font-bold text-ink">{ev.title}</div>
+                            <div className="text-[11px] text-muted">{ev.dateLabel} • {ev.time} ({ev.location})</div>
                           </div>
                           <motion.button
                             whileHover={{ y: -1 }}
                             whileTap={{ scale: 0.97 }}
                             onClick={() => handleAddSingleEvent(ev)}
                             disabled={addedItems[ev.id]}
-                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 transition-all cursor-pointer ${
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 transition cursor-pointer ${
                               addedItems[ev.id]
-                                ? 'bg-[#2E5C38] text-white shadow-xs'
-                                : 'bg-white border border-[#D8CFC2] hover:bg-[#FAF6F0] text-[#1E1B19]'
+                                ? 'bg-success text-white shadow-xs'
+                                : 'bg-white border border-line hover:bg-card text-ink'
                             }`}
                           >
                             {addedItems[ev.id] ? (
@@ -293,36 +293,36 @@ export const PdfDemo: React.FC = () => {
                 {/* Expandable Tasks Section */}
                 <motion.div
                   variants={resultStaggerItem}
-                  className="rounded-2xl border border-[#D8CFC2] overflow-hidden bg-white shadow-xs"
+                  className="rounded-2xl border border-line overflow-hidden bg-white shadow-xs"
                 >
                   <button
                     onClick={() => setExpandedTasks(!expandedTasks)}
-                    className="w-full p-3.5 bg-[#FAF6F0] flex items-center justify-between text-xs font-bold text-[#1E1B19] cursor-pointer"
+                    className="w-full p-3.5 bg-card flex items-center justify-between text-xs font-bold text-ink cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
-                      <CheckSquare className="w-4 h-4 text-[#2E5C38]" />
+                      <CheckSquare className="w-4 h-4 text-success" />
                       <span>{t.demo.pdfTasksDetected}</span>
                     </div>
                     {expandedTasks ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
 
                   {expandedTasks && (
-                    <div className="p-3 space-y-2 divide-y divide-[#D8CFC2]/40">
+                    <div className="p-3 space-y-2 divide-y divide-line/40">
                       {localizedTasks.map((tk) => (
                         <div key={tk.id} className="pt-2 first:pt-0 flex items-center justify-between text-xs gap-2">
                           <div>
-                            <div className="font-bold text-[#1E1B19]">{tk.title}</div>
-                            <div className="text-[11px] text-[#6B635B]">{tk.dueDate}</div>
+                            <div className="font-bold text-ink">{tk.title}</div>
+                            <div className="text-[11px] text-muted">{tk.dueDate}</div>
                           </div>
                           <motion.button
                             whileHover={{ y: -1 }}
                             whileTap={{ scale: 0.97 }}
                             onClick={() => handleAddSingleTask(tk)}
                             disabled={addedItems[tk.id]}
-                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 transition-all cursor-pointer ${
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 transition cursor-pointer ${
                               addedItems[tk.id]
-                                ? 'bg-[#2E5C38] text-white shadow-xs'
-                                : 'bg-white border border-[#D8CFC2] hover:bg-[#FAF6F0] text-[#1E1B19]'
+                                ? 'bg-success text-white shadow-xs'
+                                : 'bg-white border border-line hover:bg-card text-ink'
                             }`}
                           >
                             {addedItems[tk.id] ? (

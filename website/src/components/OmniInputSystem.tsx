@@ -25,19 +25,19 @@ export const OmniInputSystem: React.FC<OmniInputProps> = ({ onSelectScenario }) 
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl border border-[#D8CFC2] p-4 sm:p-7 shadow-sm">
-      <div className="flex items-center justify-between pb-3 border-b border-[#D8CFC2]/60">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+    <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl border border-line p-4 sm:p-7 shadow-sm">
+      <div className="flex items-center justify-between pb-3 border-b border-line/60">
+        <span className="text-xs font-bold uppercase tracking-wider text-primary">
           {t.omni.badge}
         </span>
-        <span className="text-xs text-[#6B635B] hidden sm:inline">
+        <span className="text-xs text-muted hidden sm:inline">
           {t.omni.sublabel}
         </span>
       </div>
 
       {/* Main Simulated Input Field */}
-      <div className="mt-4 relative bg-[#FAF6F0] rounded-2xl border border-[#D8CFC2] p-3 sm:p-4 transition-all">
-        <div className="text-xs text-[#6B635B] mb-2 font-medium">
+      <div className="mt-4 relative bg-card rounded-2xl border border-line p-3 sm:p-4 transition">
+        <div className="text-xs text-muted mb-2 font-medium">
           {t.omni.scenarioLabel}
         </div>
 
@@ -49,7 +49,7 @@ export const OmniInputSystem: React.FC<OmniInputProps> = ({ onSelectScenario }) 
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="text-xs sm:text-sm md:text-base font-medium text-[#1E1B19] py-1 select-none break-words min-w-0"
+              className="text-xs sm:text-sm md:text-base font-medium text-ink py-1 select-none break-words min-w-0"
             >
               {activePreset === 'message' && t.demo.messageText}
               {activePreset === 'screenshot' && `${t.demo.screenshotType}: ${t.demo.screenshotDoctor} • ${t.demo.screenshotTime}`}
@@ -60,17 +60,17 @@ export const OmniInputSystem: React.FC<OmniInputProps> = ({ onSelectScenario }) 
         </div>
 
         {/* Input Bar Controls */}
-        <div className="mt-4 pt-3 border-t border-[#D8CFC2]/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 min-w-0">
+        <div className="mt-4 pt-3 border-t border-line/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 min-w-0">
           {/* Preset Buttons wrapped cleanly without overflow */}
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
             <motion.button
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => handlePick('message')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
                 activePreset === 'message'
-                  ? 'bg-[#641C24] text-white shadow-xs'
-                  : 'bg-white text-[#1E1B19] border border-[#D8CFC2] hover:bg-[#FAF6F0]'
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'bg-white text-ink border border-line hover:bg-card'
               }`}
             >
               <MessageSquare className="w-3.5 h-3.5 shrink-0" />
@@ -81,10 +81,10 @@ export const OmniInputSystem: React.FC<OmniInputProps> = ({ onSelectScenario }) 
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => handlePick('screenshot')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
                 activePreset === 'screenshot'
-                  ? 'bg-[#641C24] text-white shadow-xs'
-                  : 'bg-white text-[#1E1B19] border border-[#D8CFC2] hover:bg-[#FAF6F0]'
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'bg-white text-ink border border-line hover:bg-card'
               }`}
             >
               <ImageIcon className="w-3.5 h-3.5 shrink-0" />
@@ -95,10 +95,10 @@ export const OmniInputSystem: React.FC<OmniInputProps> = ({ onSelectScenario }) 
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => handlePick('pdf')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
                 activePreset === 'pdf'
-                  ? 'bg-[#641C24] text-white shadow-xs'
-                  : 'bg-white text-[#1E1B19] border border-[#D8CFC2] hover:bg-[#FAF6F0]'
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'bg-white text-ink border border-line hover:bg-card'
               }`}
             >
               <FileText className="w-3.5 h-3.5 shrink-0" />
@@ -109,10 +109,10 @@ export const OmniInputSystem: React.FC<OmniInputProps> = ({ onSelectScenario }) 
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => handlePick('voice')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
                 activePreset === 'voice'
-                  ? 'bg-[#641C24] text-white shadow-xs'
-                  : 'bg-white text-[#1E1B19] border border-[#D8CFC2] hover:bg-[#FAF6F0]'
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'bg-white text-ink border border-line hover:bg-card'
               }`}
             >
               <Mic className="w-3.5 h-3.5 shrink-0" />
@@ -123,7 +123,7 @@ export const OmniInputSystem: React.FC<OmniInputProps> = ({ onSelectScenario }) 
           <motion.a
             href="#demo-section"
             whileHover={{ x: 2 }}
-            className="inline-flex items-center justify-center sm:justify-end gap-1.5 text-xs font-bold text-[#641C24] hover:text-[#7E242F] transition-all cursor-pointer py-1"
+            className="inline-flex items-center justify-center sm:justify-end gap-1.5 text-xs font-bold text-primary hover:text-primary-light transition cursor-pointer py-1"
           >
             <span>{t.omni.openDemo}</span>
             <ArrowRight className="w-3.5 h-3.5" />

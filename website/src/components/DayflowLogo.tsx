@@ -57,7 +57,7 @@ export const ProductStateBadge: React.FC<{
   if (state === 'COMING SOON') {
     return (
       <span
-        className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase bg-[#8C5E28]/10 text-[#8C5E28] ${className}`}
+        className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold tracking-wider uppercase bg-amber/10 text-amber ${className}`}
       >
         {t.stateBadge.comingSoon}
       </span>
@@ -66,7 +66,7 @@ export const ProductStateBadge: React.FC<{
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase bg-[#1E1B19]/5 text-[#6B635B] ${className}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold tracking-wider uppercase bg-ink/5 text-muted ${className}`}
     >
       {t.stateBadge.later}
     </span>

@@ -25,7 +25,7 @@ export const transitions = {
 
 export const buttonMotion = {
   whileHover: { y: -1, transition: { duration: 0.15, ease: 'easeOut' } },
-  whileTap: { scale: 0.97, transition: { duration: 0.1, ease: 'easeOut' } },
+  whileTap: { scale: 0.96, transition: { duration: 0.15, ease: 'easeOut' } },
 };
 
 export const cardHoverMotion = {
@@ -42,13 +42,13 @@ export const heroVariants: {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.12,
+        staggerChildren: 0.1,
         delayChildren: 0.08,
       },
     },
   },
   item: {
-    hidden: { opacity: 0, y: 18, filter: 'blur(3px)' },
+    hidden: { opacity: 0, y: 12, filter: 'blur(4px)' },
     visible: {
       opacity: 1,
       y: 0,
@@ -199,17 +199,17 @@ export const SectionHeaderReveal: React.FC<{
 
   if (shouldReduceMotion) {
     return (
-      <div className={`space-y-3 mb-12 ${align === 'center' ? 'text-center max-w-3xl mx-auto' : 'text-left'} ${className}`}>
+      <div className={`space-y-3 mb-12 ${align === 'center' ? 'text-center max-w-3xl mx-auto' : 'text-start'} ${className}`}>
         {badge}
         {typeof title === 'string' ? (
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">
             {title}
           </h2>
         ) : (
           title
         )}
         {subtitle && (
-          <p className="text-base text-[#6B635B] leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base text-muted leading-relaxed max-w-2xl mx-auto">
             {subtitle}
           </p>
         )}
@@ -225,7 +225,7 @@ export const SectionHeaderReveal: React.FC<{
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: '-60px' }}
-      className={`space-y-3 mb-12 ${align === 'center' ? 'text-center max-w-3xl mx-auto' : 'text-left'} ${className}`}
+      className={`space-y-3 mb-12 ${align === 'center' ? 'text-center max-w-3xl mx-auto' : 'text-start'} ${className}`}
     >
       {badge && (
         <motion.div
@@ -256,7 +256,7 @@ export const SectionHeaderReveal: React.FC<{
         }}
       >
         {typeof title === 'string' ? (
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E1B19]">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">
             {title}
           </h2>
         ) : (
@@ -275,7 +275,7 @@ export const SectionHeaderReveal: React.FC<{
             },
           }}
         >
-          <p className="text-base text-[#6B635B] leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base text-muted leading-relaxed max-w-2xl mx-auto">
             {subtitle}
           </p>
         </motion.div>

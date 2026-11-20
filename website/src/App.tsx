@@ -48,55 +48,55 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5EFE6] text-[#1E1B19] font-sans antialiased selection:bg-[#641C24] selection:text-[#F5EFE6]">
+    <div className="min-h-screen bg-canvas text-ink font-sans antialiased selection:bg-primary selection:text-canvas">
       {/* 1. Sticky Navigation Bar with subtle entrance */}
       <motion.nav
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] as const }}
-        className="sticky top-0 z-50 bg-[#F5EFE6]/90 backdrop-blur-md border-b border-[#D8CFC2]/70 transition-all"
+        className="sticky top-0 z-50 bg-canvas/90 backdrop-blur-md border-b border-line/70 transition"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           {/* Brand Logo & Wordmark */}
           <motion.a
             href="#"
             whileHover={{ opacity: 0.9 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-2 cursor-pointer focus:outline-none"
+            whileTap={{ scale: 0.96 }}
+            className="flex items-center gap-2 cursor-pointer rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             onClick={() => sounds.playClick()}
           >
             <DayflowLogo size={32} />
           </motion.a>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-8 text-xs font-semibold text-[#1E1B19]/80">
+          <div className="hidden md:flex items-center gap-8 text-xs font-semibold text-ink/80">
             <a
               href="#problem-section"
-              className="hover:text-[#641C24] transition-colors"
+              className="hover:text-primary transition-colors"
             >
               {t.nav.concept}
             </a>
             <a
               href="#demo-section"
-              className="hover:text-[#641C24] transition-colors"
+              className="hover:text-primary transition-colors"
             >
               {t.nav.demo}
             </a>
             <a
               href="#dashboard-section"
-              className="hover:text-[#641C24] transition-colors"
+              className="hover:text-primary transition-colors"
             >
               {t.nav.dashboard}
             </a>
             <a
               href="#architecture-section"
-              className="hover:text-[#641C24] transition-colors"
+              className="hover:text-primary transition-colors"
             >
               {t.nav.architecture}
             </a>
             <a
               href="#roadmap-section"
-              className="hover:text-[#641C24] transition-colors"
+              className="hover:text-primary transition-colors"
             >
               {t.nav.roadmap}
             </a>
@@ -106,7 +106,7 @@ export default function App() {
           <div className="hidden md:flex items-center gap-4">
             {/* Subtle Language Switcher (EN / DE / ES) */}
             <div
-              className="flex items-center bg-white rounded-xl border border-[#D8CFC2] p-0.5 text-xs font-bold text-[#1E1B19]"
+              className="flex items-center bg-white rounded-xl border border-line p-0.5 text-xs font-bold text-ink"
               role="group"
               aria-label="Language selection"
             >
@@ -115,11 +115,11 @@ export default function App() {
                   key={lang}
                   onClick={() => setLanguage(lang)}
                   aria-pressed={language === lang}
-                  aria-label={`Switch language to ${lang.toUpperCase()}`}
-                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
+                  lang={lang}
+                  className={`px-2.5 py-1 rounded-lg transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                     language === lang
-                      ? 'bg-[#641C24] text-white shadow-xs'
-                      : 'hover:text-[#641C24]'
+                      ? 'bg-primary text-white shadow-xs'
+                      : 'hover:text-primary'
                   }`}
                 >
                   {lang.toUpperCase()}
@@ -132,14 +132,15 @@ export default function App() {
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.96 }}
               onClick={toggleSound}
-              className="p-2 rounded-xl border border-[#D8CFC2] bg-white hover:bg-[#FAF6F0] text-[#1E1B19] transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24]"
-              title={soundMuted ? 'Unmute sounds' : 'Mute sounds'}
-              aria-label="Toggle Sound Effects"
+              className="p-2 rounded-xl border border-line bg-white hover:bg-card text-ink transition cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              title={t.nav.soundToggle}
+              aria-label={t.nav.soundToggle}
+              aria-pressed={!soundMuted}
             >
               {soundMuted ? (
-                <VolumeX className="w-4 h-4 text-[#6B635B]" />
+                <VolumeX className="w-4 h-4 text-muted" />
               ) : (
-                <Volume2 className="w-4 h-4 text-[#641C24]" />
+                <Volume2 className="w-4 h-4 text-primary" />
               )}
             </motion.button>
 
@@ -147,7 +148,7 @@ export default function App() {
               href="#demo-section"
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.97 }}
-              className="px-4 py-2 rounded-xl bg-[#641C24] text-[#F5EFE6] hover:bg-[#7E242F] text-xs font-bold transition-all shadow-xs cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-primary text-canvas hover:bg-primary-light text-xs font-bold transition shadow-xs cursor-pointer"
             >
               {t.nav.tryDemo}
             </motion.a>
@@ -159,7 +160,7 @@ export default function App() {
               value={language}
               onChange={(e) => setLanguage(e.target.value as Language)}
               aria-label="Select Language"
-              className="p-1 rounded-lg border border-[#D8CFC2] bg-white text-xs font-bold text-[#1E1B19] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24]"
+              className="p-1 rounded-lg border border-line bg-white text-xs font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <option value="en">EN</option>
               <option value="de">DE</option>
@@ -168,15 +169,15 @@ export default function App() {
 
             <button
               onClick={toggleSound}
-              className="p-1.5 rounded-lg border border-[#D8CFC2] bg-white"
+              className="p-1.5 rounded-lg border border-line bg-white"
               aria-label="Toggle Sound"
             >
-              {soundMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#641C24]" />}
+              {soundMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-primary" />}
             </button>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 rounded-lg border border-[#D8CFC2] bg-white text-[#1E1B19]"
+              className="p-1.5 rounded-lg border border-line bg-white text-ink"
               aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -186,7 +187,7 @@ export default function App() {
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-[#FAF6F0] border-b border-[#D8CFC2] px-4 py-4 space-y-3">
+          <div className="md:hidden bg-card border-b border-line px-4 py-4 space-y-3">
             <a
               href="#problem-section"
               onClick={() => setMobileMenuOpen(false)}
@@ -231,7 +232,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Hero Content */}
-            <div className="lg:col-span-7 space-y-6 text-left">
+            <div className="lg:col-span-7 space-y-6 text-start">
               {/* Choreographed Main Headline with Staggered Multi-Phrase Motion */}
               <motion.h1
                 initial="hidden"
@@ -246,7 +247,7 @@ export default function App() {
                     },
                   },
                 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1E1B19] leading-[1.12]"
+                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-ink leading-[1.12]"
               >
                 {(() => {
                   const parts = t.hero.titlePart1.endsWith('.')
@@ -277,7 +278,7 @@ export default function App() {
                       ))}
                       <motion.span
                         variants={spanVariants}
-                        className="text-[#641C24] block sm:inline-block"
+                        className="text-primary block sm:inline-block font-serif italic font-medium tracking-normal"
                       >
                         {t.hero.titlePart2}
                       </motion.span>
@@ -291,7 +292,7 @@ export default function App() {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.52, ease: [0.16, 1, 0.3, 1] as const }}
-                className="text-base sm:text-lg text-[#6B635B] max-w-2xl leading-relaxed"
+                className="text-base sm:text-lg text-muted max-w-2xl leading-relaxed"
               >
                 {t.hero.subtitle}
               </motion.p>
@@ -308,7 +309,7 @@ export default function App() {
                   onClick={() => sounds.playClick()}
                   whileHover={{ y: -1 }}
                   whileTap={{ scale: 0.97 }}
-                  className="px-6 py-3.5 rounded-2xl bg-[#641C24] text-[#F5EFE6] hover:bg-[#7E242F] text-sm font-bold transition-all shadow-sm hover:shadow flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-3.5 rounded-2xl bg-primary text-canvas hover:bg-primary-light text-sm font-bold transition shadow-sm hover:shadow flex items-center gap-2 cursor-pointer"
                 >
                   <span>{t.hero.tryDemoBtn}</span>
                 </motion.a>
@@ -318,10 +319,10 @@ export default function App() {
                   onClick={() => sounds.playClick()}
                   whileHover={{ y: -1 }}
                   whileTap={{ scale: 0.97 }}
-                  className="px-6 py-3.5 rounded-2xl bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2] text-sm font-semibold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-3.5 rounded-2xl bg-white hover:bg-card text-ink border border-line text-sm font-semibold transition shadow-xs flex items-center gap-2 cursor-pointer"
                 >
                   <span>{t.hero.exploreBtn}</span>
-                  <ArrowRight className="w-4 h-4 text-[#6B635B]" />
+                  <ArrowRight className="w-4 h-4 text-muted" />
                 </motion.a>
               </motion.div>
             </div>
@@ -333,8 +334,8 @@ export default function App() {
               transition={{ duration: 0.8, delay: 0.58, ease: [0.16, 1, 0.3, 1] as const }}
               className="lg:col-span-5 flex justify-center"
             >
-              <div className="relative">
-                <div className="absolute -inset-4 bg-[#641C24]/5 rounded-[60px] blur-xl -z-10" />
+              <div className="relative max-[379px]:[zoom:0.85]">
+                <div className="absolute -inset-4 bg-primary/5 rounded-[60px] blur-xl -z-10" />
                 <AndroidSimulator />
               </div>
             </motion.div>
@@ -350,7 +351,7 @@ export default function App() {
         <section id="problem-section" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeaderReveal
             badge={
-              <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">
                 {t.problem.badge}
               </span>
             }
@@ -373,23 +374,23 @@ export default function App() {
               <motion.div
                 key={idx}
                 whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                className="bg-white rounded-2xl p-4 border border-[#D8CFC2] flex flex-col items-center justify-center text-center space-y-2 shadow-xs hover:border-[#641C24]/30 transition-all cursor-default"
+                className="bg-white rounded-2xl p-4 border border-line flex flex-col items-center justify-center text-center space-y-2 shadow-xs hover:border-primary/30 transition cursor-default"
               >
-                <item.icon className="w-5 h-5 text-[#641C24]" />
-                <span className="text-xs font-bold text-[#1E1B19]">{item.label}</span>
+                <item.icon className="w-5 h-5 text-primary" />
+                <span className="text-xs font-bold text-ink">{item.label}</span>
               </motion.div>
             ))}
           </div>
 
           {/* Solution Transition Banner */}
-          <div className="bg-[#FAF6F0] rounded-3xl p-8 lg:p-12 border border-[#D8CFC2] max-w-4xl mx-auto text-center space-y-4 shadow-sm">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#2E5C38] bg-[#2E5C38]/10 px-3 py-1 rounded-full">
+          <div className="bg-card rounded-3xl p-8 lg:p-12 border border-line max-w-4xl mx-auto text-center space-y-4 shadow-sm">
+            <span className="text-xs font-bold uppercase tracking-wider text-success bg-success/10 px-3 py-1 rounded-full">
               {t.problem.contrastBadge}
             </span>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1E1B19]">
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-ink">
               {t.problem.contrastTitle}
             </h3>
-            <p className="text-sm sm:text-base text-[#6B635B] max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base text-muted max-w-2xl mx-auto leading-relaxed">
               {t.problem.contrastDesc}
             </p>
           </div>
@@ -398,11 +399,11 @@ export default function App() {
 
       {/* 5. Interactive Demo Studio */}
       <ScrollReveal horizontalParallax="left">
-        <section id="demo-section" className="py-16 bg-[#FAF6F0] border-t border-[#D8CFC2]">
+        <section id="demo-section" className="py-16 bg-card border-t border-line">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeaderReveal
               badge={
-                <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">
                   {t.demo.badge}
                 </span>
               }
@@ -423,10 +424,10 @@ export default function App() {
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleTabSelect('message')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                   activeDemoTab === 'message'
-                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
-                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
+                    ? 'bg-primary text-canvas shadow-sm'
+                    : 'bg-white hover:bg-card text-ink border border-line'
                 }`}
               >
                 <MessageSquare className="w-4 h-4" />
@@ -439,10 +440,10 @@ export default function App() {
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleTabSelect('screenshot')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                   activeDemoTab === 'screenshot'
-                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
-                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
+                    ? 'bg-primary text-canvas shadow-sm'
+                    : 'bg-white hover:bg-card text-ink border border-line'
                 }`}
               >
                 <ImageIcon className="w-4 h-4" />
@@ -455,10 +456,10 @@ export default function App() {
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleTabSelect('pdf')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                   activeDemoTab === 'pdf'
-                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
-                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
+                    ? 'bg-primary text-canvas shadow-sm'
+                    : 'bg-white hover:bg-card text-ink border border-line'
                 }`}
               >
                 <FileText className="w-4 h-4" />
@@ -471,10 +472,10 @@ export default function App() {
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleTabSelect('voice')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                   activeDemoTab === 'voice'
-                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
-                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
+                    ? 'bg-primary text-canvas shadow-sm'
+                    : 'bg-white hover:bg-card text-ink border border-line'
                 }`}
               >
                 <Mic className="w-4 h-4" />
@@ -512,7 +513,7 @@ export default function App() {
 
       {/* 7. Input System */}
       <ScrollReveal>
-        <section className="py-14 bg-[#FAF6F0] border-t border-[#D8CFC2]">
+        <section className="py-14 bg-card border-t border-line">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <OmniInputSystem onSelectScenario={(sc) => setActiveDemoTab(sc)} />
           </div>
@@ -524,7 +525,7 @@ export default function App() {
         <section id="architecture-section" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeaderReveal
             badge={
-              <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">
                 {t.architecture.badge}
               </span>
             }
@@ -537,15 +538,15 @@ export default function App() {
             {/* UNDERSTAND */}
             <motion.div
               whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
+              className="bg-white rounded-3xl p-6 border border-line shadow-xs space-y-3"
             >
-              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
+              <span className="text-xs font-bold text-primary uppercase tracking-wider">
                 Layer 1
               </span>
-              <h3 className="text-xl font-bold text-[#1E1B19]">
+              <h3 className="text-xl font-bold text-ink">
                 {t.architecture.understandTitle}
               </h3>
-              <p className="text-xs text-[#6B635B] leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 {t.architecture.understandDesc}
               </p>
             </motion.div>
@@ -553,15 +554,15 @@ export default function App() {
             {/* ORGANIZE */}
             <motion.div
               whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
+              className="bg-white rounded-3xl p-6 border border-line shadow-xs space-y-3"
             >
-              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
+              <span className="text-xs font-bold text-primary uppercase tracking-wider">
                 Layer 2
               </span>
-              <h3 className="text-xl font-bold text-[#1E1B19]">
+              <h3 className="text-xl font-bold text-ink">
                 {t.architecture.organizeTitle}
               </h3>
-              <p className="text-xs text-[#6B635B] leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 {t.architecture.organizeDesc}
               </p>
             </motion.div>
@@ -569,15 +570,15 @@ export default function App() {
             {/* ACT */}
             <motion.div
               whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
+              className="bg-white rounded-3xl p-6 border border-line shadow-xs space-y-3"
             >
-              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
+              <span className="text-xs font-bold text-primary uppercase tracking-wider">
                 Layer 3
               </span>
-              <h3 className="text-xl font-bold text-[#1E1B19]">
+              <h3 className="text-xl font-bold text-ink">
                 {t.architecture.actTitle}
               </h3>
-              <p className="text-xs text-[#6B635B] leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 {t.architecture.actDesc}
               </p>
             </motion.div>
@@ -585,15 +586,15 @@ export default function App() {
             {/* CONTEXT */}
             <motion.div
               whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
+              className="bg-white rounded-3xl p-6 border border-line shadow-xs space-y-3"
             >
-              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
+              <span className="text-xs font-bold text-primary uppercase tracking-wider">
                 Layer 4
               </span>
-              <h3 className="text-xl font-bold text-[#1E1B19]">
+              <h3 className="text-xl font-bold text-ink">
                 {t.architecture.contextTitle}
               </h3>
-              <p className="text-xs text-[#6B635B] leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 {t.architecture.contextDesc}
               </p>
             </motion.div>
@@ -608,11 +609,11 @@ export default function App() {
 
       {/* 12. Transparent Product Roadmap */}
       <ScrollReveal horizontalParallax="left">
-        <section id="roadmap-section" className="py-20 bg-[#FAF6F0] border-t border-[#D8CFC2]">
+        <section id="roadmap-section" className="py-20 bg-card border-t border-line">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeaderReveal
               badge={
-                <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">
                   {t.roadmap.badge}
                 </span>
               }
@@ -623,83 +624,83 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {/* NOW */}
-              <div className="bg-white rounded-3xl p-7 border-2 border-[#2E5C38]/40 shadow-xs space-y-4">
+              <div className="bg-white rounded-3xl p-7 border-2 border-success/40 shadow-xs space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-[#1E1B19]">
+                  <h3 className="text-lg font-bold text-ink">
                     {t.roadmap.nowTitle}
                   </h3>
                 </div>
-                <ul className="space-y-2 text-xs text-[#6B635B]">
-                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
-                    <span className="text-[#2E5C38] font-bold">✓</span>
+                <ul className="space-y-2 text-xs text-muted">
+                  <li className="flex items-center gap-2 text-ink font-medium">
+                    <span className="text-success font-bold">✓</span>
                     <span>{t.roadmap.itemMessage}</span>
                   </li>
-                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
-                    <span className="text-[#2E5C38] font-bold">✓</span>
+                  <li className="flex items-center gap-2 text-ink font-medium">
+                    <span className="text-success font-bold">✓</span>
                     <span>{t.roadmap.itemScreenshot}</span>
                   </li>
-                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
-                    <span className="text-[#2E5C38] font-bold">✓</span>
+                  <li className="flex items-center gap-2 text-ink font-medium">
+                    <span className="text-success font-bold">✓</span>
                     <span>{t.roadmap.itemPdf}</span>
                   </li>
-                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
-                    <span className="text-[#2E5C38] font-bold">✓</span>
+                  <li className="flex items-center gap-2 text-ink font-medium">
+                    <span className="text-success font-bold">✓</span>
                     <span>{t.roadmap.itemVoice}</span>
                   </li>
-                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
-                    <span className="text-[#2E5C38] font-bold">✓</span>
+                  <li className="flex items-center gap-2 text-ink font-medium">
+                    <span className="text-success font-bold">✓</span>
                     <span>{t.roadmap.itemDashboard}</span>
                   </li>
                 </ul>
               </div>
 
               {/* COMING SOON */}
-              <div className="bg-white rounded-3xl p-7 border border-[#D8CFC2] shadow-xs space-y-4">
+              <div className="bg-white rounded-3xl p-7 border border-line shadow-xs space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-[#1E1B19]">
+                  <h3 className="text-lg font-bold text-ink">
                     {t.roadmap.comingSoonTitle}
                   </h3>
                   <ProductStateBadge state="COMING SOON" />
                 </div>
-                <ul className="space-y-2 text-xs text-[#6B635B]">
+                <ul className="space-y-2 text-xs text-muted">
                   <li className="flex items-center gap-2">
-                    <span className="text-[#8C5E28]">○</span>
+                    <span className="text-amber">○</span>
                     <span>{t.roadmap.itemAndroid}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-[#8C5E28]">○</span>
+                    <span className="text-amber">○</span>
                     <span>{t.roadmap.itemCalSync}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-[#8C5E28]">○</span>
+                    <span className="text-amber">○</span>
                     <span>{t.roadmap.itemScreenIntel}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-[#8C5E28]">○</span>
+                    <span className="text-amber">○</span>
                     <span>{t.roadmap.itemSmartActions}</span>
                   </li>
                 </ul>
               </div>
 
               {/* LATER */}
-              <div className="bg-white rounded-3xl p-7 border border-[#D8CFC2] shadow-xs space-y-4 opacity-80">
+              <div className="bg-white rounded-3xl p-7 border border-line shadow-xs space-y-4 opacity-80">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-[#1E1B19]">
+                  <h3 className="text-lg font-bold text-ink">
                     {t.roadmap.laterTitle}
                   </h3>
                   <ProductStateBadge state="LATER" />
                 </div>
-                <ul className="space-y-2 text-xs text-[#6B635B]">
+                <ul className="space-y-2 text-xs text-muted">
                   <li className="flex items-center gap-2">
-                    <span className="text-[#6B635B]">○</span>
+                    <span className="text-muted">○</span>
                     <span>{t.roadmap.itemDesktop}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-[#6B635B]">○</span>
+                    <span className="text-muted">○</span>
                     <span>{t.roadmap.itemMultiProvider}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-[#6B635B]">○</span>
+                    <span className="text-muted">○</span>
                     <span>{t.roadmap.itemAutomation}</span>
                   </li>
                 </ul>
@@ -710,12 +711,12 @@ export default function App() {
       </ScrollReveal>
 
       {/* 13. Final CTA & Footer */}
-      <footer className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-[#D8CFC2]/70 text-center space-y-8">
+      <footer className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-line/70 text-center space-y-8">
         <div className="max-w-xl mx-auto space-y-4">
-          <h2 className="text-3xl font-extrabold text-[#1E1B19]">
+          <h2 className="text-3xl font-extrabold text-ink">
             {t.footer.readyTitle}
           </h2>
-          <p className="text-base text-[#6B635B]">
+          <p className="text-base text-muted">
             {t.footer.readySubtitle}
           </p>
           <div className="pt-2">
@@ -724,14 +725,14 @@ export default function App() {
               onClick={() => sounds.playClick()}
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#641C24] text-[#F5EFE6] hover:bg-[#7E242F] text-sm font-bold shadow-sm transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-primary text-canvas hover:bg-primary-light text-sm font-bold shadow-sm transition cursor-pointer"
             >
               <span>{t.nav.tryDemo}</span>
             </motion.a>
           </div>
         </div>
 
-        <div className="pt-12 border-t border-[#D8CFC2]/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6B635B]">
+        <div className="pt-12 border-t border-line/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
           <div className="flex items-center gap-2">
             <DayflowLogo size={24} />
           </div>
@@ -745,7 +746,7 @@ export default function App() {
               href="https://github.com/norobb/dayflow-assistant/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs text-[#6B635B] hover:text-[#1E1B19] transition-colors"
+              className="inline-flex items-center gap-2 text-xs text-muted hover:text-ink transition-colors"
             >
               <Github size={14} />
               <span>{t.footer.github}</span>
