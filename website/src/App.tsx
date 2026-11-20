@@ -18,480 +18,245 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useDayflowStore } from './store/dayflowStore';
 import { sounds } from './utils/audio';
 import { Language } from './utils/i18n';
-import { DayflowLogo, ProductStateBadge } from './components/DayflowLogo';
+import { DayflowLogo } from './components/DayflowLogo';
 import { AndroidSimulator } from './components/AndroidSimulator';
 import { TodayUnderstood } from './components/TodayUnderstood';
 import { DayflowDashboard } from './components/DayflowDashboard';
 import { OmniInputSystem } from './components/OmniInputSystem';
 import { ProductConceptSections } from './components/ProductConceptSections';
+import { LiveRoadmap } from './components/LiveRoadmap';
 import { MessageDemo } from './components/demos/MessageDemo';
 import { ScreenshotDemo } from './components/demos/ScreenshotDemo';
 import { PdfDemo } from './components/demos/PdfDemo';
 import { VoiceDemo } from './components/demos/VoiceDemo';
-import { ScrollReveal, SectionHeaderReveal, tabContentVariants, buttonMotion } from './utils/motion';
+import { ScrollReveal, tabContentVariants } from './utils/motion';
+
+type DemoTab = 'message' | 'screenshot' | 'pdf' | 'voice';
 
 export default function App() {
-  const {
-    language,
-    setLanguage,
-    t,
-    soundMuted,
-    toggleSound,
-  } = useDayflowStore();
+  const { language, setLanguage, t, soundMuted, toggleSound } = useDayflowStore();
 
-  const [activeDemoTab, setActiveDemoTab] = useState<'message' | 'screenshot' | 'pdf' | 'voice'>('message');
+  const [activeDemoTab, setActiveDemoTab] = useState<DemoTab>('message');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleTabSelect = (tab: 'message' | 'screenshot' | 'pdf' | 'voice') => {
+  const handleTabSelect = (tab: DemoTab) => {
     sounds.playClick();
     setActiveDemoTab(tab);
   };
 
-  return (
-    <div className="min-h-screen bg-[#F5EFE6] text-[#1E1B19] font-sans antialiased selection:bg-[#641C24] selection:text-[#F5EFE6]">
-      {/* 1. Sticky Navigation Bar with subtle entrance */}
-      <motion.nav
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] as const }}
-        className="sticky top-0 z-50 bg-[#F5EFE6]/90 backdrop-blur-md border-b border-[#D8CFC2]/70 transition-all"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-          {/* Brand Logo & Wordmark */}
-          <motion.a
-            href="#"
-            whileHover={{ opacity: 0.9 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-2 cursor-pointer focus:outline-none"
-            onClick={() => sounds.playClick()}
-          >
-            <DayflowLogo size={32} />
-          </motion.a>
+  // Hero source tiles jump straight into the matching demo.
+  const openDemo = (tab: DemoTab) => {
+    handleTabSelect(tab);
+    document.getElementById('demo-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-8 text-xs font-semibold text-[#1E1B19]/80">
-            <a
-              href="#problem-section"
-              className="hover:text-[#641C24] transition-colors"
-            >
-              {t.nav.concept}
-            </a>
-            <a
-              href="#demo-section"
-              className="hover:text-[#641C24] transition-colors"
-            >
-              {t.nav.demo}
-            </a>
-            <a
-              href="#dashboard-section"
-              className="hover:text-[#641C24] transition-colors"
-            >
-              {t.nav.dashboard}
-            </a>
-            <a
-              href="#architecture-section"
-              className="hover:text-[#641C24] transition-colors"
-            >
-              {t.nav.architecture}
-            </a>
-            <a
-              href="#roadmap-section"
-              className="hover:text-[#641C24] transition-colors"
-            >
-              {t.nav.roadmap}
-            </a>
+  const navLinks = [
+    { href: '#problem-section', label: t.nav.concept },
+    { href: '#demo-section', label: t.nav.demo },
+    { href: '#dashboard-section', label: t.nav.dashboard },
+    { href: '#architecture-section', label: t.nav.architecture },
+    { href: '#roadmap-section', label: t.nav.roadmap },
+  ];
+
+  const demoTabs: { id: DemoTab; label: string; icon: typeof Mic }[] = [
+    { id: 'message', label: t.demo.tabMessage, icon: MessageSquare },
+    { id: 'screenshot', label: t.demo.tabScreenshot, icon: ImageIcon },
+    { id: 'pdf', label: t.demo.tabPdf, icon: FileText },
+    { id: 'voice', label: t.demo.tabVoice, icon: Mic },
+  ];
+
+  const heroSources: { id: DemoTab; label: string; icon: typeof Mic; cls: string }[] = [
+    { id: 'message', label: t.problem.messages, icon: MessageSquare, cls: 'orbit-a' },
+    { id: 'screenshot', label: t.problem.screenshots, icon: ImageIcon, cls: 'orbit-b' },
+    { id: 'pdf', label: t.problem.pdfs, icon: FileText, cls: 'orbit-c' },
+    { id: 'voice', label: t.problem.voiceNotes, icon: Mic, cls: 'orbit-d' },
+  ];
+
+  const chaos = [
+    { label: t.problem.messages, icon: MessageSquare },
+    { label: t.problem.screenshots, icon: ImageIcon },
+    { label: t.problem.pdfs, icon: FileText },
+    { label: t.problem.calendar, icon: Calendar },
+    { label: t.problem.notes, icon: Layers },
+    { label: t.problem.voiceNotes, icon: Mic },
+    { label: t.problem.reminders, icon: Bell },
+  ];
+
+  const layers = [
+    { title: t.architecture.understandTitle, desc: t.architecture.understandDesc },
+    { title: t.architecture.organizeTitle, desc: t.architecture.organizeDesc },
+    { title: t.architecture.actTitle, desc: t.architecture.actDesc },
+    { title: t.architecture.contextTitle, desc: t.architecture.contextDesc },
+  ];
+
+  const titleLead = t.hero.titlePart1;
+
+  return (
+    <div className="page">
+      {/* Navigation */}
+      <nav className="nav" aria-label="Main">
+        <div className="wrap nav-inner">
+          <a href="#" className="nav-logo" onClick={() => sounds.playClick()} aria-label="Dayflow">
+            <DayflowLogo size={32} />
+          </a>
+
+          <div className="nav-links">
+            {navLinks.map((l) => (
+              <a key={l.href} href={l.href} className="nav-link">{l.label}</a>
+            ))}
           </div>
 
-          {/* Desktop Right Controls (Language Switcher, Sound Toggle, CTA) */}
-          <div className="hidden md:flex items-center gap-4">
-            {/* Subtle Language Switcher (EN / DE / ES) */}
-            <div
-              className="flex items-center bg-white rounded-xl border border-[#D8CFC2] p-0.5 text-xs font-bold text-[#1E1B19]"
-              role="group"
-              aria-label="Language selection"
-            >
+          <div className="nav-tools">
+            <div className="lang" role="group" aria-label="Language selection">
               {(['en', 'de', 'es'] as const).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => setLanguage(lang)}
                   aria-pressed={language === lang}
                   aria-label={`Switch language to ${lang.toUpperCase()}`}
-                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
-                    language === lang
-                      ? 'bg-[#641C24] text-white shadow-xs'
-                      : 'hover:text-[#641C24]'
-                  }`}
+                  className="lang-btn"
                 >
-                  {lang.toUpperCase()}
+                  {lang}
                 </button>
               ))}
             </div>
-
-            {/* Subtle Sound Effects Toggle */}
-            <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+            <button
               onClick={toggleSound}
-              className="p-2 rounded-xl border border-[#D8CFC2] bg-white hover:bg-[#FAF6F0] text-[#1E1B19] transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24]"
+              className="icon-btn"
               title={soundMuted ? 'Unmute sounds' : 'Mute sounds'}
               aria-label="Toggle Sound Effects"
+              aria-pressed={!soundMuted}
             >
-              {soundMuted ? (
-                <VolumeX className="w-4 h-4 text-[#6B635B]" />
-              ) : (
-                <Volume2 className="w-4 h-4 text-[#641C24]" />
-              )}
-            </motion.button>
-
-            <motion.a
-              href="#demo-section"
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.97 }}
-              className="px-4 py-2 rounded-xl bg-[#641C24] text-[#F5EFE6] hover:bg-[#7E242F] text-xs font-bold transition-all shadow-xs cursor-pointer"
-            >
-              {t.nav.tryDemo}
-            </motion.a>
+              {soundMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            </button>
+            <a href="#demo-section" className="btn btn-primary btn-sm nav-cta">{t.nav.tryDemo}</a>
           </div>
 
-          {/* Mobile Menu & Language Button */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="nav-mobile">
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as Language)}
               aria-label="Select Language"
-              className="p-1 rounded-lg border border-[#D8CFC2] bg-white text-xs font-bold text-[#1E1B19] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24]"
+              className="lang-select"
             >
               <option value="en">EN</option>
               <option value="de">DE</option>
               <option value="es">ES</option>
             </select>
-
-            <button
-              onClick={toggleSound}
-              className="p-1.5 rounded-lg border border-[#D8CFC2] bg-white"
-              aria-label="Toggle Sound"
-            >
-              {soundMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#641C24]" />}
+            <button onClick={toggleSound} className="icon-btn" aria-label="Toggle Sound" aria-pressed={!soundMuted}>
+              {soundMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </button>
-
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 rounded-lg border border-[#D8CFC2] bg-white text-[#1E1B19]"
+              className="icon-btn"
               aria-label="Toggle Menu"
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-[#FAF6F0] border-b border-[#D8CFC2] px-4 py-4 space-y-3">
-            <a
-              href="#problem-section"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-semibold py-1"
-            >
-              {t.nav.concept}
-            </a>
-            <a
-              href="#demo-section"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-semibold py-1"
-            >
-              {t.nav.demo}
-            </a>
-            <a
-              href="#dashboard-section"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-semibold py-1"
-            >
-              {t.nav.dashboard}
-            </a>
-            <a
-              href="#architecture-section"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-semibold py-1"
-            >
-              {t.nav.architecture}
-            </a>
-            <a
-              href="#roadmap-section"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-semibold py-1"
-            >
-              {t.nav.roadmap}
-            </a>
-          </div>
-        )}
-      </motion.nav>
-
-      {/* 2. Hero Section - Choreographed Page Load Sequence */}
-      <section className="pt-12 sm:pt-16 pb-20 lg:pt-24 lg:pb-32 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Hero Content */}
-            <div className="lg:col-span-7 space-y-6 text-left">
-              {/* Choreographed Main Headline with Staggered Multi-Phrase Motion */}
-              <motion.h1
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: {
-                    opacity: 1,
-                    transition: {
-                      staggerChildren: 0.16,
-                      delayChildren: 0.12,
-                    },
-                  },
-                }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-balance text-[#1E1B19] leading-[1.12]"
-              >
-                {(() => {
-                  const parts = t.hero.titlePart1.endsWith('.')
-                    ? t.hero.titlePart1.slice(0, -1).split('. ')
-                    : t.hero.titlePart1.split('. ');
-
-                  const spanVariants = {
-                    hidden: { opacity: 0, y: 22, filter: 'blur(8px)', scale: 0.96 },
-                    visible: {
-                      opacity: 1,
-                      y: 0,
-                      filter: 'blur(0px)',
-                      scale: 1,
-                      transition: { duration: 0.72, ease: [0.16, 1, 0.3, 1] as const },
-                    },
-                  };
-
-                  return (
-                    <>
-                      {parts.map((part, idx) => (
-                        <motion.span
-                          key={idx}
-                          variants={spanVariants}
-                          className="inline-block mr-[0.25em]"
-                        >
-                          {part}.
-                        </motion.span>
-                      ))}
-                      <motion.span
-                        variants={spanVariants}
-                        className="text-[#641C24] block sm:inline-block font-serif italic font-medium tracking-normal"
-                      >
-                        {t.hero.titlePart2}
-                      </motion.span>
-                    </>
-                  );
-                })()}
-              </motion.h1>
-
-              {/* Supporting Text synced with title sequence */}
-              <motion.p
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.52, ease: [0.16, 1, 0.3, 1] as const }}
-                className="text-base sm:text-lg text-[#6B635B] max-w-2xl leading-relaxed"
-              >
-                {t.hero.subtitle}
-              </motion.p>
-
-              {/* CTAs synced after text sequence */}
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.64, ease: [0.16, 1, 0.3, 1] as const }}
-                className="flex flex-wrap items-center gap-3 pt-2"
-              >
-                <motion.a
-                  href="#demo-section"
-                  onClick={() => sounds.playClick()}
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="px-6 py-3.5 rounded-2xl bg-[#641C24] text-[#F5EFE6] hover:bg-[#7E242F] text-sm font-bold transition-all shadow-sm hover:shadow flex items-center gap-2 cursor-pointer"
-                >
-                  <span>{t.hero.tryDemoBtn}</span>
-                </motion.a>
-
-                <motion.a
-                  href="#dashboard-section"
-                  onClick={() => sounds.playClick()}
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="px-6 py-3.5 rounded-2xl bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2] text-sm font-semibold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
-                >
-                  <span>{t.hero.exploreBtn}</span>
-                  <ArrowRight className="w-4 h-4 text-[#6B635B]" />
-                </motion.a>
-              </motion.div>
-            </div>
-
-            {/* Right Hero: Android Phone - ~600 ms Elegant visual entrance */}
-            <motion.div
-              initial={{ opacity: 0, y: 22, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.58, ease: [0.16, 1, 0.3, 1] as const }}
-              className="lg:col-span-5 flex justify-center"
-            >
-              <div className="relative">
-                <div className="absolute -inset-4 bg-[#641C24]/5 rounded-[60px] blur-xl -z-10" />
-                <AndroidSimulator />
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Today, understood. */}
-      <TodayUnderstood />
-
-      {/* 4. The Problem */}
-      <ScrollReveal horizontalParallax="right">
-        <section id="problem-section" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeaderReveal
-            badge={
-              <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-                {t.problem.badge}
-              </span>
-            }
-            title={t.problem.title}
-            subtitle={t.problem.desc}
-            horizontalParallax="subtle"
-          />
-
-          {/* Scattered Chaos Visual Transition Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-12">
-            {[
-              { label: t.problem.messages, icon: MessageSquare },
-              { label: t.problem.screenshots, icon: ImageIcon },
-              { label: t.problem.pdfs, icon: FileText },
-              { label: t.problem.calendar, icon: Calendar },
-              { label: t.problem.notes, icon: Layers },
-              { label: t.problem.voiceNotes, icon: Mic },
-              { label: t.problem.reminders, icon: Bell },
-            ].map((item, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                className="bg-white rounded-2xl p-4 border border-[#D8CFC2] flex flex-col items-center justify-center text-center space-y-2 shadow-xs hover:border-[#641C24]/30 transition-all cursor-default"
-              >
-                <item.icon className="w-5 h-5 text-[#641C24]" />
-                <span className="text-xs font-bold text-[#1E1B19]">{item.label}</span>
-              </motion.div>
+          <div className="nav-drawer">
+            {navLinks.map((l) => (
+              <a key={l.href} href={l.href} onClick={() => setMobileMenuOpen(false)} className="nav-drawer-link">
+                {l.label}
+              </a>
             ))}
           </div>
+        )}
+      </nav>
 
-          {/* Solution Transition Banner */}
-          <div className="bg-[#FAF6F0] rounded-3xl p-8 lg:p-12 border border-[#D8CFC2] max-w-4xl mx-auto text-center space-y-4 shadow-sm">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#2E5C38] bg-[#2E5C38]/10 px-3 py-1 rounded-full">
-              {t.problem.contrastBadge}
-            </span>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1E1B19]">
-              {t.problem.contrastTitle}
-            </h3>
-            <p className="text-sm sm:text-base text-[#6B635B] max-w-2xl mx-auto leading-relaxed">
-              {t.problem.contrastDesc}
-            </p>
-          </div>
-        </section>
-      </ScrollReveal>
-
-      {/* 5. Interactive Demo Studio */}
-      <ScrollReveal horizontalParallax="left">
-        <section id="demo-section" className="py-16 bg-[#FAF6F0] border-t border-[#D8CFC2]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeaderReveal
-              badge={
-                <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-                  {t.demo.badge}
-                </span>
-              }
-              title={t.demo.title}
-              subtitle={t.demo.subtitle}
-              horizontalParallax="subtle"
-            />
-
-            {/* Interactive Demo Tab Navigation with micro-interaction feedback */}
-            <div
-              className="flex items-center justify-center gap-2 sm:gap-3 mb-8 flex-wrap"
-              role="tablist"
-              aria-label="Demo Scenarios"
-            >
-              <motion.button
-                role="tab"
-                aria-selected={activeDemoTab === 'message'}
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleTabSelect('message')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
-                  activeDemoTab === 'message'
-                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
-                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
-                }`}
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>{t.demo.tabMessage}</span>
-              </motion.button>
-
-              <motion.button
-                role="tab"
-                aria-selected={activeDemoTab === 'screenshot'}
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleTabSelect('screenshot')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
-                  activeDemoTab === 'screenshot'
-                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
-                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
-                }`}
-              >
-                <ImageIcon className="w-4 h-4" />
-                <span>{t.demo.tabScreenshot}</span>
-              </motion.button>
-
-              <motion.button
-                role="tab"
-                aria-selected={activeDemoTab === 'pdf'}
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleTabSelect('pdf')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
-                  activeDemoTab === 'pdf'
-                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
-                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
-                }`}
-              >
-                <FileText className="w-4 h-4" />
-                <span>{t.demo.tabPdf}</span>
-              </motion.button>
-
-              <motion.button
-                role="tab"
-                aria-selected={activeDemoTab === 'voice'}
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleTabSelect('voice')}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#641C24] ${
-                  activeDemoTab === 'voice'
-                    ? 'bg-[#641C24] text-[#F5EFE6] shadow-sm'
-                    : 'bg-white hover:bg-[#FAF6F0] text-[#1E1B19] border border-[#D8CFC2]'
-                }`}
-              >
-                <Mic className="w-4 h-4" />
-                <span>{t.demo.tabVoice}</span>
-              </motion.button>
+      <main>
+        {/* Hero */}
+        <section className="hero">
+          <div className="wrap hero-grid">
+            <div className="hero-copy">
+              <h1 className="display-1">
+                <span className="hero-line">{titleLead}</span>
+                <span className="hero-line hero-accent">{t.hero.titlePart2}</span>
+              </h1>
+              <p className="lede">{t.hero.subtitle}</p>
+              <div className="actions">
+                <a href="#demo-section" onClick={() => sounds.playClick()} className="btn btn-primary">
+                  {t.hero.tryDemoBtn}
+                </a>
+                <a href="#dashboard-section" onClick={() => sounds.playClick()} className="btn btn-ghost">
+                  <span>{t.hero.exploreBtn}</span>
+                  <ArrowRight size={16} aria-hidden="true" />
+                </a>
+              </div>
             </div>
 
-            {/* Active Demo Workspace - Smooth Crossfade and Staggered Reveal */}
-            <div className="max-w-4xl mx-auto min-h-[380px]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeDemoTab}
-                  variants={tabContentVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
+            <div className="hero-stage">
+              <div className="stage-disc" aria-hidden="true" />
+              {heroSources.map((s) => (
+                <button key={s.id} className={`orbit ${s.cls}`} onClick={() => openDemo(s.id)}>
+                  <s.icon size={16} aria-hidden="true" />
+                  <span>{s.label}</span>
+                </button>
+              ))}
+              <div className="phone-fit">
+                <AndroidSimulator />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <TodayUnderstood />
+
+        {/* Problem */}
+        <ScrollReveal>
+          <section id="problem-section" className="section">
+            <div className="wrap problem">
+              <div className="problem-text">
+                <h2 className="display-2">{t.problem.title}</h2>
+                <p className="lede">{t.problem.desc}</p>
+              </div>
+              <ul className="chaos" aria-label={t.problem.title}>
+                {chaos.map((c, i) => (
+                  <li key={c.label} className="chip" style={{ '--tilt': `${[-6, 4, -2, 7, -5, 3, -8][i]}deg` } as React.CSSProperties}>
+                    <c.icon size={16} aria-hidden="true" />
+                    <span>{c.label}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="resolve">
+                <p className="resolve-tag">{t.problem.contrastBadge}</p>
+                <h3 className="display-3">{t.problem.contrastTitle}</h3>
+                <p className="muted">{t.problem.contrastDesc}</p>
+              </div>
+            </div>
+          </section>
+        </ScrollReveal>
+
+        {/* Demo Studio */}
+        <section id="demo-section" className="section section-tint">
+          <div className="wrap">
+            <div className="section-head">
+              <h2 className="display-2">{t.demo.title}</h2>
+              <p className="lede">{t.demo.subtitle}</p>
+            </div>
+
+            <div className="segmented" role="tablist" aria-label="Demo Scenarios">
+              {demoTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={activeDemoTab === tab.id}
+                  onClick={() => handleTabSelect(tab.id)}
+                  className="seg-btn"
                 >
+                  <tab.icon size={16} aria-hidden="true" />
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="demo-stage">
+              <AnimatePresence mode="wait">
+                <motion.div key={activeDemoTab} variants={tabContentVariants} initial="initial" animate="animate" exit="exit">
                   {activeDemoTab === 'message' && <MessageDemo />}
                   {activeDemoTab === 'screenshot' && <ScreenshotDemo />}
                   {activeDemoTab === 'pdf' && <PdfDemo />}
@@ -501,253 +266,67 @@ export default function App() {
             </div>
           </div>
         </section>
-      </ScrollReveal>
 
-      {/* 6. The Dayflow Dashboard */}
-      <ScrollReveal>
-        <section id="dashboard-section" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <DayflowDashboard />
+        {/* Dashboard */}
+        <section id="dashboard-section" className="section">
+          <div className="wrap">
+            <DayflowDashboard />
+          </div>
         </section>
-      </ScrollReveal>
 
-      {/* 7. Input System */}
-      <ScrollReveal>
-        <section className="py-14 bg-[#FAF6F0] border-t border-[#D8CFC2]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Input system */}
+        <section className="section section-tint">
+          <div className="wrap">
             <OmniInputSystem onSelectScenario={(sc) => setActiveDemoTab(sc)} />
           </div>
         </section>
-      </ScrollReveal>
 
-      {/* 8. Three-Layer Architecture & Features */}
-      <ScrollReveal horizontalParallax="right">
-        <section id="architecture-section" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeaderReveal
-            badge={
-              <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-                {t.architecture.badge}
-              </span>
-            }
-            title={t.architecture.title}
-            subtitle={t.architecture.subtitle}
-            horizontalParallax="subtle"
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* UNDERSTAND */}
-            <motion.div
-              whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
-            >
-              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
-                Layer 1
-              </span>
-              <h3 className="text-xl font-bold text-[#1E1B19]">
-                {t.architecture.understandTitle}
-              </h3>
-              <p className="text-xs text-[#6B635B] leading-relaxed">
-                {t.architecture.understandDesc}
-              </p>
-            </motion.div>
-
-            {/* ORGANIZE */}
-            <motion.div
-              whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
-            >
-              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
-                Layer 2
-              </span>
-              <h3 className="text-xl font-bold text-[#1E1B19]">
-                {t.architecture.organizeTitle}
-              </h3>
-              <p className="text-xs text-[#6B635B] leading-relaxed">
-                {t.architecture.organizeDesc}
-              </p>
-            </motion.div>
-
-            {/* ACT */}
-            <motion.div
-              whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
-            >
-              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
-                Layer 3
-              </span>
-              <h3 className="text-xl font-bold text-[#1E1B19]">
-                {t.architecture.actTitle}
-              </h3>
-              <p className="text-xs text-[#6B635B] leading-relaxed">
-                {t.architecture.actDesc}
-              </p>
-            </motion.div>
-
-            {/* CONTEXT */}
-            <motion.div
-              whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="bg-white rounded-3xl p-6 border border-[#D8CFC2] shadow-xs space-y-3"
-            >
-              <span className="text-xs font-bold text-[#641C24] uppercase tracking-wider">
-                Layer 4
-              </span>
-              <h3 className="text-xl font-bold text-[#1E1B19]">
-                {t.architecture.contextTitle}
-              </h3>
-              <p className="text-xs text-[#6B635B] leading-relaxed">
-                {t.architecture.contextDesc}
-              </p>
-            </motion.div>
-          </div>
-        </section>
-      </ScrollReveal>
-
-      {/* 9-11. Android Experience, Screen Intelligence & Smart Actions */}
-      <ScrollReveal>
-        <ProductConceptSections />
-      </ScrollReveal>
-
-      {/* 12. Transparent Product Roadmap */}
-      <ScrollReveal horizontalParallax="left">
-        <section id="roadmap-section" className="py-20 bg-[#FAF6F0] border-t border-[#D8CFC2]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeaderReveal
-              badge={
-                <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
-                  {t.roadmap.badge}
-                </span>
-              }
-              title={t.roadmap.title}
-              subtitle={t.roadmap.subtitle}
-              horizontalParallax="subtle"
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {/* NOW */}
-              <div className="bg-white rounded-3xl p-7 border-2 border-[#2E5C38]/40 shadow-xs space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-[#1E1B19]">
-                    {t.roadmap.nowTitle}
-                  </h3>
-                </div>
-                <ul className="space-y-2 text-xs text-[#6B635B]">
-                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
-                    <span className="text-[#2E5C38] font-bold">✓</span>
-                    <span>{t.roadmap.itemMessage}</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
-                    <span className="text-[#2E5C38] font-bold">✓</span>
-                    <span>{t.roadmap.itemScreenshot}</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
-                    <span className="text-[#2E5C38] font-bold">✓</span>
-                    <span>{t.roadmap.itemPdf}</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
-                    <span className="text-[#2E5C38] font-bold">✓</span>
-                    <span>{t.roadmap.itemVoice}</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-[#1E1B19] font-medium">
-                    <span className="text-[#2E5C38] font-bold">✓</span>
-                    <span>{t.roadmap.itemDashboard}</span>
-                  </li>
-                </ul>
+        {/* Architecture */}
+        <ScrollReveal>
+          <section id="architecture-section" className="section">
+            <div className="wrap">
+              <div className="section-head">
+                <h2 className="display-2">{t.architecture.title}</h2>
+                <p className="lede">{t.architecture.subtitle}</p>
               </div>
-
-              {/* COMING SOON */}
-              <div className="bg-white rounded-3xl p-7 border border-[#D8CFC2] shadow-xs space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-[#1E1B19]">
-                    {t.roadmap.comingSoonTitle}
-                  </h3>
-                  <ProductStateBadge state="COMING SOON" />
-                </div>
-                <ul className="space-y-2 text-xs text-[#6B635B]">
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#8C5E28]">○</span>
-                    <span>{t.roadmap.itemAndroid}</span>
+              <ol className="layers">
+                {layers.map((l, i) => (
+                  <li key={l.title} className="layer">
+                    <span className="layer-num" aria-hidden="true">{i + 1}</span>
+                    <h3 className="layer-title">{l.title}</h3>
+                    <p className="muted">{l.desc}</p>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#8C5E28]">○</span>
-                    <span>{t.roadmap.itemCalSync}</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#8C5E28]">○</span>
-                    <span>{t.roadmap.itemScreenIntel}</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#8C5E28]">○</span>
-                    <span>{t.roadmap.itemSmartActions}</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* LATER */}
-              <div className="bg-white rounded-3xl p-7 border border-[#D8CFC2] shadow-xs space-y-4 opacity-80">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-[#1E1B19]">
-                    {t.roadmap.laterTitle}
-                  </h3>
-                  <ProductStateBadge state="LATER" />
-                </div>
-                <ul className="space-y-2 text-xs text-[#6B635B]">
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#6B635B]">○</span>
-                    <span>{t.roadmap.itemDesktop}</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#6B635B]">○</span>
-                    <span>{t.roadmap.itemMultiProvider}</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#6B635B]">○</span>
-                    <span>{t.roadmap.itemAutomation}</span>
-                  </li>
-                </ul>
-              </div>
+                ))}
+              </ol>
             </div>
+          </section>
+        </ScrollReveal>
+
+        <ProductConceptSections />
+
+        {/* Live roadmap */}
+        <section id="roadmap-section" className="section section-tint">
+          <div className="wrap">
+            <LiveRoadmap />
           </div>
         </section>
-      </ScrollReveal>
+      </main>
 
-      {/* 13. Final CTA & Footer */}
-      <footer className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-[#D8CFC2]/70 text-center space-y-8">
-        <div className="max-w-xl mx-auto space-y-4">
-          <h2 className="text-balance text-3xl font-extrabold tracking-tight text-[#1E1B19]">
-            {t.footer.readyTitle}
-          </h2>
-          <p className="text-base text-[#6B635B]">
-            {t.footer.readySubtitle}
-          </p>
-          <div className="pt-2">
-            <motion.a
-              href="#demo-section"
-              onClick={() => sounds.playClick()}
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#641C24] text-[#F5EFE6] hover:bg-[#7E242F] text-sm font-bold shadow-sm transition-all cursor-pointer"
-            >
-              <span>{t.nav.tryDemo}</span>
-            </motion.a>
+      {/* Footer */}
+      <footer className="footer">
+        <div className="wrap">
+          <div className="footer-cta">
+            <h2 className="display-2">{t.footer.readyTitle}</h2>
+            <p className="lede">{t.footer.readySubtitle}</p>
+            <a href="#demo-section" onClick={() => sounds.playClick()} className="btn btn-primary">
+              {t.nav.tryDemo}
+            </a>
           </div>
-        </div>
-
-        <div className="pt-12 border-t border-[#D8CFC2]/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6B635B]">
-          <div className="flex items-center gap-2">
+          <div className="footer-base">
             <DayflowLogo size={24} />
-          </div>
-
-          <div>
-            © {new Date().getFullYear()} Dayflow. {t.footer.rights}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <a
-              href="https://github.com/norobb/dayflow-assistant/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs text-[#6B635B] hover:text-[#1E1B19] transition-colors"
-            >
-              <Github size={14} />
+            <span className="muted">© {new Date().getFullYear()} Dayflow. {t.footer.rights}</span>
+            <a href="https://github.com/norobb/dayflow-assistant/" target="_blank" rel="noopener noreferrer" className="footer-link">
+              <Github size={14} aria-hidden="true" />
               <span>{t.footer.github}</span>
             </a>
           </div>

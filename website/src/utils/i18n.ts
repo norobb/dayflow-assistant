@@ -189,6 +189,13 @@ export interface Translations {
     itemDesktop: string;
     itemMultiProvider: string;
     itemAutomation: string;
+    liveShipped: string;
+    liveCommits: string;
+    liveNext: string;
+    liveOpenIssues: string;
+    liveLoading: string;
+    liveError: string;
+    liveRepo: string;
   };
   phone: {
     fullscreenBtn: string;
@@ -413,6 +420,13 @@ export const translations: Record<Language, Translations> = {
       itemDesktop: 'Cross-platform desktop application',
       itemMultiProvider: 'Multi-provider model settings',
       itemAutomation: 'System automation workflows',
+      liveShipped: 'Shipped',
+      liveCommits: 'Just landed in the repo',
+      liveNext: 'Up next',
+      liveOpenIssues: 'open issues',
+      liveLoading: 'Loading from GitHub…',
+      liveError: 'GitHub is unreachable right now. The plans are still below.',
+      liveRepo: 'View on GitHub',
     },
     phone: {
       fullscreenBtn: 'Open Fullscreen',
@@ -635,6 +649,13 @@ export const translations: Record<Language, Translations> = {
       itemDesktop: 'Plattformübergreifende Desktop-App',
       itemMultiProvider: 'Optionen für alternative Modell-Provider',
       itemAutomation: 'Erweiterte Systemautomatisierung',
+      liveShipped: 'Veröffentlicht',
+      liveCommits: 'Gerade im Repository',
+      liveNext: 'Als Nächstes',
+      liveOpenIssues: 'offene Issues',
+      liveLoading: 'Lade Daten von GitHub…',
+      liveError: 'GitHub ist gerade nicht erreichbar. Die Pläne stehen trotzdem unten.',
+      liveRepo: 'Auf GitHub ansehen',
     },
     phone: {
       fullscreenBtn: 'Vollbild öffnen',
@@ -857,6 +878,13 @@ export const translations: Record<Language, Translations> = {
       itemDesktop: 'Aplicación de escritorio multiplataforma',
       itemMultiProvider: 'Configuración de modelos alternativos',
       itemAutomation: 'Flujos de automatización del sistema',
+      liveShipped: 'Lanzado',
+      liveCommits: 'Recién en el repositorio',
+      liveNext: 'Lo siguiente',
+      liveOpenIssues: 'issues abiertos',
+      liveLoading: 'Cargando datos de GitHub…',
+      liveError: 'GitHub no está disponible ahora mismo. Los planes siguen abajo.',
+      liveRepo: 'Ver en GitHub',
     },
     phone: {
       fullscreenBtn: 'Abrir pantalla completa',

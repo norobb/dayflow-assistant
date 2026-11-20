@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Calendar,
   CheckCircle2,
@@ -454,15 +455,15 @@ export const AndroidSimulator: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Fullscreen Expanded Phone Experience Modal with Smooth Growth Animation */}
-      <AnimatePresence>
+      {/* 2. Fullscreen modal, portalled to body so no parent stacking context (hero z-index) traps it under the nav */}
+      {createPortal(<AnimatePresence>
         {isFullscreen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-50 bg-[#1E1B19]/80 backdrop-blur-md flex items-center justify-center p-0 sm:p-6"
+            className="fixed inset-0 z-[100] bg-[#1E1B19]/80 backdrop-blur-md flex items-center justify-center p-0 sm:p-6"
             onClick={closeFullscreen}
           >
             <motion.div
@@ -477,7 +478,7 @@ export const AndroidSimulator: React.FC = () => {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>, document.body)}
     </>
   );
 };
