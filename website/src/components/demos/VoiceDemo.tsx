@@ -44,11 +44,11 @@ export const VoiceDemo: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-white rounded-3xl border border-line p-6 lg:p-8 shadow-sm text-start">
-      <div className="flex items-center justify-between pb-4 border-b border-line/60">
+    <div className="w-full bg-white rounded-3xl border border-[#D8CFC2] p-6 lg:p-8 shadow-sm text-left">
+      <div className="flex items-center justify-between pb-4 border-b border-[#D8CFC2]/60">
         <div className="flex items-center gap-2">
-          <Mic className="w-5 h-5 text-primary" />
-          <h3 className="font-bold text-ink text-base sm:text-lg">
+          <Mic className="w-5 h-5 text-[#641C24]" />
+          <h3 className="font-bold text-[#1E1B19] text-base sm:text-lg">
             {t.demo.tabVoice}
           </h3>
         </div>
@@ -57,22 +57,21 @@ export const VoiceDemo: React.FC = () => {
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left: Large Microphone & Waveform Interface */}
         <div className="lg:col-span-6 space-y-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-muted">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#6B635B]">
             {t.demo.tabVoice}
           </span>
 
-          <div className="p-8 rounded-3xl bg-card border border-line flex flex-col items-center justify-center text-center space-y-5">
+          <div className="p-8 rounded-3xl bg-[#FAF6F0] border border-[#D8CFC2] flex flex-col items-center justify-center text-center space-y-5">
             {/* Interactive Mic Button */}
             <motion.button
               whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
+              whileTap={{ scale: 0.94 }}
               onClick={startVoiceSimulation}
-              aria-label={t.demo.voiceRecordLabel}
               disabled={recordingState === 'recording'}
-              className={`w-20 h-20 rounded-full flex items-center justify-center transition cursor-pointer shadow-md ${
+              className={`w-20 h-20 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
                 recordingState === 'recording'
-                  ? 'bg-primary text-white scale-105 shadow-lg'
-                  : 'bg-white hover:bg-card text-primary border-2 border-primary/30'
+                  ? 'bg-[#641C24] text-white scale-105 shadow-lg'
+                  : 'bg-white hover:bg-[#FAF6F0] text-[#641C24] border-2 border-[#641C24]/30'
               }`}
             >
               <Mic className="w-8 h-8" />
@@ -84,15 +83,15 @@ export const VoiceDemo: React.FC = () => {
                 <div
                   key={i}
                   style={{ height: recordingState === 'recording' ? `${h}px` : '4px' }}
-                  className={`w-1 rounded-full transition duration-150 ${
-                    recordingState === 'recording' ? 'bg-primary' : 'bg-line'
+                  className={`w-1 rounded-full transition-all duration-150 ${
+                    recordingState === 'recording' ? 'bg-[#641C24]' : 'bg-[#D8CFC2]'
                   }`}
                 />
               ))}
             </div>
 
             <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-ink block">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#1E1B19] block">
                 {recordingState === 'idle' && t.demo.voiceTapToSpeak}
                 {recordingState === 'recording' && t.demo.voiceRecording}
                 {recordingState === 'transcribed' && t.demo.voiceTranscribing}
@@ -104,7 +103,7 @@ export const VoiceDemo: React.FC = () => {
 
         {/* Right: Transcription & Structured Result */}
         <div className="lg:col-span-6 space-y-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-muted">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#6B635B]">
             {t.todayUnderstood.title}
           </span>
 
@@ -115,9 +114,9 @@ export const VoiceDemo: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="h-64 rounded-2xl border-2 border-dashed border-line flex flex-col items-center justify-center p-6 text-center text-muted space-y-2"
+                className="h-64 rounded-2xl border-2 border-dashed border-[#D8CFC2] flex flex-col items-center justify-center p-6 text-center text-[#6B635B] space-y-2"
               >
-                <Volume2 className="w-8 h-8 text-line" />
+                <Volume2 className="w-8 h-8 text-[#D8CFC2]" />
                 <p className="text-xs font-medium">
                   {t.demo.voiceEmpty}
                 </p>
@@ -130,10 +129,10 @@ export const VoiceDemo: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="h-64 rounded-2xl bg-card border border-line flex flex-col items-center justify-center p-6 text-center space-y-3"
+                className="h-64 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] flex flex-col items-center justify-center p-6 text-center space-y-3"
               >
-                <div className="w-10 h-10 rounded-full border-3 border-primary/20 border-t-primary animate-spin" />
-                <div className="text-xs font-bold uppercase tracking-wider text-primary">
+                <div className="w-10 h-10 rounded-full border-3 border-[#641C24]/20 border-t-[#641C24] animate-spin" />
+                <div className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
                   {t.demo.voiceRecording}
                 </div>
               </motion.div>
@@ -145,10 +144,10 @@ export const VoiceDemo: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="h-64 rounded-2xl bg-card border border-line flex flex-col items-center justify-center p-6 text-center space-y-3"
+                className="h-64 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] flex flex-col items-center justify-center p-6 text-center space-y-3"
               >
-                <div className="w-10 h-10 rounded-full border-3 border-primary/20 border-t-primary animate-spin" />
-                <div className="text-xs font-bold uppercase tracking-wider text-primary">
+                <div className="w-10 h-10 rounded-full border-3 border-[#641C24]/20 border-t-[#641C24] animate-spin" />
+                <div className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
                   {t.demo.voiceTranscribing}
                 </div>
               </motion.div>
@@ -164,12 +163,12 @@ export const VoiceDemo: React.FC = () => {
               >
                 <motion.div
                   variants={resultStaggerItem}
-                  className="p-4 rounded-2xl bg-card border border-line space-y-2 shadow-xs"
+                  className="p-4 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] space-y-2 shadow-xs"
                 >
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#641C24] bg-[#641C24]/10 px-2 py-0.5 rounded">
                     {t.demo.voiceProcessed}
                   </span>
-                  <p className="text-sm font-medium text-ink italic pt-1">
+                  <p className="text-sm font-medium text-[#1E1B19] italic pt-1">
                     {t.demo.voiceTranscript}
                   </p>
                 </motion.div>
@@ -177,19 +176,19 @@ export const VoiceDemo: React.FC = () => {
                 {/* Detected Task */}
                 <motion.div
                   variants={resultStaggerItem}
-                  className="p-4 rounded-2xl bg-card border border-line space-y-1 shadow-xs"
+                  className="p-4 rounded-2xl bg-[#FAF6F0] border border-[#D8CFC2] space-y-1 shadow-xs"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-success bg-success/10 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#2E5C38] bg-[#2E5C38]/10 px-2 py-0.5 rounded">
                       {t.demo.taskDetected}
                     </span>
-                    <span className="text-xs text-muted font-bold">
+                    <span className="text-xs text-[#6B635B] font-bold">
                       {t.demo.voiceReminderLabel}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 pt-1">
-                    <CheckSquare className="w-4 h-4 text-success" />
-                    <span className="text-sm font-bold text-ink">
+                    <CheckSquare className="w-4 h-4 text-[#2E5C38]" />
+                    <span className="text-sm font-bold text-[#1E1B19]">
                       {t.demo.voiceTaskLabel}
                     </span>
                   </div>
@@ -202,10 +201,10 @@ export const VoiceDemo: React.FC = () => {
                     whileTap={{ scale: 0.97 }}
                     onClick={handleCreateReminder}
                     disabled={createdReminder}
-                    className={`w-full py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                    className={`w-full py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       createdReminder
-                        ? 'bg-success text-white shadow-xs'
-                        : 'bg-primary hover:bg-primary-light text-white shadow-xs'
+                        ? 'bg-[#2E5C38] text-white shadow-xs'
+                        : 'bg-[#641C24] hover:bg-[#7E242F] text-white shadow-xs'
                     }`}
                   >
                     {createdReminder ? (

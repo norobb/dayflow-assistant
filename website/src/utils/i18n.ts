@@ -90,15 +90,12 @@ export interface Translations {
     voiceTaskLabel: string;
     voiceReminderLabel: string;
     voiceEmpty: string;
-    voiceRecordLabel: string;
   };
   dashboard: {
     badge: string;
     title: string;
     dateSubtitle: string;
     resetState: string;
-    resetConfirm: string;
-    resetHint: string;
     insightTitle: string;
     insightDesc: string;
     viewTasks: string;
@@ -312,15 +309,12 @@ export const translations: Record<Language, Translations> = {
       voiceTaskLabel: 'Submit presentation',
       voiceReminderLabel: 'Next Monday',
       voiceEmpty: 'Tap microphone to test voice transcription and task extraction.',
-      voiceRecordLabel: 'Record voice note',
     },
     dashboard: {
       badge: 'Overview',
       title: 'Today',
       dateSubtitle: 'Friday • All scheduled items verified and synced',
       resetState: 'Reset',
-      resetConfirm: 'Confirm reset',
-      resetHint: 'Removes everything you added in the demos',
       insightTitle: 'Context reminder',
       insightDesc: 'Your presentation deadline is tomorrow. You still have 2 unfinished preparation tasks.',
       viewTasks: 'View tasks',
@@ -537,15 +531,12 @@ export const translations: Record<Language, Translations> = {
       voiceTaskLabel: 'Präsentation abgeben',
       voiceReminderLabel: 'Nächsten Montag',
       voiceEmpty: 'Tippe auf das Mikrofon, um die Spracherkennung und Aufgabenextraktion zu testen.',
-      voiceRecordLabel: 'Sprachnotiz aufnehmen',
     },
     dashboard: {
       badge: 'Übersicht',
       title: 'Heute',
       dateSubtitle: 'Freitag • Alle Termine verifiziert und synchronisiert',
       resetState: 'Zurücksetzen',
-      resetConfirm: 'Wirklich zurücksetzen?',
-      resetHint: 'Entfernt alles, was du in den Demos hinzugefügt hast',
       insightTitle: 'Kontexthinweis',
       insightDesc: 'Deine Präsentationsabgabe ist morgen. Es stehen noch 2 Vorbereitungsaufgaben aus.',
       viewTasks: 'Aufgaben ansehen',
@@ -762,15 +753,12 @@ export const translations: Record<Language, Translations> = {
       voiceTaskLabel: 'Entregar presentación',
       voiceReminderLabel: 'Próximo lunes',
       voiceEmpty: 'Toca el micrófono para probar la transcripción y extracción de tareas.',
-      voiceRecordLabel: 'Grabar nota de voz',
     },
     dashboard: {
       badge: 'Resumen',
       title: 'Hoy',
       dateSubtitle: 'Viernes • Todos los eventos verificados y sincronizados',
       resetState: 'Restablecer',
-      resetConfirm: '¿Restablecer?',
-      resetHint: 'Elimina todo lo que añadiste en las demos',
       insightTitle: 'Aviso de contexto',
       insightDesc: 'La entrega de tu presentación es mañana. Todavía tienes 2 tareas de preparación pendientes.',
       viewTasks: 'Ver tareas',
