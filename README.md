@@ -1,198 +1,126 @@
-# Dayflow
+<div align="center">
 
-![Dayflow GitHub Banner](website/public/assets/dayflow-banner-03-github.jpg)
+![Dayflow](website/public/assets/dayflow-banner-03-github.jpg)
+
+# Dayflow
 
 **Your day. Your phone. One intelligent flow.**
 
-Dayflow is an intelligent daily flow assistant that solves personal information fragmentation — the problem of crucial schedule details scattered across chat messages, screenshots, PDFs, and voice notes. It automatically ingests and understands these multi-modal inputs and converts them into structured calendar events, actionable tasks, time-anchored reminders, and proactive daily context insights, all surfaced through a synchronized web dashboard and Android phone simulator.
+[![Deploy](https://github.com/norobb/dayflow-assistant/actions/workflows/deploy.yml/badge.svg)](https://github.com/norobb/dayflow-assistant/actions/workflows/deploy.yml)
+[![Android](https://github.com/norobb/dayflow-assistant/actions/workflows/android.yml/badge.svg)](https://github.com/norobb/dayflow-assistant/actions/workflows/android.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-641C24.svg)](LICENSE)
+
+[Live demo](https://norobb.github.io/dayflow-assistant/) · [Documentation](docs/) · [Contributing](CONTRIBUTING.md)
+
+</div>
 
 ---
 
-## Overview
+Dayflow turns scattered information (chat messages, screenshots, PDFs and voice notes) into calendar events, tasks, reminders and daily context. It ships as an interactive web demo and a native Android app.
 
-Modern life produces information in every format: a friend texts you a pickup time, a confirmation PDF lands in your inbox, a dentist receipt sits in your camera roll, and a voice note carries the rest. Dayflow reads all of it, understands it, and brings it together into one coherent daily view — without you lifting a finger.
+## Features
 
----
+| | |
+|---|---|
+| **Multi-modal input** | Messages, screenshots, multi-page PDFs and voice notes |
+| **Structured extraction** | Events, tasks, time-anchored reminders and proactive insights |
+| **Screen Intelligence** (Android) | On-device screen context via an accessibility service, with a safety gate for every action |
+| **Share Sheet** (Android) | Send content from any app straight to Dayflow |
+| **Live sync** (Web) | Dashboard, phone simulator and summary grid update together |
+| **Offline fallback** | Deterministic local analysis when no AI key is configured |
+| **Localization** | English, German and Spanish |
 
-## How Dayflow Works
+## How it works
 
 ```
-Multi-modal input
-(message · screenshot · PDF · voice note)
-          ↓
-  Gemini AI analysis
-          ↓
-Structured extraction
-(events · tasks · reminders · insights)
-          ↓
-  Synchronized output
-(Dashboard · Android Simulator · Summary grid)
+message · screenshot · PDF · voice note
+                 │
+                 ▼
+        AI analysis (Gemini, or the local fallback)
+                 │
+                 ▼
+   events · tasks · reminders · insights
+                 │
+                 ▼
+     Web dashboard  ·  Android app
 ```
 
----
-
-## Core Capabilities
-
-| Capability | Description |
-|---|---|
-| **Message Analysis** | Extracts calendar events and tasks from chat messages |
-| **Screenshot Intelligence** | Reads appointment receipts and confirmation screenshots |
-| **PDF Parsing** | Processes multi-page itineraries and documents |
-| **Voice Transcription** | Converts voice notes to structured reminders |
-| **Live Dashboard** | Synchronized timeline, task list, and reminders |
-| **Android Simulator** | Interactive phone preview with real-time notifications |
-| **Proactive Insights** | Context-aware daily briefing cards |
-| **Localization** | English, German, and Spanish interface |
-
----
-
-## Current Status
-
-Dayflow is an **interactive concept demonstration**. The web application is fully functional and deployable. The native Android application is a future development track.
-
----
-
-## Roadmap
-
-| Area | Status |
-|---|---|
-| Web application | ✅ Live |
-| Gemini AI integration | ✅ Implemented |
-| Multi-language support | ✅ Implemented (en / de / es) |
-| Interactive demo studio | ✅ Implemented |
-| Native Android application | ✅ Implemented - beta |
-| Multi-provider AI abstraction | 🔜 Future |
-| Server-side API proxy | 🔜 Future |
-
----
-
-## Technology
-
-| Layer | Technology |
-|---|---|
-| Framework | React 19 |
-| Build | Vite 8 |
-| Language | TypeScript 7 (strict) |
-| Styling | Tailwind CSS v4 |
-| Animation | Motion / Framer Motion 12 |
-| Icons | Lucide React |
-| AI | Google Gemini (`@google/genai`) |
-| Audio | Web Audio API (custom synthesizer) |
-| Localization | Custom React Context i18n |
-
----
-
-## Repository Structure
+## Project structure
 
 ```
 dayflow-assistant/
-├── website/                            # Web application frontend
-│   ├── src/
-│   │   ├── App.tsx                     # Root layout and page sections
-│   │   ├── main.tsx                    # Application entry point
-│   │   ├── index.css                   # Design system tokens and global styles
-│   │   ├── components/
-│   │   ├── services/                   # AI abstraction layer (Gemini + local fallback)
-│   │   ├── store/                      # Global React Context state
-│   │   └── utils/
-│   ├── public/                         # Static logo assets served at root
-│   ├── vite.config.ts
-│   └── tsconfig.json
-├── android/                            # Native Android Application (Kotlin / Jetpack Compose)
-├── docs/                               # Developer documentation
-│   ├── README.md
-│   ├── architecture.md
-│   ├── development.md
-│   └── design-system.md
-├── .github/
-│   └── workflows/
-│       ├── deploy.yml                  # GitHub Pages deployment
-│       ├── android.yml                 # Android APK build workflow
-│       └── ci.yml                     # Type check + build on pull requests
-├── AGENTS.md                           # Authoritative AI agent context document
-├── CONTRIBUTING.md                     # Contribution guide
-├── LICENSE                             # MIT License
-├── package.json
-└── pnpm-workspace.yaml
+├── website/      React 19 + Vite 8 + Tailwind CSS v4 web demo
+├── android/      Kotlin / Jetpack Compose app (minSdk 26, targetSdk 35)
+├── docs/         Architecture, development and design-system docs
+└── .github/      CI, Pages deployment and APK build workflows
 ```
 
----
+## Getting started
 
-## Getting Started
+### Web
 
-**Prerequisites:** Node.js 22 LTS or later, pnpm 10 or later.
+Requires Node.js 22+ and pnpm 10+.
 
 ```bash
-# Clone the repository
 git clone https://github.com/norobb/dayflow-assistant.git
 cd dayflow-assistant
-
-# Install dependencies
 pnpm install
-
-# Start local development server
-pnpm run dev
-# → http://localhost:3000
+cp .env.example .env    # optional: add GEMINI_API_KEY
+pnpm run dev            # http://localhost:3000
 ```
 
----
+| Command | Purpose |
+|---|---|
+| `pnpm run dev` | Start the dev server on port 3000 |
+| `pnpm run lint` | Run the TypeScript type check (required before a PR) |
+| `pnpm run build` | Build the static production site to `dist/` |
+| `pnpm run preview` | Serve the production build locally |
 
-## Development
+### Android
+
+Requires JDK 17 and the Android SDK.
 
 ```bash
-pnpm run dev       # Start local dev server (port 3000)
-pnpm run build     # Production build → dist/
-pnpm run preview   # Preview production build locally
-pnpm run lint      # TypeScript type check (must pass before PR)
-pnpm run clean     # Remove dist/
+cd android
+./gradlew assembleDebug
 ```
 
----
+CI attaches a debug APK to every run of the [Android workflow](.github/workflows/android.yml).
 
-## Environment Variables
-
-Copy `.env.example` to `.env` and fill in the values:
-
-```bash
-cp .env.example .env
-```
+## Configuration
 
 | Variable | Required | Description |
 |---|---|---|
-| `APP_URL` | Optional | Hosting URL (defaults to `http://localhost:3000`) |
+| `GEMINI_API_KEY` | No | Enables Gemini analysis. Without it, Dayflow uses the local fallback. |
+| `APP_URL` | No | Hosting URL, `http://localhost:3000` by default |
 
-The application falls back to a deterministic local preset dataset for all demo scenarios when no AI key is provided.
+See [`.env.example`](.env.example) for all options. Never commit real keys.
 
----
+## Tech stack
 
-## Build
+**Web:** React 19, TypeScript 7, Vite 8, Tailwind CSS v4, Motion 12, Lucide, Google Gemini (`@google/genai`)
+**Android:** Kotlin, Jetpack Compose, Room, Accessibility and Notification Listener services
 
-```bash
-pnpm run build
-```
+## Roadmap
 
-Output is written to `dist/`. The build is a standard static site — no server required.
-
----
+- [x] Interactive web demo with Gemini integration
+- [x] Localization (en / de / es)
+- [x] Native Android app (beta)
+- [x] Screen Intelligence and Screen Agent (Android)
+- [ ] Multi-provider AI abstraction
+- [ ] Server-side API proxy
 
 ## Documentation
 
-Full developer documentation lives in [`docs/`](docs/):
-
-- [`docs/architecture.md`](docs/architecture.md) — Component architecture, state management, data flow
-- [`docs/development.md`](docs/development.md) — Branch strategy, development workflow, contribution guide
-- [`docs/design-system.md`](docs/design-system.md) — Colors, typography, spacing, animation principles
-
-The [`AGENTS.md`](AGENTS.md) file is the authoritative context document for AI coding agents and provides deeper technical detail on every component.
-
----
+- [Architecture](docs/architecture.md): components, state and data flow
+- [Development](docs/development.md): branch strategy and workflow
+- [Design system](docs/design-system.md): color, type, spacing and motion
+- [AGENTS.md](AGENTS.md): detailed context for AI coding agents
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full contribution guide including branch strategy, commit conventions, and PR checklist.
-
----
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) for branch strategy, commit conventions and the PR checklist.
 
 ## License
 
-[MIT License](LICENSE)
+Released under the [MIT License](LICENSE).

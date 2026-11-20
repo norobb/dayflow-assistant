@@ -33,3 +33,4 @@ Thumbs.db
 *.mp4
 dayflow_intro*
 dayflow_app_intro*
+package-lock.json
