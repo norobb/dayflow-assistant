@@ -31,4 +31,12 @@ interface PreferencesRepository {
 
     fun isTutorialCompleted(): Flow<Boolean>
     suspend fun setTutorialCompleted(completed: Boolean)
+
+    /** Passive screen observation (ambient understanding). Opt-in. */
+    fun isScreenObservationEnabled(): Flow<Boolean>
+    suspend fun setScreenObservationEnabled(enabled: Boolean)
+
+    /** Floating "understand this screen" bubble over other apps. */
+    fun isScreenBubbleEnabled(): Flow<Boolean>
+    suspend fun setScreenBubbleEnabled(enabled: Boolean)
 }

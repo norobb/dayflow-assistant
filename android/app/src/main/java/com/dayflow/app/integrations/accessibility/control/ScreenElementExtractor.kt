@@ -68,7 +68,11 @@ class ScreenElementExtractor(
                     className = node.className?.toString().orEmpty(),
                     isEditable = node.isEditable,
                     centerX = bounds.centerX(),
-                    centerY = bounds.centerY()
+                    centerY = bounds.centerY(),
+                    left = bounds.left,
+                    top = bounds.top,
+                    right = bounds.right,
+                    bottom = bounds.bottom
                 )
             }
         }

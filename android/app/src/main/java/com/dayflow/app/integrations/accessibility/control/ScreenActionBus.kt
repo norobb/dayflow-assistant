@@ -23,14 +23,20 @@ object ScreenActionBus {
         val className: String,
         val isEditable: Boolean,
         val centerX: Int,
-        val centerY: Int
+        val centerY: Int,
+        val left: Int = 0,
+        val top: Int = 0,
+        val right: Int = 0,
+        val bottom: Int = 0
     )
 
-    enum class Action { SCAN, TAP_ELEMENT, SWIPE_UP, SWIPE_DOWN, BACK }
+    enum class Action { CAPTURE, SCAN, TAP_ELEMENT, SWIPE_UP, SWIPE_DOWN, BACK }
 
     data class Request(
         val action: Action,
-        val elementId: Int = -1
+        val elementId: Int = -1,
+        val trigger: com.dayflow.app.integrations.accessibility.context.CaptureTrigger =
+            com.dayflow.app.integrations.accessibility.context.CaptureTrigger.MANUAL
     )
 
     sealed class ActionResult {
@@ -47,6 +53,8 @@ object ScreenActionBus {
     }
 
     object Codes {
+        const val CAPTURE_DONE = "capture_done"
+        const val CAPTURE_EMPTY = "capture_empty"
         const val SCAN_DONE = "scan_done"
         const val TAP_DONE = "tap_done"
         const val TAP_FAILED = "tap_failed"

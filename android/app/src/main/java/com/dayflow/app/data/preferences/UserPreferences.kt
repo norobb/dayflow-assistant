@@ -29,6 +29,8 @@ class UserPreferences(private val context: Context) : PreferencesRepository {
         val KEY_GEMINI_API_KEY = stringPreferencesKey("gemini_api_key")
         val KEY_GEMINI_MODEL = stringPreferencesKey("gemini_model")
         val KEY_TUTORIAL_COMPLETED = booleanPreferencesKey("tutorial_completed")
+        val KEY_SCREEN_OBSERVATION = booleanPreferencesKey("screen_observation_enabled")
+        val KEY_SCREEN_BUBBLE = booleanPreferencesKey("screen_bubble_enabled")
     }
 
     override fun getLanguage(): Flow<String> {
@@ -140,6 +142,30 @@ class UserPreferences(private val context: Context) : PreferencesRepository {
     override suspend fun setTutorialCompleted(completed: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_TUTORIAL_COMPLETED] = completed
+        }
+    }
+
+    override fun isScreenObservationEnabled(): Flow<Boolean> {
+        return context.dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.KEY_SCREEN_OBSERVATION] ?: false
+        }
+    }
+
+    override suspend fun setScreenObservationEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.KEY_SCREEN_OBSERVATION] = enabled
+        }
+    }
+
+    override fun isScreenBubbleEnabled(): Flow<Boolean> {
+        return context.dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.KEY_SCREEN_BUBBLE] ?: false
+        }
+    }
+
+    override suspend fun setScreenBubbleEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.KEY_SCREEN_BUBBLE] = enabled
         }
     }
 

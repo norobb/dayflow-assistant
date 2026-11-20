@@ -1,7 +1,6 @@
 package com.dayflow.app
 
 import android.app.Application
-import android.content.Intent
 import com.dayflow.app.ai.DayflowAnalyzer
 import com.dayflow.app.core.sound.SoundAndHaptics
 import com.dayflow.app.data.local.AppDatabase
@@ -9,8 +8,15 @@ import com.dayflow.app.data.preferences.UserPreferences
 import com.dayflow.app.data.repository.DayflowRepositoryImpl
 import com.dayflow.app.domain.repository.DayflowRepository
 import com.dayflow.app.domain.repository.PreferencesRepository
+import com.dayflow.app.integrations.accessibility.context.ScreenIntelligenceRunner
+import com.dayflow.app.integrations.accessibility.context.ScreenObservationSettings
 import com.dayflow.app.integrations.calendar.CalendarService
 import com.dayflow.app.integrations.notification.NotificationHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class DayflowApplication : Application() {
 
@@ -35,6 +41,12 @@ class DayflowApplication : Application() {
     lateinit var analyzer: DayflowAnalyzer
         private set
 
+    /**
+     * Process-lifetime scope for work that must outlive a screen: the screen
+     * intelligence analysis pipeline and the mirrored observation setting.
+     */
+    val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
     override fun onCreate() {
         super.onCreate()
         instance = this
@@ -49,6 +61,13 @@ class DayflowApplication : Application() {
         // DayflowOverlayService is started from MainActivity (foreground) instead —
         // starting it here would crash with IllegalStateException whenever the process
         // boots in the background (e.g. bound accessibility / notification listener).
+
+        ScreenIntelligenceRunner.init()
+        applicationScope.launch {
+            runCatching {
+                preferencesRepository.isScreenObservationEnabled().first()
+            }.getOrNull()?.let { ScreenObservationSettings.setAmbientEnabled(it) }
+        }
     }
 
     companion object {

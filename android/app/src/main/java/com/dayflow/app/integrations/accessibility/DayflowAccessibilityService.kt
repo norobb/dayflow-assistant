@@ -3,6 +3,10 @@ package com.dayflow.app.integrations.accessibility
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import com.dayflow.app.integrations.accessibility.context.CaptureTrigger
+import com.dayflow.app.integrations.accessibility.context.ScreenCapture
+import com.dayflow.app.integrations.accessibility.context.ScreenCaptureStore
+import com.dayflow.app.integrations.accessibility.context.ScreenObservationSettings
 import com.dayflow.app.integrations.accessibility.control.DayflowGestureController
 import com.dayflow.app.integrations.accessibility.control.DayflowSafetyGate
 import com.dayflow.app.integrations.accessibility.control.ScreenActionBus
@@ -16,16 +20,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * Screen Intelligence service. Reads the active window's text content via
- * AccessibilityNodeInfo traversal and publishes understood insights to the
- * shared [NotificationInsightBus], where the Intelligence screen and the
- * Message Overlay observe them.
+ * Screen Intelligence service.
  *
- * Since the control layer was added (AURA-inspired, re-implemented natively),
- * this service also owns [ScreenElementExtractor], [DayflowGestureController]
- * and the [DayflowSafetyGate]: the Intelligence screen asks for scans, taps
- * and swipes through [ScreenActionBus], and this service performs them —
- * only after the gate approves the foreground package.
+ * Owns everything that needs an AccessibilityService:
+ *  - reading the active window (text + interactive elements) on request,
+ *  - carefully observing screens in the background when the user enabled it,
+ *  - performing taps, swipes and back actions through the humanized gesture
+ *    pipeline, always after [DayflowSafetyGate] has approved the foreground app.
+ *
+ * The UI never touches these APIs directly; it posts [ScreenActionBus.Request]s
+ * and observes the results.
  */
 class DayflowAccessibilityService : AccessibilityService() {
 
@@ -59,19 +63,25 @@ class DayflowAccessibilityService : AccessibilityService() {
             return
         }
 
-        // Never perceive our own screens — Dayflow's UI is not "context".
-        val pkg = event.packageName?.toString().orEmpty()
-        if (pkg == packageName) return
+        // Passive observation is opt-in. Without it the service only acts on
+        // explicit requests from the UI.
+        if (!ScreenObservationSettings.ambientEnabled) return
 
         scope.launch {
             try {
+                // The event's package can be SystemUI (notification shade), while
+                // the window we actually read is the app below it. Trust the root.
                 val root: AccessibilityNodeInfo = rootInActiveWindow ?: return@launch
-                val texts = mutableListOf<String>()
-                traverse(root, texts)
+                val foreground = root.packageName?.toString().orEmpty()
+
+                // Never perceive our own screens — Dayflow's UI is not "context".
+                if (foreground == packageName) return@launch
+                if (!safetyGate.checkPackage(foreground).allowed) return@launch
+
+                val texts = collectTexts(root, MAX_INSIGHT_TEXTS)
                 if (texts.isEmpty()) return@launch
 
-                // Deduplicate labels while preserving order, then cap the payload.
-                val content = texts.distinct().joinToString(" ").take(MAX_CONTENT_LENGTH)
+                val content = texts.joinToString(" ").take(MAX_CONTENT_LENGTH)
                 if (content.isBlank()) return@launch
 
                 // Rate limit (1 publish / second) and dedupe identical screens so
@@ -86,19 +96,22 @@ class DayflowAccessibilityService : AccessibilityService() {
                 lastPublishedContent = content
                 lastPublishAt = now
 
-                val foreground = pkg.ifBlank { "screen" }
-                if (!safetyGate.checkPackage(foreground).allowed) {
-                    // Restricted app (banking/auth): stay passive, no insight.
-                    return@launch
-                }
-
+                val label = appLabelFor(foreground)
                 NotificationInsightBus.publish(
                     NotificationInsightBus.Insight(
                         packageName = foreground,
                         sender = SCREEN_SENDER,
                         content = content,
-                        title = "Screen understood",
+                        title = label,
                         text = content
+                    )
+                )
+                ScreenCaptureStore.publish(
+                    ScreenCapture(
+                        packageName = foreground,
+                        appLabel = label,
+                        texts = texts,
+                        trigger = CaptureTrigger.AMBIENT
                     )
                 )
             } catch (_: Exception) {
@@ -107,17 +120,41 @@ class DayflowAccessibilityService : AccessibilityService() {
         }
     }
 
-    private fun traverse(node: AccessibilityNodeInfo, out: MutableList<String>) {
-        node.text?.toString()?.trim()?.takeIf { it.isNotBlank() }?.let { out.add(it) }
-        node.contentDescription?.toString()?.trim()?.takeIf { it.isNotBlank() }?.let { out.add(it) }
+    private fun collectTexts(node: AccessibilityNodeInfo, limit: Int): List<String> {
+        val out = LinkedHashSet<String>()
+        traverse(node, out, limit, 0)
+        return out.toList()
+    }
+
+    private fun traverse(
+        node: AccessibilityNodeInfo,
+        out: MutableSet<String>,
+        limit: Int,
+        depth: Int
+    ) {
+        if (out.size >= limit || depth > MAX_TRAVERSAL_DEPTH) return
+        node.text?.toString()?.trim()?.takeIf { it.isNotBlank() }?.let { out += it.take(MAX_LABEL_LENGTH) }
+        node.contentDescription?.toString()?.trim()?.takeIf { it.isNotBlank() }
+            ?.let { out += it.take(MAX_LABEL_LENGTH) }
         for (i in 0 until node.childCount) {
-            val child = node.getChild(i) ?: continue
-            traverse(child, out)
+            val child = try { node.getChild(i) } catch (_: Exception) { null } ?: continue
+            traverse(child, out, limit, depth + 1)
+        }
+    }
+
+    private fun appLabelFor(pkg: String): String {
+        if (pkg.isBlank()) return "Screen"
+        if (pkg == packageName) return "Dayflow"
+        return try {
+            val info = packageManager.getApplicationInfo(pkg, 0)
+            packageManager.getApplicationLabel(info).toString()
+        } catch (_: Exception) {
+            pkg.substringAfterLast('.')
         }
     }
 
     // ---------------------------------------------------------------------
-    // Control layer: scan / tap / swipe / back, always gated.
+    // Control layer: capture / scan / tap / swipe / back, always gated.
     // ---------------------------------------------------------------------
 
     private suspend fun handleRequest(request: ScreenActionBus.Request) {
@@ -130,13 +167,48 @@ class DayflowAccessibilityService : AccessibilityService() {
                 ScreenActionBus.report(
                     ScreenActionBus.ActionResult.Failed(
                         ScreenActionBus.Codes.GATE_BLOCKED,
-                        listOf(foreground)
+                        listOf(appLabelFor(foreground))
                     )
                 )
                 return
             }
 
             when (request.action) {
+                ScreenActionBus.Action.CAPTURE -> {
+                    if (root == null) {
+                        ScreenActionBus.report(
+                            ScreenActionBus.ActionResult.Failed(ScreenActionBus.Codes.CAPTURE_EMPTY)
+                        )
+                        return
+                    }
+                    extractor.resetIds()
+                    val elements = extractor.extract()
+                    val texts = collectTexts(root, MAX_CAPTURE_TEXTS)
+                    val metrics = resources.displayMetrics
+                    val capture = ScreenCapture(
+                        packageName = foreground,
+                        appLabel = appLabelFor(foreground),
+                        texts = texts,
+                        elements = elements,
+                        screenWidth = metrics.widthPixels,
+                        screenHeight = metrics.heightPixels,
+                        trigger = request.trigger
+                    )
+                    if (capture.isEmpty) {
+                        ScreenActionBus.report(
+                            ScreenActionBus.ActionResult.Failed(ScreenActionBus.Codes.CAPTURE_EMPTY)
+                        )
+                        return
+                    }
+                    ScreenCaptureStore.publish(capture)
+                    ScreenActionBus.report(
+                        ScreenActionBus.ActionResult.Done(
+                            ScreenActionBus.Codes.CAPTURE_DONE,
+                            listOf(texts.size.toString())
+                        )
+                    )
+                }
+
                 ScreenActionBus.Action.SCAN -> {
                     extractor.resetIds()
                     val elements = extractor.extract()
@@ -229,6 +301,10 @@ class DayflowAccessibilityService : AccessibilityService() {
         const val MAX_CONTENT_LENGTH = 500
         const val MIN_PUBLISH_INTERVAL_MS = 1_000L
         const val DEDUPE_WINDOW_MS = 10_000L
+        const val MAX_INSIGHT_TEXTS = 60
+        const val MAX_CAPTURE_TEXTS = 220
+        const val MAX_TRAVERSAL_DEPTH = 40
+        const val MAX_LABEL_LENGTH = 200
 
         /** Live service reference; null whenever the service is not connected. */
         @Volatile

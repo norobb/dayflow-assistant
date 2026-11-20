@@ -9,5 +9,9 @@
     "preview": "pnpm --dir website run preview",
     "clean": "pnpm --dir website run clean && rm -rf dist",
     "lint": "pnpm --dir website run lint"
+  },
+  "dependencies": {
+    "@three-ws/blender-mcp": "^0.5.0",
+    "blender-mcp": "^1.0.1"
   }
 }
