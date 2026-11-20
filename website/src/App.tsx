@@ -277,7 +277,7 @@ export default function App() {
                       ))}
                       <motion.span
                         variants={spanVariants}
-                        className="text-[#641C24] block sm:inline-block"
+                        className="text-[#641C24] block sm:inline-block font-serif italic font-medium tracking-normal"
                       >
                         {t.hero.titlePart2}
                       </motion.span>
