@@ -46,7 +46,7 @@
     <string name="intelligence_title">Kontextfluss</string>
     <string name="intelligence_badge_beta">BETA</string>
     <string name="intelligence_headline">Systemweites Kontextverständnis</string>
-    <string name="intelligence_description">Dayflow erkennt Kontextinformationen auf deinem Bildschirm und schlägt verifizierte Aktionen vor – ohne manuelles Kopieren.</string>
+    <string name="intelligence_description">Auf Wunsch liest Dayflow den Bildschirm und schlägt daraus Termine, Aufgaben und Erinnerungen vor.</string>
     <string name="intelligence_flow_title">Aktive Kontextquellen</string>
     <string name="intelligence_stream_chat">Chat- &amp; Nachrichtenerfassung</string>
     <string name="intelligence_stream_chat_desc">Extrahiert Fahrzeiten, Treffpunkte und Aufgaben aus deinen Nachrichten.</string>
@@ -134,7 +134,7 @@
     <string name="settings_reset_data">Testdaten zurücksetzen</string>
     <string name="settings_reset_success">Daten auf Standard zurückgesetzt.</string>
     <string name="settings_about">Über Dayflow</string>
-    <string name="settings_version">Version 1.0.0 (Native Android)</string>
+    <string name="settings_version">Version 2.1 (natives Android)</string>
 
     <!-- Notifications & Permissions -->
     <string name="notif_channel_reminders">Dayflow Erinnerungen</string>
@@ -169,11 +169,11 @@
 
 
 
-    <string name="settings_section_appearance">ERSCHEINUNGSBILD &amp; STIL</string>
-    <string name="settings_section_language">SPRACHE</string>
+    <string name="settings_section_appearance">Erscheinungsbild</string>
+    <string name="settings_section_language">Sprache</string>
     <string name="settings_select_language">Sprache wählen</string>
-    <string name="today_section_timeline">ZEITPLAN</string>
-    <string name="today_section_tasks">HEUTIGE AUFGABEN</string>
+    <string name="today_section_timeline">Zeitplan</string>
+    <string name="today_section_tasks">Aufgaben</string>
     <string name="today_empty_title">Dein Tag ist übersichtlich</string>
     <string name="today_empty_subtitle">Sende Dayflow Notizen oder Dokumente, um sie automatisch zu organisieren.</string>
 
@@ -191,8 +191,8 @@
     <string name="settings_ai_local">Lokale Offline-Engine</string>
     <string name="settings_ai_gemini_key">Gemini-API-Schlüssel</string>
     <string name="settings_ai_model_id">Modellbezeichner</string>
-    <string name="settings_section_interaction">INTERAKTION &amp; HAPTIK</string>
-    <string name="settings_section_permissions">BERECHTIGUNGEN &amp; OVERLAY-INTEGRATIONEN</string>
+    <string name="settings_section_interaction">Ton &amp; Haptik</string>
+    <string name="settings_section_permissions">Berechtigungen</string>
     <string name="settings_system_permissions">Systemberechtigungen</string>
     <string name="settings_perm_notifications">Benachrichtigungsberechtigung</string>
     <string name="settings_perm_calendar">Kalender-Sync-Berechtigung</string>
@@ -394,9 +394,9 @@
     <string name="verify_confirm">Zu Dayflow hinzufügen</string>
     <string name="verify_discard">Verwerfen</string>
     <string name="verify_edit">Bearbeiten</string>
-    <string name="verify_event">TERMIN</string>
-    <string name="verify_task">AUFGABE</string>
-    <string name="verify_reminder">ERINNERUNG</string>
+    <string name="verify_event">Termin</string>
+    <string name="verify_task">Aufgabe</string>
+    <string name="verify_reminder">Erinnerung</string>
     <string name="verify_field_title">Titel</string>
     <string name="verify_field_when">Wann (z. B. morgen 17:30)</string>
     <string name="verify_field_location">Ort</string>

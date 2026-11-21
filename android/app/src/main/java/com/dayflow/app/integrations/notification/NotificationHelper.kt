@@ -114,7 +114,7 @@ class NotificationHelper(private val context: Context) {
         val contentText = if (cleanTime.isNotBlank()) "$cleanTitle · $cleanTime" else cleanTitle
 
         val notification = NotificationCompat.Builder(context, CHANNEL_REMINDERS)
-            .setSmallIcon(R.drawable.dayflow_symbol_official)
+            .setSmallIcon(R.drawable.dayflow_symbol_mono)
             .setContentTitle("Dayflow")
             .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -156,7 +156,7 @@ class NotificationHelper(private val context: Context) {
         val res = localized(context, language)
         val title = res.getString(R.string.notif_suggestion_title, sanitizeNotificationText(sender, 60) ?: "")
         val notification = NotificationCompat.Builder(context, CHANNEL_SUGGESTIONS)
-            .setSmallIcon(R.drawable.dayflow_symbol_official)
+            .setSmallIcon(R.drawable.dayflow_symbol_mono)
             .setContentTitle(title)
             .setContentText(sanitizeNotificationText(summary, 200))
             .setStyle(NotificationCompat.BigTextStyle().bigText(sanitizeNotificationText(summary, 400)))
@@ -176,7 +176,7 @@ class NotificationHelper(private val context: Context) {
     fun showBriefing(title: String, text: String) {
         if (!PermissionUtils.hasNotificationPermission(context)) return
         val notification = NotificationCompat.Builder(context, CHANNEL_BRIEFING)
-            .setSmallIcon(R.drawable.dayflow_symbol_official)
+            .setSmallIcon(R.drawable.dayflow_symbol_mono)
             .setContentTitle(title)
             .setContentText(text.lineSequence().firstOrNull().orEmpty())
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))

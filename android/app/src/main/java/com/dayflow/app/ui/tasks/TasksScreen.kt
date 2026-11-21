@@ -101,8 +101,7 @@ fun TasksScreen(
                 Text(
                     text = stringResource(R.string.tasks_title),
                     style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp
+                        fontSize = 32.sp, lineHeight = 38.sp
                     ),
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -167,7 +166,7 @@ fun TasksScreen(
                         }
                     }
 
-                    item { Spacer(modifier = Modifier.height(80.dp)) }
+                    item { Spacer(modifier = Modifier.height(136.dp)) }
                 }
             }
         }
@@ -212,7 +211,7 @@ private fun TasksEmptyState() {
 
         Text(
             text = stringResource(R.string.tasks_empty_title),
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )

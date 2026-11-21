@@ -79,7 +79,7 @@ fun VerificationCard(
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 12.dp,
+        shadowElevation = 6.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -92,8 +92,8 @@ fun VerificationCard(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(R.string.verify_title),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 IconButton(onClick = onDismiss) {
                     Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_close), tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -260,7 +260,7 @@ fun SmartActionChips(actions: List<SmartAction>) {
         actions.forEach { action ->
             val (icon, label) = when (action.kind) {
                 SmartAction.Kind.OPEN_LINK -> Icons.Outlined.Link to stringResource(R.string.action_open_link)
-                SmartAction.Kind.NAVIGATE -> Icons.Outlined.Map to stringResource(R.string.action_navigate)
+                SmartAction.Kind.NAVIGATE -> Icons.Outlined.Map to "${stringResource(R.string.action_navigate)} · ${action.target.take(24)}"
                 SmartAction.Kind.CALL -> Icons.Outlined.Call to stringResource(R.string.action_call)
                 SmartAction.Kind.EMAIL -> Icons.Outlined.Email to stringResource(R.string.action_email)
                 SmartAction.Kind.REPLY_DRAFT -> Icons.Outlined.Sms to stringResource(R.string.action_reply)

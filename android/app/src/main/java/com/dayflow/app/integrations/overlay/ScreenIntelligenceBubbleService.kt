@@ -202,7 +202,7 @@ private fun BubbleContent(
                 },
             contentAlignment = Alignment.Center
         ) {
-            Image(painterResource(R.drawable.dayflow_symbol_official), contentDescription = null, modifier = Modifier.size(34.dp))
+            com.dayflow.app.ui.components.DayflowSymbol(Modifier.size(30.dp), contentDescription = null)
         }
         if (expanded) {
             Surface(

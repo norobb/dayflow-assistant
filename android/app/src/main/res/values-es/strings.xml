@@ -46,7 +46,7 @@
     <string name="intelligence_title">Flujo de contexto</string>
     <string name="intelligence_badge_beta">BETA</string>
     <string name="intelligence_headline">Comprensión contextual a nivel de sistema</string>
-    <string name="intelligence_description">Dayflow reconoce información contextual en pantalla y sugiere acciones verificadas sin necesidad de copiar y pegar.</string>
+    <string name="intelligence_description">Cuando lo pides, Dayflow lee la pantalla y sugiere citas, tareas y recordatorios.</string>
     <string name="intelligence_flow_title">Canales de contexto activos</string>
     <string name="intelligence_stream_chat">Comprensión de chats y mensajes</string>
     <string name="intelligence_stream_chat_desc">Extrae horarios de viaje, puntos de encuentro y tareas de tus conversaciones.</string>
@@ -65,9 +65,9 @@
     <string name="input_text_hint">Pega un mensaje, reserva o apunte de viaje…</string>
     <string name="input_action_understand">Entender</string>
     <string name="input_action_analyzing">Analizando…</string>
-    <string name="input_preset_message_label">Alex Estación (Mensaje)</string>
-    <string name="input_preset_screenshot_label">Dra. Stein Dentista (Captura)</string>
-    <string name="input_preset_pdf_label">Barcelona Itinerario (PDF)</string>
+    <string name="input_preset_message_label">Alex estación (Mensaje)</string>
+    <string name="input_preset_screenshot_label">Dra. Stein dentista (Captura)</string>
+    <string name="input_preset_pdf_label">Barcelona itinerario (PDF)</string>
     <string name="input_preset_voice_label">Nota de voz (Grabación)</string>
     <string name="input_pick_image">Elegir captura / imagen</string>
     <string name="input_pick_pdf">Elegir archivo PDF</string>
@@ -115,13 +115,13 @@
     <string name="settings_section_ai">Motor de comprensión</string>
     <string name="settings_ai_provider">Proveedor de IA</string>
     <string name="settings_ai_provider_local">Motor determinista local (Sin conexión / Seguro)</string>
-    <string name="settings_ai_provider_gemini">API multimodal Gemini (Proxy / Endpoint)</string>
+    <string name="settings_ai_provider_gemini">API multimodal Gemini (Proxy / endpoint)</string>
 
     <!-- Auto Updates -->
     <string name="settings_section_updates">Actualizaciones automáticas</string>
     <string name="settings_update_channel">Canal de actualización</string>
-    <string name="settings_channel_releases">Lanzamientos oficiales (GitHub Releases)</string>
-    <string name="settings_channel_ci">Última versión CI (GitHub Actions Build)</string>
+    <string name="settings_channel_releases">Lanzamientos oficiales (GitHub releases)</string>
+    <string name="settings_channel_ci">Última versión CI (GitHub Actions build)</string>
     <string name="settings_btn_check_updates">Buscar actualizaciones</string>
     <string name="settings_btn_install_update">Instalar actualización</string>
     <string name="settings_status_checking">Buscando actualizaciones…</string>
@@ -134,7 +134,7 @@
     <string name="settings_reset_data">Restablecer datos de prueba</string>
     <string name="settings_reset_success">Datos restablecidos a los valores por defecto.</string>
     <string name="settings_about">Acerca de Dayflow</string>
-    <string name="settings_version">Versión 1.0.0 (Android nativo)</string>
+    <string name="settings_version">Versión 2.1 (Android nativo)</string>
 
     <!-- Notifications & Permissions -->
     <string name="notif_channel_reminders">Recordatorios de Dayflow</string>
@@ -157,23 +157,23 @@
     <string name="tutorial_skip">Omitir</string>
     <string name="tutorial_next">Siguiente</string>
     <string name="tutorial_get_started">Comenzar</string>
-    <string name="tutorial_title_1">Información Dispersa</string>
+    <string name="tutorial_title_1">Información dispersa</string>
     <string name="tutorial_desc_1">Envía a Dayflow tus notas, capturas, documentos o mensajes de voz desde cualquier lugar de tu teléfono.</string>
-    <string name="tutorial_title_2">Dayflow Lo Entiende</string>
+    <string name="tutorial_title_2">Dayflow lo entiende</string>
     <string name="tutorial_desc_2">La IA Gemini analiza tus entradas para extraer eventos, tareas y recordatorios automáticamente.</string>
-    <string name="tutorial_title_3">Dayflow Lo Organiza</string>
+    <string name="tutorial_title_3">Dayflow lo organiza</string>
     <string name="tutorial_desc_3">Revisa y confirma elementos estructurados antes de añadirlos a tu agenda o calendario.</string>
-    <string name="tutorial_title_4">Dayflow Actúa y Verifica</string>
+    <string name="tutorial_title_4">Dayflow actúa y verifica</string>
     <string name="tutorial_desc_4">Tu día se mantiene limpio, estructurado y sincronizado con recordatorios oportunos.</string>
 
 
 
 
-    <string name="settings_section_appearance">APARIENCIA Y ESTILO</string>
-    <string name="settings_section_language">IDIOMA</string>
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="settings_section_language">Idioma</string>
     <string name="settings_select_language">Seleccionar idioma</string>
-    <string name="today_section_timeline">CRONOGRAMA</string>
-    <string name="today_section_tasks">TAREAS DE HOY</string>
+    <string name="today_section_timeline">Agenda</string>
+    <string name="today_section_tasks">Tareas</string>
     <string name="today_empty_title">Tu día está libre</string>
     <string name="today_empty_subtitle">Envía a Dayflow algo para organizar desde cualquier parte de tu teléfono.</string>
 
@@ -191,8 +191,8 @@
     <string name="settings_ai_local">Motor local sin conexión</string>
     <string name="settings_ai_gemini_key">Clave de API de Gemini</string>
     <string name="settings_ai_model_id">Identificador del modelo</string>
-    <string name="settings_section_interaction">INTERACCIÓN Y HÁPTICA</string>
-    <string name="settings_section_permissions">PERMISOS E INTEGRACIONES DE OVERLAY</string>
+    <string name="settings_section_interaction">Sonido y háptica</string>
+    <string name="settings_section_permissions">Permisos</string>
     <string name="settings_system_permissions">Permisos del sistema</string>
     <string name="settings_perm_notifications">Permiso de notificaciones</string>
     <string name="settings_perm_calendar">Permiso de sincronización de calendario</string>
@@ -337,7 +337,7 @@
     <string name="context_add_term">Añadir término</string>
     <string name="context_add_routine">Añadir rutina</string>
     <string name="context_add_contact">Añadir contacto</string>
-    <string name="context_field_term">Término (p. ej. Oficina)</string>
+    <string name="context_field_term">Término (p. ej. oficina)</string>
     <string name="context_field_meaning">Significado (p. ej. Calle Mayor 5)</string>
     <string name="context_field_name">Nombre</string>
     <string name="context_field_time">Hora (HH:mm)</string>
@@ -394,9 +394,9 @@
     <string name="verify_confirm">Añadir a Dayflow</string>
     <string name="verify_discard">Descartar</string>
     <string name="verify_edit">Editar</string>
-    <string name="verify_event">CITA</string>
-    <string name="verify_task">TAREA</string>
-    <string name="verify_reminder">RECORDATORIO</string>
+    <string name="verify_event">Cita</string>
+    <string name="verify_task">Tarea</string>
+    <string name="verify_reminder">Recordatorio</string>
     <string name="verify_field_title">Título</string>
     <string name="verify_field_when">Cuándo (p. ej. mañana 17:30)</string>
     <string name="verify_field_location">Lugar</string>

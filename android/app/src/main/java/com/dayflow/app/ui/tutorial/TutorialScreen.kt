@@ -95,11 +95,7 @@ fun TutorialScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.dayflow_symbol_official),
-                contentDescription = "Dayflow Symbol",
-                modifier = Modifier.size(36.dp)
-            )
+            com.dayflow.app.ui.components.DayflowSymbol(Modifier.size(36.dp))
             if (pagerState.currentPage < pages.size - 1) {
                 TextButton(onClick = onFinishTutorial) {
                     Text(
@@ -145,7 +141,6 @@ fun TutorialScreen(
                 Text(
                     text = stringResource(id = page.titleRes),
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     ),
                     color = MaterialTheme.colorScheme.onBackground,

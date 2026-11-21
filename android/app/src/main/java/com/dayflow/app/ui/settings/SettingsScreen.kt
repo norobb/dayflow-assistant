@@ -112,7 +112,6 @@ fun SettingsScreen(
                     Text(
                         text = stringResource(R.string.settings_title),
                         style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold,
                             fontSize = 24.sp
                         ),
                         color = MaterialTheme.colorScheme.onBackground
@@ -620,11 +619,7 @@ fun SettingsScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.dayflow_symbol_official),
-                            contentDescription = "Dayflow Symbol",
-                            modifier = Modifier.size(36.dp)
-                        )
+                        com.dayflow.app.ui.components.DayflowSymbol(Modifier.size(36.dp))
                         Text(
                             text = stringResource(R.string.settings_version),
                             style = MaterialTheme.typography.bodySmall,
@@ -692,12 +687,9 @@ private fun PermissionRow(
 private fun SectionHeader(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.labelMedium.copy(
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 0.5.sp
-        ),
+        style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+        modifier = Modifier.padding(start = 4.dp, top = 12.dp)
     )
 }
 

@@ -123,7 +123,8 @@ fun DayflowApp(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    // Only the top inset: screens scroll under the floating bottom bar.
+                    .padding(top = innerPadding.calculateTopPadding())
             ) {
                 NavHost(
                     navController = navController,

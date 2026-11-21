@@ -98,8 +98,7 @@ fun RemindersScreen(
                 Text(
                     text = stringResource(R.string.reminders_title),
                     style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp
+                        fontSize = 32.sp, lineHeight = 38.sp
                     ),
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -131,7 +130,7 @@ fun RemindersScreen(
                             onDismiss = { viewModel.dismissReminder(reminder.id) }
                         )
                     }
-                    item { Spacer(modifier = Modifier.height(80.dp)) }
+                    item { Spacer(modifier = Modifier.height(136.dp)) }
                 }
             }
         }
@@ -176,7 +175,7 @@ private fun RemindersEmptyState() {
 
         Text(
             text = stringResource(R.string.reminders_empty_title),
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )

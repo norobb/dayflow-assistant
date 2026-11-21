@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-21 — Android 2.1: modernized design
+
+- Editorial look in the Dayflow colors: serif headings, flat cards with hairlines, sentence-case labels.
+- Today as a planner timeline (time column, ink rail), quiet context note, compact "Today, understood." list.
+- Floating bottom bar; content scrolls underneath.
+- Official symbol as vector (traced 1:1 from the PNG), theme-aware in light and dark mode; launcher icon on linen with a monochrome variant.
+
 ## 2026-11-21 — Android 2.0: all website features implemented
 
 - Real on-device understanding (replaces the mock engine): date/time resolver (EN/DE/ES), OCR for screenshots, PDF reading, voice transcription.

@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +21,28 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dayflow.app.R
+
+/**
+ * Official Dayflow symbol as vectors (traced 1:1 from the official PNG): the D takes the
+ * theme accent, the loop the text color, so it reads on light and dark backgrounds.
+ */
+@Composable
+fun DayflowSymbol(modifier: Modifier = Modifier, contentDescription: String? = "Dayflow") {
+    Box(modifier.aspectRatio(1659f / 1440f)) {
+        Image(
+            painter = painterResource(R.drawable.dayflow_symbol_d),
+            contentDescription = contentDescription,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+            modifier = Modifier.matchParentSize()
+        )
+        Image(
+            painter = painterResource(R.drawable.dayflow_symbol_loop),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
+            modifier = Modifier.matchParentSize()
+        )
+    }
+}
 
 @Composable
 fun DayflowLogoHeader(
@@ -29,12 +54,7 @@ fun DayflowLogoHeader(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.dayflow_symbol_official),
-            contentDescription = "Dayflow Symbol",
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.size(symbolSize)
-        )
+        DayflowSymbol(Modifier.size(symbolSize))
         if (showWordmark) {
             Spacer(modifier = Modifier.width(10.dp))
             Text(

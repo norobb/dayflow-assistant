@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -41,29 +42,16 @@ fun ProductStateBadge(
     }
 }
 
+/** Where an item came from, as quiet meta text (follows light/dark theme). */
 @Composable
 fun SourceBadge(
     label: String,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .background(
-                color = DayflowCard,
-                shape = PillShape
-            )
-            .border(
-                width = 1.dp,
-                color = DayflowBorder,
-                shape = PillShape
-            )
-            .padding(horizontal = 8.dp, vertical = 2.dp)
-    ) {
-        Text(
-            text = label,
-            color = DayflowTextMuted,
-            fontSize = 9.sp,
-            fontWeight = FontWeight.Medium
-        )
-    }
+    Text(
+        text = label,
+        modifier = modifier,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 }

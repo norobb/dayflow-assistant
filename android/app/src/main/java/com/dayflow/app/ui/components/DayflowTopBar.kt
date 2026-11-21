@@ -50,11 +50,7 @@ fun DayflowTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.dayflow_symbol_official),
-                contentDescription = "Dayflow Symbol",
-                modifier = Modifier.size(24.dp)
-            )
+            com.dayflow.app.ui.components.DayflowSymbol(Modifier.size(24.dp))
             Text(
                 text = "dayflow",
                 color = DayflowText,

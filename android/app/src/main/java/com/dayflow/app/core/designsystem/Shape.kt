@@ -15,7 +15,7 @@ val DayflowShapes = Shapes(
     extraLarge = RoundedCornerShape(28.dp)
 )
 
-val CardShape = RoundedCornerShape(18.dp)
+val CardShape = RoundedCornerShape(16.dp)
 val ButtonShape = RoundedCornerShape(12.dp)
 val PillShape = RoundedCornerShape(50)
 val SheetShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)

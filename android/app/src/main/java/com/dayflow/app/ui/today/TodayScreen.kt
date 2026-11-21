@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -108,7 +111,7 @@ fun TodayScreen(
             }
             Text(
                 stringResource(R.string.today_title),
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold, fontSize = 28.sp),
+                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp, lineHeight = 38.sp),
                 color = MaterialTheme.colorScheme.onBackground
             )
             Text(
@@ -132,8 +135,9 @@ fun TodayScreen(
                     }
                     if (state.events.isNotEmpty()) {
                         item(key = "h-timeline") { SectionTitle(stringResource(R.string.today_section_timeline)) }
-                        items(state.events, key = { "e-" + it.id }) { event ->
+                        item(key = "timeline") { Column { state.events.forEach { event ->
                             TimelineEventCard(
+                                isLast = event == state.events.last(),
                                 event = event,
                                 language = state.language,
                                 onDelete = { viewModel.deleteEvent(event) },
@@ -144,7 +148,7 @@ fun TodayScreen(
                                     )
                                 }
                             )
-                        }
+                        } } }
                     }
                     if (state.tasks.isNotEmpty()) {
                         item(key = "h-tasks") { SectionTitle(stringResource(R.string.today_section_tasks)) }
@@ -165,7 +169,7 @@ fun TodayScreen(
                             Text(stringResource(R.string.today_reset))
                         }
                     }
-                    item { Spacer(Modifier.height(80.dp)) }
+                    item { Spacer(Modifier.height(136.dp)) }
                 }
             }
         }
@@ -193,7 +197,7 @@ fun TodayScreen(
 
         if (state.failedCalendarEvents.isNotEmpty()) {
             Snackbar(
-                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
+                modifier = Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 120.dp),
                 action = { TextButton(onClick = viewModel::retryCalendarInsertion) { Text(stringResource(R.string.calendar_retry)) } },
                 dismissAction = { TextButton(onClick = viewModel::dismissCalendarWarning) { Text(stringResource(R.string.calendar_dismiss)) } }
             ) {
@@ -218,9 +222,9 @@ fun TodayScreen(
 private fun SectionTitle(text: String) {
     Text(
         text,
-        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-        color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.padding(top = 8.dp, bottom = 2.dp)
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 16.dp, bottom = 0.dp)
     )
 }
 
@@ -238,7 +242,7 @@ private fun TodayEmptyState() {
             Icon(Icons.Outlined.CalendarMonth, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(40.dp))
         }
         Spacer(Modifier.height(20.dp))
-        Text(stringResource(R.string.today_empty_title), style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold), textAlign = TextAlign.Center)
+        Text(stringResource(R.string.today_empty_title), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
         Spacer(Modifier.height(8.dp))
         Text(
             stringResource(R.string.today_empty_subtitle),
@@ -252,51 +256,51 @@ private fun TodayEmptyState() {
 
 @Composable
 private fun InsightBanner(insight: DayflowInsight, onViewTasks: () -> Unit, onSnooze: () -> Unit) {
-    DayflowCard(containerColor = MaterialTheme.colorScheme.primaryContainer) {
-        Column {
-            Row(verticalAlignment = Alignment.Top) {
-                Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(10.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(insight.title, style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onPrimaryContainer)
-                    Spacer(Modifier.height(2.dp))
-                    Text(insight.text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f))
+    // Quiet card with an ink rule on the left, like a margin note in a daybook.
+    DayflowCard(modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.height(IntrinsicSize.Min)) {
+            Box(Modifier.width(3.dp).fillMaxHeight().clip(RoundedCornerShape(2.dp)).background(MaterialTheme.colorScheme.primary))
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(insight.title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.height(4.dp))
+                Text(insight.text, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+                Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onSnooze) { Text(stringResource(R.string.today_insight_snooze), color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    TextButton(onClick = onViewTasks) { Text(stringResource(R.string.today_insight_view_tasks)) }
                 }
-            }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onSnooze) { Text(stringResource(R.string.today_insight_snooze)) }
-                TextButton(onClick = onViewTasks) { Text(stringResource(R.string.today_insight_view_tasks)) }
             }
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun UnderstoodSection(items: List<UnderstoodItem>) {
+    // One line per thing understood; an event and its automatic reminder share a line.
+    val grouped = items.groupBy { it.title }.entries.take(6)
     DayflowCard(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.understood_title), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onSurface)
+        Column(Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.understood_title), style = MaterialTheme.typography.headlineMedium.copy(fontSize = 20.sp, lineHeight = 26.sp), color = MaterialTheme.colorScheme.onSurface)
             Text(
-                pluralStringResource(R.plurals.understood_count, items.size, items.size),
-                style = MaterialTheme.typography.bodySmall,
+                pluralStringResource(R.plurals.understood_count, grouped.size, grouped.size),
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                items.take(12).forEach { item ->
-                    val icon = when (item.kind) {
-                        UnderstoodItem.Kind.EVENT -> Icons.Outlined.CalendarMonth
-                        UnderstoodItem.Kind.TASK -> Icons.Outlined.CheckCircleOutline
-                        UnderstoodItem.Kind.REMINDER -> Icons.Outlined.NotificationsNone
+            Spacer(Modifier.height(8.dp))
+            grouped.forEachIndexed { i, (title, group) ->
+                if (i > 0) androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+                Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    val icon = when {
+                        group.any { it.kind == UnderstoodItem.Kind.EVENT } -> Icons.Outlined.CalendarMonth
+                        group.any { it.kind == UnderstoodItem.Kind.TASK } -> Icons.Outlined.CheckCircleOutline
+                        else -> Icons.Outlined.NotificationsNone
                     }
-                    Row(
-                        Modifier.clip(RoundedCornerShape(50)).background(MaterialTheme.colorScheme.primaryContainer).padding(horizontal = 10.dp, vertical = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text("${item.title} · ${sourceLabel(item.sourceType)}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimaryContainer, maxLines = 1)
-                    }
+                    Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(12.dp))
+                    Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface, maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(8.dp))
+                    SourceBadge(label = sourceLabel(group.first().sourceType))
                 }
             }
         }
@@ -316,7 +320,7 @@ fun sourceLabel(type: SourceType): String = stringResource(
 )
 
 @Composable
-private fun TimelineEventCard(event: DayflowEvent, language: String, onDelete: () -> Unit, onRunningLate: () -> Unit) {
+private fun TimelineEventCard(event: DayflowEvent, language: String, onDelete: () -> Unit, onRunningLate: () -> Unit, isLast: Boolean = false) {
     val context = LocalContext.current
     val app = context.applicationContext as DayflowApplication
     val zone = ZoneId.systemDefault()
@@ -325,48 +329,51 @@ private fun TimelineEventCard(event: DayflowEvent, language: String, onDelete: (
     } ?: event.dateLabel
     val isRoutine = event.id.startsWith("routine-")
     val upcoming = (event.startMillis ?: 0) > System.currentTimeMillis()
-    DayflowCard {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    listOf(day, event.time).filter { it.isNotBlank() }.joinToString(" · "),
-                    fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary
-                )
-                SourceBadge(
-                    label = when {
-                        isRoutine -> stringResource(R.string.source_routine)
-                        event.external -> stringResource(R.string.source_calendar)
-                        else -> sourceLabel(event.sourceType)
-                    }
-                )
-            }
-            Text(event.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
-            if (!event.location.isNullOrBlank()) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(event.location, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    val rail = MaterialTheme.colorScheme.primary
+    // Signature: the day as a planner margin — time column, ink rail with a dot per entry.
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+        Column(Modifier.width(56.dp).padding(top = 2.dp)) {
+            Text(
+                event.time.ifBlank { "–" },
+                style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(day, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+        }
+        Box(Modifier.width(24.dp).fillMaxHeight(), contentAlignment = Alignment.TopCenter) {
+            if (!isLast) Box(Modifier.padding(top = 12.dp).width(1.dp).fillMaxHeight().background(rail.copy(alpha = 0.25f)))
+            Box(Modifier.padding(top = 6.dp).size(9.dp).clip(CircleShape).background(if (upcoming) rail else rail.copy(alpha = 0.35f)))
+        }
+        Column(Modifier.weight(1f).padding(start = 4.dp, bottom = 20.dp)) {
+            Text(event.title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurface)
+            val meta = listOfNotNull(
+                event.location?.takeIf { it.isNotBlank() },
+                when {
+                    isRoutine -> stringResource(R.string.source_routine)
+                    event.external -> stringResource(R.string.source_calendar)
+                    else -> sourceLabel(event.sourceType)
                 }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(0.dp), verticalAlignment = Alignment.CenterVertically) {
+            ).joinToString(" · ")
+            Text(meta, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(Modifier.padding(top = 4.dp).offset(x = (-12).dp), verticalAlignment = Alignment.CenterVertically) {
                 if (!event.location.isNullOrBlank()) {
                     IconButton(onClick = { SmartActionPlanner.launch(context, SmartAction(SmartAction.Kind.NAVIGATE, event.location)) }) {
-                        Icon(Icons.Outlined.Map, contentDescription = stringResource(R.string.action_navigate), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.Outlined.Map, contentDescription = stringResource(R.string.action_navigate), tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     }
                 }
                 if (upcoming) {
                     IconButton(onClick = onRunningLate) {
-                        Icon(Icons.Outlined.Sms, contentDescription = stringResource(R.string.action_running_late), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.Outlined.Sms, contentDescription = stringResource(R.string.action_running_late), tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     }
                 }
                 event.calendarEventId?.let { id ->
                     IconButton(onClick = { app.calendarService.openInCalendar(id) }) {
-                        Icon(Icons.Outlined.OpenInNew, contentDescription = stringResource(R.string.action_open_calendar), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.Outlined.OpenInNew, contentDescription = stringResource(R.string.action_open_calendar), tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     }
                 }
                 if (!event.external) {
                     IconButton(onClick = onDelete) {
-                        Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.action_delete), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.action_delete), tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     }
                 }
             }

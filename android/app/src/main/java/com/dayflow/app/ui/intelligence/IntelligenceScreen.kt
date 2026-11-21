@@ -76,7 +76,7 @@ fun IntelligenceScreen(
                 }
                 Text(
                     stringResource(R.string.intelligence_title),
-                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold, fontSize = 28.sp),
+                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp, lineHeight = 38.sp),
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
@@ -161,12 +161,12 @@ fun IntelligenceScreen(
             item {
                 HistorySection(history = state.history, onReview = viewModel::review, onClear = viewModel::clearHistory)
             }
-            item { Spacer(Modifier.height(80.dp)) }
+            item { Spacer(Modifier.height(136.dp)) }
         }
 
         state.status?.let { status ->
             Snackbar(
-                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
+                modifier = Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 120.dp),
                 dismissAction = { TextButton(onClick = viewModel::dismissStatus) { Text(stringResource(R.string.action_close)) } }
             ) {
                 Text(statusMessage(status))

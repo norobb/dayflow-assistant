@@ -13,20 +13,20 @@ import androidx.compose.ui.unit.sp
  */
 val DayflowTypography = Typography(
     displayLarge = TextStyle(
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.ExtraBold,
+        fontFamily = FontFamily.Serif,
+        fontWeight = FontWeight.Medium,
         fontSize = 38.sp,
         lineHeight = 44.sp
     ),
     headlineLarge = TextStyle(
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
+        fontFamily = FontFamily.Serif,
+        fontWeight = FontWeight.Medium,
         fontSize = 28.sp,
         lineHeight = 34.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
+        fontFamily = FontFamily.Serif,
+        fontWeight = FontWeight.Medium,
         fontSize = 22.sp,
         lineHeight = 28.sp
     ),
@@ -54,18 +54,28 @@ val DayflowTypography = Typography(
         fontSize = 13.sp,
         lineHeight = 18.sp
     ),
+    titleSmall = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    ),
     labelLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
-        fontSize = 13.sp,
-        lineHeight = 18.sp,
-        letterSpacing = 0.5.sp
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp
     ),
     labelSmall = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
-        fontSize = 10.sp,
-        lineHeight = 14.sp,
-        letterSpacing = 0.8.sp
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 16.sp
     )
 )

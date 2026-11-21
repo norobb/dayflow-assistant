@@ -12,4 +12,5 @@
     <color name="dayflow_border">#D8CFC2</color>
     <color name="dayflow_accent_green">#2E5C38</color>
     <color name="dayflow_accent_amber">#8C5E28</color>
+    <color name="launcher_background">#F5EFE6</color>
 </resources>
