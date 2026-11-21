@@ -24,9 +24,9 @@ data class SettingsUiState(
     val designSystemMode: DesignSystemMode = DesignSystemMode.DAYFLOW_SIGNATURE,
     val soundEnabled: Boolean = true,
     val hapticEnabled: Boolean = true,
-    val aiProvider: String = "gemini",
+    val aiProvider: String = "local",
     val geminiApiKey: String = "",
-    val geminiModel: String = "gemini-3.6-flash",
+    val geminiModel: String = "gemini-3.5-flash",
     val isTutorialCompleted: Boolean = true
 )
 
@@ -47,8 +47,9 @@ class SettingsViewModel(
     val designSystemMode: StateFlow<DesignSystemMode> = preferencesRepository.getDesignSystemMode()
         .stateIn(viewModelScope, SharingStarted.Eagerly, DesignSystemMode.DAYFLOW_SIGNATURE)
 
-    val isTutorialCompleted: StateFlow<Boolean> = preferencesRepository.isTutorialCompleted()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+    /** null until loaded, so the first screen is chosen only once. */
+    val isTutorialCompleted: StateFlow<Boolean?> = preferencesRepository.isTutorialCompleted()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     val uiState: StateFlow<SettingsUiState> = combine(
         preferencesRepository.getLanguage(),

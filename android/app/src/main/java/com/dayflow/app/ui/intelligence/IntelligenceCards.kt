@@ -143,6 +143,12 @@ fun CaptureCard(
             onClick = onCapture,
             enabled = serviceActive && !capturing,
             shape = RoundedCornerShape(14.dp),
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 50.dp)
@@ -572,6 +578,7 @@ fun resultText(result: ScreenActionBus.ActionResult): String = when (result) {
 fun statusStringRes(code: String): Int = when (code) {
     ScreenActionBus.Codes.CAPTURE_DONE -> R.string.intelligence_status_captured
     ScreenActionBus.Codes.CAPTURE_EMPTY -> R.string.intelligence_status_capture_empty
+    ScreenActionBus.Codes.CAPTURE_USE_BUBBLE -> R.string.intelligence_status_use_bubble
     ScreenActionBus.Codes.SCAN_DONE -> R.string.intelligence_status_scanned
     ScreenActionBus.Codes.TAP_DONE -> R.string.intelligence_status_tapped
     ScreenActionBus.Codes.TAP_FAILED -> R.string.intelligence_status_tap_failed

@@ -13,7 +13,9 @@ data class EventEntity(
     val location: String?,
     val dateLabel: String,
     val sourceType: String,
-    val createdAt: Long
+    val createdAt: Long,
+    val startMillis: Long? = null,
+    val calendarEventId: Long? = null
 ) {
     fun toDomain() = DayflowEvent(
         id = id,
@@ -22,7 +24,9 @@ data class EventEntity(
         location = location,
         dateLabel = dateLabel,
         sourceType = SourceType.fromIdentifier(sourceType),
-        createdAt = createdAt
+        createdAt = createdAt,
+        startMillis = startMillis,
+        calendarEventId = calendarEventId
     )
 
     companion object {
@@ -33,7 +37,9 @@ data class EventEntity(
             location = event.location,
             dateLabel = event.dateLabel,
             sourceType = event.sourceType.identifier,
-            createdAt = event.createdAt
+            createdAt = event.createdAt,
+            startMillis = event.startMillis,
+            calendarEventId = event.calendarEventId
         )
     }
 }

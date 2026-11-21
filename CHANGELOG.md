@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11-21 — Android 2.0: all website features implemented
+
+- Real on-device understanding (replaces the mock engine): date/time resolver (EN/DE/ES), OCR for screenshots, PDF reading, voice transcription.
+- Google Calendar sync via the calendar provider (write, live read, delete), local "Dayflow" calendar fallback.
+- Notification suggestions with Add/Review actions and overlay popup; reminders with Done/Snooze, restored after reboot.
+- Smart verified actions with draft confirmation, editable verification card, personal context, automations, activity log.
+- Multi-provider settings: on-device, Gemini, Anthropic-compatible, OpenAI-compatible (incl. Ollama) with connection test.
+- Screen agent works across apps (open_app action, selection state, step history, real Stop) with any configured provider.
+- Fixed: missing bubble service (build), Intelligence screen wired to real features, missing strings, dialogs ignoring the app language, typography colors breaking buttons/dark mode.
+
 All notable changes merged into `main` on 2026-09-25.
 
 ## 2026-09-25 — Integration merge

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Built-in providers (Gemini, Claude, OpenAI, GitHub updates) use HTTPS.
+  shortcut: cleartext is allowed so users can point the OpenAI-compatible
+  provider at a local model server (Ollama / LM Studio on their LAN, which
+  has no fixed host name); restrict to domain-config if that need goes away.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

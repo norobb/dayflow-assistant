@@ -10,7 +10,11 @@ import com.dayflow.app.domain.repository.DayflowRepository
 import com.dayflow.app.domain.repository.PreferencesRepository
 import com.dayflow.app.integrations.accessibility.context.ScreenIntelligenceRunner
 import com.dayflow.app.integrations.accessibility.context.ScreenObservationSettings
+import com.dayflow.app.data.repository.ItemCommitter
+import com.dayflow.app.data.repository.PersonalRepository
+import com.dayflow.app.integrations.automation.AutomationScheduler
 import com.dayflow.app.integrations.calendar.CalendarService
+import com.dayflow.app.integrations.media.ContentExtractor
 import com.dayflow.app.integrations.notification.NotificationHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +45,15 @@ class DayflowApplication : Application() {
     lateinit var analyzer: DayflowAnalyzer
         private set
 
+    lateinit var personalRepository: PersonalRepository
+        private set
+
+    lateinit var contentExtractor: ContentExtractor
+        private set
+
+    lateinit var itemCommitter: ItemCommitter
+        private set
+
     /**
      * Process-lifetime scope for work that must outlive a screen: the screen
      * intelligence analysis pipeline and the mirrored observation setting.
@@ -57,7 +70,10 @@ class DayflowApplication : Application() {
         soundAndHaptics = SoundAndHaptics(this)
         notificationHelper = NotificationHelper(this)
         calendarService = CalendarService(this)
-        analyzer = DayflowAnalyzer()
+        personalRepository = PersonalRepository(database)
+        contentExtractor = ContentExtractor(this)
+        analyzer = DayflowAnalyzer(preferencesRepository, personalRepository, contentExtractor)
+        itemCommitter = ItemCommitter(repository, preferencesRepository, personalRepository, calendarService, notificationHelper)
         // DayflowOverlayService is started from MainActivity (foreground) instead —
         // starting it here would crash with IllegalStateException whenever the process
         // boots in the background (e.g. bound accessibility / notification listener).
@@ -67,7 +83,13 @@ class DayflowApplication : Application() {
             runCatching {
                 preferencesRepository.isScreenObservationEnabled().first()
             }.getOrNull()?.let { ScreenObservationSettings.setAmbientEnabled(it) }
+            runCatching { AutomationScheduler.reschedule(this@DayflowApplication) }
         }
+        applicationScope.launch {
+            preferencesRepository.getLanguage().collect { com.dayflow.app.core.util.applyAppLocale(this@DayflowApplication, it) }
+        }
+        applicationScope.launch { preferencesRepository.isSoundEnabled().collect { soundAndHaptics.soundEnabled = it } }
+        applicationScope.launch { preferencesRepository.isHapticEnabled().collect { soundAndHaptics.hapticEnabled = it } }
     }
 
     companion object {

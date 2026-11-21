@@ -12,7 +12,8 @@ data class TaskEntity(
     val completed: Boolean,
     val dueDate: String?,
     val sourceType: String,
-    val createdAt: Long
+    val createdAt: Long,
+    val dueMillis: Long? = null
 ) {
     fun toDomain() = DayflowTask(
         id = id,
@@ -20,7 +21,8 @@ data class TaskEntity(
         completed = completed,
         dueDate = dueDate,
         sourceType = SourceType.fromIdentifier(sourceType),
-        createdAt = createdAt
+        createdAt = createdAt,
+        dueMillis = dueMillis
     )
 
     companion object {
@@ -30,7 +32,8 @@ data class TaskEntity(
             completed = task.completed,
             dueDate = task.dueDate,
             sourceType = task.sourceType.identifier,
-            createdAt = task.createdAt
+            createdAt = task.createdAt,
+            dueMillis = task.dueMillis
         )
     }
 }

@@ -6,5 +6,6 @@ data class DayflowTask(
     val completed: Boolean = false,
     val dueDate: String? = null,
     val sourceType: SourceType = SourceType.DEFAULT,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val dueMillis: Long? = null
 )

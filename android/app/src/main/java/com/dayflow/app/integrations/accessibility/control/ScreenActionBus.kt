@@ -55,6 +55,7 @@ object ScreenActionBus {
     object Codes {
         const val CAPTURE_DONE = "capture_done"
         const val CAPTURE_EMPTY = "capture_empty"
+        const val CAPTURE_USE_BUBBLE = "capture_use_bubble"
         const val SCAN_DONE = "scan_done"
         const val TAP_DONE = "tap_done"
         const val TAP_FAILED = "tap_failed"

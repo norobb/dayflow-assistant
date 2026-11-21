@@ -1,5 +1,6 @@
 package com.dayflow.app.ui.components
 
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -73,7 +74,7 @@ fun DayflowTopBar(
         ) {
             Icon(
                 imageVector = Icons.Outlined.Settings,
-                contentDescription = "Settings",
+                contentDescription = stringResource(R.string.settings_title),
                 tint = DayflowText.copy(alpha = 0.8f),
                 modifier = Modifier.size(20.dp)
             )

@@ -35,35 +35,6 @@ class DayflowOverlayService : LifecycleService() {
     private var windowManager: WindowManager? = null
     private var overlayView: ComposeView? = null
 
-    /**
-     * Compose in a Service context needs a real LifecycleOwner / ViewModelStoreOwner /
-     * SavedStateRegistryOwner attached to the view, otherwise attaching the ComposeView
-     * crashes with "ViewTreeLifecycleOwner not found". This tiny owner provides that
-     * plumbing for overlay views added via WindowManager.
-     */
-    private class OverlayComposeOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
-        private val lifecycleRegistry = LifecycleRegistry(this)
-        private val store = ViewModelStore()
-        private val savedStateController = SavedStateRegistryController.create(this)
-
-        init {
-            savedStateController.performRestore(null)
-        }
-
-        override val lifecycle: Lifecycle get() = lifecycleRegistry
-        override val viewModelStore: ViewModelStore get() = store
-        override val savedStateRegistry: SavedStateRegistry get() = savedStateController.savedStateRegistry
-
-        fun handleEvent(event: Lifecycle.Event) {
-            lifecycleRegistry.handleLifecycleEvent(event)
-        }
-
-        fun destroyAndClear() {
-            handleEvent(Lifecycle.Event.ON_DESTROY)
-            store.clear()
-        }
-    }
-
     private var composeOwner: OverlayComposeOwner? = null
 
     override fun onCreate() {
@@ -73,10 +44,11 @@ class DayflowOverlayService : LifecycleService() {
             NotificationInsightBus.latest.collectLatest { insight ->
                 if (insight == null) {
                     removeOverlay()
-                } else if (insight.sender != DayflowAccessibilityService.SCREEN_SENDER) {
-                    // Only ambient message overlays are shown as popups; screen
-                    // intelligence insights are surfaced in the Intelligence tab.
-                    showOverlay(insight.sender, insight.content)
+                } else if (insight.sender != DayflowAccessibilityService.SCREEN_SENDER &&
+                    insight.suggestionId != null && android.provider.Settings.canDrawOverlays(this@DayflowOverlayService)
+                ) {
+                    // Only messages in which Dayflow found something get a popup.
+                    showOverlay(insight.sender, insight.text, insight.content, insight.suggestionId)
                 } else {
                     removeOverlay()
                 }
@@ -84,14 +56,26 @@ class DayflowOverlayService : LifecycleService() {
         }
     }
 
-    private fun showOverlay(sender: String, content: String) {
+    private fun accept(suggestionId: String) {
+        removeOverlay()
+        val app = application as com.dayflow.app.DayflowApplication
+        val suggestion = com.dayflow.app.integrations.notification.PendingSuggestions.take(suggestionId) ?: return
+        app.applicationScope.launch {
+            app.itemCommitter.commit(suggestion.result)
+            app.notificationHelper.cancel(suggestionId)
+            app.soundAndHaptics.playSuccess()
+        }
+    }
+
+    private fun showOverlay(sender: String, content: String, summary: String, suggestionId: String) {
         if (overlayView != null) {
             overlayView?.setContent {
                 DayflowMessageOverlay(
                     messageSender = sender,
                     messageContent = content,
+                    detectedSummary = summary,
                     visible = true,
-                    onAccept = { removeOverlay() },
+                    onAccept = { accept(suggestionId) },
                     onDismiss = { removeOverlay() }
                 )
             }
@@ -113,8 +97,9 @@ class DayflowOverlayService : LifecycleService() {
                 DayflowMessageOverlay(
                     messageSender = sender,
                     messageContent = content,
+                    detectedSummary = summary,
                     visible = true,
-                    onAccept = { removeOverlay() },
+                    onAccept = { accept(suggestionId) },
                     onDismiss = { removeOverlay() }
                 )
             }

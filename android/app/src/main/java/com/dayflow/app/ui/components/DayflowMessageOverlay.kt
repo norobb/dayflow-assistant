@@ -1,5 +1,7 @@
 package com.dayflow.app.ui.components
 
+import com.dayflow.app.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -38,8 +40,10 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun DayflowMessageOverlay(
-    messageSender: String = "Alex",
-    messageContent: String = "Hey! Pick me up tomorrow at 18:00 at Central Station train platform 4.",
+    messageSender: String,
+    messageContent: String,
+    /** What Dayflow found, one item per line. */
+    detectedSummary: String,
     visible: Boolean = true,
     onAccept: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -77,7 +81,7 @@ fun DayflowMessageOverlay(
                     ) {
                         DayflowLogoHeader(symbolSize = 22.dp)
                         Text(
-                            text = "DAYFLOW OVERLAY",
+                            text = stringResource(R.string.overlay_title),
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.ExtraBold,
                                 letterSpacing = 1.sp
@@ -89,7 +93,7 @@ fun DayflowMessageOverlay(
                     IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
+                            contentDescription = stringResource(R.string.action_close),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -136,12 +140,12 @@ fun DayflowMessageOverlay(
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "18:00 — Pick up Alex at Central Station",
+                            text = detectedSummary,
                             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = "Detected event automatically from incoming message.",
+                            text = stringResource(R.string.overlay_detected),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                             fontSize = 11.sp
@@ -156,7 +160,7 @@ fun DayflowMessageOverlay(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     DayflowPrimaryButton(
-                        text = "Add to Calendar",
+                        text = stringResource(R.string.notif_action_add),
                         icon = Icons.Outlined.CalendarToday,
                         onClick = {
                             onAccept()

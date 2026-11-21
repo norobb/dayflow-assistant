@@ -1,5 +1,9 @@
 package com.dayflow.app.integrations.accessibility.context
 
+import com.dayflow.app.core.util.DateResolver
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Locale
 
 /**
@@ -23,6 +27,7 @@ class ScreenContextAnalyzer {
         now: Long = System.currentTimeMillis()
     ): List<ScreenCandidate> {
         val lang = language.lowercase(Locale.ROOT).take(2)
+        val today = Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault()).toLocalDate()
         val segments = lines.asSequence()
             .flatMap { splitSegments(it) }
             .map(::cleanSegment)
@@ -32,24 +37,86 @@ class ScreenContextAnalyzer {
             .toList()
 
         val candidates = mutableListOf<ScreenCandidate>()
+        var lastSchedule: Schedule? = null
         segments.forEach { segment ->
-            val candidate = classify(segment, lang) ?: return@forEach
-            val duplicate = candidates.any {
-                it.title.equals(candidate.title, ignoreCase = true)
+            var candidate = classify(segment, lang, today) ?: return@forEach
+            // "…tomorrow at 17:30. And bring the documents." -> the task is due then too.
+            if (candidate.kind == CandidateKind.TASK && candidate.startMillis == null && lastSchedule != null) {
+                val s = lastSchedule!!
+                candidate = candidate.copy(dateLabel = s.dateLabel, timeLabel = s.timeLabel, startMillis = s.millis)
             }
-            if (!duplicate) candidates += candidate
+            if (candidate.startMillis != null) {
+                lastSchedule = Schedule(candidate.dateLabel, candidate.timeLabel, candidate.startMillis)
+            }
+            // Screen readers repeat a message with a prefix ("Max said …"): same schedule + contained title = same item.
+            val duplicate = candidates.indexOfFirst {
+                it.title.equals(candidate.title, ignoreCase = true) ||
+                    (it.startMillis == candidate.startMillis && it.kind == candidate.kind &&
+                        (it.title.contains(candidate.title, true) || candidate.title.contains(it.title, true)))
+            }
+            if (duplicate < 0) candidates += candidate
+            else if (candidate.title.length < candidates[duplicate].title.length) candidates[duplicate] = candidate
         }
-        return candidates.sortedByDescending { it.confidence }.take(MAX_CANDIDATES)
+        if (candidates.none { it.kind == CandidateKind.EVENT }) {
+            documentEvent(lines, lang, today)?.let { doc ->
+                if (candidates.none { it.title.equals(doc.title, ignoreCase = true) }) candidates.add(0, doc)
+            }
+        }
+        // Keep the reading order of the source; drop the weakest beyond the cap.
+        val kept = candidates.sortedByDescending { it.confidence }.take(MAX_CANDIDATES).toSet()
+        return candidates.filter { it in kept }
+    }
+
+    private data class Schedule(val dateLabel: String?, val timeLabel: String?, val millis: Long?)
+
+    /**
+     * Screens, screenshots and PDFs spread one appointment over several lines
+     * ("Dentist Appointment" / "Tuesday • 14:30" / "Dental Care Center").
+     * When no single line is an event, look at the block as a whole.
+     */
+    private fun documentEvent(lines: List<String>, lang: String, today: LocalDate): ScreenCandidate? {
+        val clean = lines.flatMap { it.split('\n') }.map(::cleanSegment).filter { it.length >= 3 }
+        if (clean.isEmpty()) return null
+        val titleLine = clean.firstOrNull { eventNouns.matches(it.lowercase(Locale.ROOT)) && it.length <= MAX_TITLE_LENGTH }
+            ?: return null
+        val title = cleanTitle(titleLine, DateResolver.findDate(titleLine, today), DateResolver.findTime(titleLine))
+        if (title.length < MIN_TITLE_LENGTH) return null
+        // Read the schedule and venue from the title onwards: a status-bar clock or
+        // header above the appointment ("9:41") is not its time.
+        val titleIndex = clean.indexOf(titleLine)
+        val ordered = clean.drop(titleIndex) + clean.take(titleIndex)
+        val whole = ordered.joinToString(" \n ")
+        val date = DateResolver.findDate(whole, today, dayFirst = lang != "en")
+        val time = DateResolver.findTime(whole, date?.range)
+        if (date == null && time == null) return null
+        val location = ordered.firstOrNull { line ->
+            venueWords.matches(line.lowercase(Locale.ROOT)) && line.length <= MAX_LOCATION_LENGTH + 20 &&
+                DateResolver.findTime(line) == null
+        }?.let { line ->
+            line.replace(Regex("\\s*[•·|]\\s*"), ", ").trim(' ', ',')
+        } ?: extractLocation(whole.replace(" \n ", ". "), null)
+        val millis = DateResolver.toMillis(date?.date ?: today, time?.time)
+        return ScreenCandidate(
+            kind = CandidateKind.EVENT,
+            title = title,
+            timeLabel = time?.label,
+            dateLabel = date?.let { DateResolver.friendlyLabel(it.date, today, lang) },
+            location = location,
+            evidence = clean.take(4).joinToString(" · ").take(MAX_EVIDENCE_LENGTH),
+            confidence = 0.75f + (if (date != null && time != null) 0.1f else 0f),
+            startMillis = millis
+        )
     }
 
     // ------------------------------------------------------------------
     // Classification
     // ------------------------------------------------------------------
 
-    private fun classify(segment: String, lang: String): ScreenCandidate? {
+    private fun classify(segment: String, lang: String, today: LocalDate): ScreenCandidate? {
         val lower = segment.lowercase(Locale.ROOT)
-        val time = extractTime(segment)
-        val date = extractDate(lower)
+        if (uiChrome.matches(lower.trim())) return null
+        val date = DateResolver.findDate(segment, today, dayFirst = lang != "en")
+        val time = DateResolver.findTime(segment, date?.range)
         val hasSchedule = time != null || date != null
 
         val isReminder = reminderWords.matches(lower)
@@ -60,22 +127,25 @@ class ScreenContextAnalyzer {
         // "remind me tomorrow at 9 to call the dentist" -> reminder
         if (isReminder) {
             if (!hasSchedule && !isTask) return null
-            return build(segment, CandidateKind.REMINDER, time, date, lang, strong = true)
+            return build(segment, CandidateKind.REMINDER, time, date, lang, today, strong = true)
         }
 
         // An appointment noun plus a time/date is the clearest event signal.
+        if ((isEvent || isLocation) && hasSchedule && time != null) {
+            return build(segment, CandidateKind.EVENT, time, date, lang, today, strong = isEvent)
+        }
         if (isEvent && hasSchedule) {
-            return build(segment, CandidateKind.EVENT, time, date, lang, strong = true)
+            return build(segment, CandidateKind.EVENT, time, date, lang, today, strong = true)
         }
 
         // A plain action verb is a task (even without a date).
         if (isTask) {
-            return build(segment, CandidateKind.TASK, time, date, lang, strong = hasSchedule)
+            return build(segment, CandidateKind.TASK, time, date, lang, today, strong = hasSchedule)
         }
 
-        // Ticket / check-in style labels ("Check-in opens 06:00, Gate B12").
-        if (isLocation && hasSchedule && segment.length > 12) {
-            return build(segment, CandidateKind.EVENT, time, date, lang, strong = false)
+        // "Meet me at 8 pm tomorrow" — a concrete day *and* time is an appointment.
+        if (date != null && time != null && segment.length > 12) {
+            return build(segment, CandidateKind.EVENT, time, date, lang, today, strong = false)
         }
 
         return null
@@ -84,12 +154,13 @@ class ScreenContextAnalyzer {
     private fun build(
         segment: String,
         kind: CandidateKind,
-        time: String?,
-        date: String?,
+        time: DateResolver.TimeMatch?,
+        date: DateResolver.DateMatch?,
         lang: String,
+        today: LocalDate,
         strong: Boolean
     ): ScreenCandidate? {
-        val title = cleanTitle(segment)
+        val title = cleanTitle(segment, date, time)
         if (title.length < MIN_TITLE_LENGTH) return null
 
         var confidence = BASE_CONFIDENCE
@@ -99,14 +170,29 @@ class ScreenContextAnalyzer {
         if (kind == CandidateKind.EVENT && time != null && date != null) confidence += 0.05f
         confidence = confidence.coerceAtMost(0.95f)
 
+        val millis = if (date != null || time != null) {
+            var m = DateResolver.toMillis(date?.date ?: today, time?.time)
+            // A bare time that already passed refers to tomorrow.
+            if (date == null && m <= System.currentTimeMillis()) m = DateResolver.toMillis(today.plusDays(1), time?.time)
+            m
+        } else null
+        val dateLabel = when {
+            date != null -> DateResolver.friendlyLabel(date.date, today, lang)
+            millis != null -> DateResolver.friendlyLabel(
+                Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate(), today, lang
+            )
+            else -> null
+        }
+
         return ScreenCandidate(
             kind = kind,
             title = title,
-            timeLabel = time,
-            dateLabel = date,
-            location = if (kind == CandidateKind.EVENT) extractLocation(segment, date) else null,
+            timeLabel = time?.label,
+            dateLabel = dateLabel,
+            location = if (kind == CandidateKind.EVENT) extractLocation(segment, date?.text) else null,
             evidence = segment.take(MAX_EVIDENCE_LENGTH),
-            confidence = confidence
+            confidence = confidence,
+            startMillis = millis
         )
     }
 
@@ -114,61 +200,45 @@ class ScreenContextAnalyzer {
     // Signals
     // ------------------------------------------------------------------
 
-    private val colonTime = Regex("(?<!\\d)([01]?\\d|2[0-3])[:.]([0-5]\\d)(?!\\d)")
-    private val hourTime = Regex("(?<!\\d)([01]?\\d|2[0-3])\\s?(?:uhr|h)\\b", RegexOption.IGNORE_CASE)
-    private val amPmTime = Regex("(?<!\\d)(1[0-2]|0?[1-9])(?::([0-5]\\d))?\\s?(am|pm)\\b", RegexOption.IGNORE_CASE)
-
-    /** Normalised 24h "HH:mm", or null. */
-    internal fun extractTime(text: String): String? {
-        colonTime.find(text)?.let { m ->
-            val hour = m.groupValues[1].toIntOrNull() ?: return null
-            return "%02d:%s".format(Locale.ROOT, hour, m.groupValues[2])
-        }
-        amPmTime.find(text)?.let { m ->
-            val raw = m.groupValues[1].toIntOrNull() ?: return null
-            val minutes = m.groupValues[2].ifBlank { "00" }
-            val isPm = m.groupValues[3].equals("pm", ignoreCase = true)
-            val hour = when {
-                isPm && raw < 12 -> raw + 12
-                !isPm && raw == 12 -> 0
-                else -> raw
-            }
-            return "%02d:%s".format(Locale.ROOT, hour, minutes)
-        }
-        hourTime.find(text)?.let { m ->
-            val hour = m.groupValues[1].toIntOrNull() ?: return null
-            return "%02d:00".format(Locale.ROOT, hour)
-        }
-        return null
+    /** A venue: a proper name after "at / in / bei / en", or "<words> station/Bahnhof". */
+    private fun extractLocation(segment: String, dateText: String?): String? {
+        // Try every "at/in/bei …" phrase ("am Dienstag" is a date, not a place), then venue nouns.
+        val candidates = locationPattern.findAll(segment).map { it.groupValues[1] } +
+            venueNounPattern.findAll(segment).map { it.value }
+        return candidates.mapNotNull { cleanLocation(it, dateText) }.firstOrNull()
     }
 
-    /** The matched date word, capitalised in the source language. */
-    internal fun extractDate(lower: String): String? {
-        datePatterns.forEach { (pattern, canonical) ->
-            if (pattern.containsMatchIn(lower)) {
-                return canonical.replaceFirstChar { it.titlecase(Locale.ROOT) }
-            }
-        }
-        return null
-    }
-
-    /** A venue after "at / in / bei / en", if it reads like a proper name. */
-    private fun extractLocation(segment: String, date: String?): String? {
-        val match = locationPattern.find(segment) ?: return null
-        var value = match.groupValues[1].trim()
+    private fun cleanLocation(raw: String, dateText: String?): String? {
+        var value = raw.trim()
         stopWords.forEach { stop ->
             val suffix = Regex("\\s+${Regex.escape(stop)}$", RegexOption.IGNORE_CASE)
             value = suffix.replace(value, "")
         }
-        value = value.trim(' ', ',', '.', '-', '–')
+        value = value.replace(Regex("^(?:the|der|die|das|dem|den|la|el|los|las)\\s+", RegexOption.IGNORE_CASE), "")
+        value = value.trim(' ', ',', '.', '-', '–', '?', '!')
         if (value.length !in MIN_LOCATION_LENGTH..MAX_LOCATION_LENGTH) return null
-        if (date != null && value.equals(date, ignoreCase = true)) return null
-        if (dateWords.keys.any { value.equals(it, ignoreCase = true) }) return null
-        return value
+        if (dateText != null && dateText.contains(value, ignoreCase = true)) return null
+        if (DateResolver.findDate(value) != null && value.split(' ').size <= 2) return null
+        return value.replaceFirstChar { it.titlecase(Locale.ROOT) }
     }
 
     private val locationPattern = Regex(
-        "\\b(?:at|in|bei|en|@)\\s+([\\p{Lu}][\\p{L}\\d'’.\\-]+(?:\\s+[\\p{L}\\d'’.\\-]+){0,4})"
+        "(?<![\\p{L}])(?:at|in|bei|en|@|im|in der|am)\\s+(?:the\\s+)?([\\p{Lu}][\\p{L}\\d'’.\\-]+(?:\\s+(?:[\\p{Lu}\\d][\\p{L}\\d'’.\\-]*|de|del|la|von|an der)){0,4})"
+    )
+
+    /** "train station", "Hauptbahnhof", "Terminal 2", "estación central". */
+    private val venueNounPattern = Regex(
+        "(?:[\\p{L}]+\\s+)?(?:station|bahnhof|hauptbahnhof|airport|flughafen|terminal\\s*\\d*|gleis\\s*\\d+|platform\\s*\\d+|" +
+            "estación|estacion|aeropuerto|office|büro|praxis|clinic|klinik|school|schule|escuela)(?:\\s+(?:central|centro|\\d+[a-z]?))?",
+        RegexOption.IGNORE_CASE
+    )
+
+    private val venueWords = Words(
+        listOf(
+            "street", "st.", "road", "avenue", "center", "centre", "room", "clinic", "hospital", "hotel", "station",
+            "airport", "terminal", "praxis", "straße", "strasse", "str.", "platz", "weg", "raum", "zentrum", "klinik",
+            "bahnhof", "flughafen", "calle", "avenida", "plaza", "sala", "centro", "clínica", "estación", "aeropuerto"
+        )
     )
 
     // ------------------------------------------------------------------
@@ -180,25 +250,77 @@ class ScreenContextAnalyzer {
         return line
             .replace('\n', ' ')
             .split(sentenceEnd)
-            .map { it.replace(MAIN_SEPARATOR, ' ') }
+            .map { it.replace(MAIN_SEPARATOR, " ") }
             .filter { it.isNotBlank() }
     }
 
-    private val sentenceEnd = Regex("(?<=[.!?;•])\\s+")
+    // Sentence end, but not after titles/abbreviations ("Dr. Stein", "Hauptstr. 5", "z.B.").
+    private val sentenceEnd = Regex(
+        "(?<=[.!?;•])(?<!(?<![\\p{L}])(?:Dr|Prof|St|Nr|Str|Mr|Mrs|Ms|Sr|Sra|Hr|Fr|Tel|ca|bzw|vs|Dra)\\.)(?<!(?<![\\p{L}])z\\.B\\.)" +
+            // "12. Juni" / "3. März" is a date, not a sentence end.
+            "(?<!\\d\\.)\\s+|(?<=\\d\\.)\\s+(?!(?:jan|feb|mär|mar|apr|mai|jun|jul|aug|sep|okt|nov|dez)\\p{L}*)",
+        RegexOption.IGNORE_CASE
+    )
 
     private fun cleanSegment(raw: String): String = raw
         .replace(Regex("\\s+"), " ")
         .trim(' ', '\u00a0', '·', '|', '•', '-', '–', ':')
         .trim()
 
-    private fun cleanTitle(segment: String): String {
+    private fun cleanTitle(
+        segment: String,
+        date: DateResolver.DateMatch? = null,
+        time: DateResolver.TimeMatch? = null
+    ): String {
         var title = segment.trim()
+        // Cut the schedule out of the title (it is shown separately), together
+        // with the preposition that introduced it ("at 17:30", "um 9 Uhr", "el lunes").
+        val ranges = listOfNotNull(date?.range, time?.range).sortedByDescending { it.first }
+        ranges.forEach { r ->
+            if (r.last >= title.length) return@forEach
+            val before = title.substring(0, r.first)
+            val glue = danglingPreposition.find(before)
+            val start = glue?.range?.first ?: r.first
+            title = title.removeRange(start, r.last + 1)
+        }
         // Drop a leading timestamp: "17:30 Platform 4" -> "Platform 4".
         title = title.replace(Regex("^\\d{1,2}[:.]\\d{2}\\s*[-–—·|]?\\s*"), "")
         // Drop UI chrome that leaks into the tree from buttons and labels.
         title = chromeTrim.replace(title, "")
-        return title.trim().take(MAX_TITLE_LENGTH).trim()
+        title = title.replace(Regex("\\s+"), " ").trim().trimStart('¿', '¡')
+        repeat(3) { title = fillerPrefix.replace(title.trim(), "").trimStart('¿', '¡') }
+        title = politeWords.replace(title, " ")
+        title = title.replace(Regex("\\s+"), " ").trim(' ', ',', '.', ';', ':', '?', '!', '-', '–')
+        title = title.replaceFirstChar { it.titlecase(Locale.ROOT) }
+        return title.take(MAX_TITLE_LENGTH).trim()
     }
+
+    /** Button and chip labels of other apps ("Suggested reply", "Book now") are not tasks. */
+    private val uiChrome = Regex(
+        "(?:suggested|vorgeschlagene?|sugerencias?)\\s+\\p{L}+|" +
+            "(?:reply|reply all|send|call|call back|share|copy|confirm|cancel|check in|book now|buy now|pay now|" +
+            "download|upload|register|sign in|sign up|print|mark as read|antworten|allen antworten|senden|anrufen|" +
+            "zurückrufen|teilen|kopieren|bestätigen|abbrechen|jetzt buchen|jetzt kaufen|bezahlen|herunterladen|" +
+            "drucken|als gelesen markieren|responder|enviar|llamar|compartir|copiar|confirmar|cancelar|" +
+            "reservar ahora|comprar ahora|pagar|descargar|imprimir)"
+    )
+
+    private val danglingPreposition = Regex(
+        "(?<![\\p{L}])(?:at|on|by|until|um|am|bis|ab|a las|el|hasta|para el)\\s*$",
+        RegexOption.IGNORE_CASE
+    )
+
+    private val fillerPrefix = Regex(
+        "^(?:hey|hi|hello|hallo|hola|servus|moin|ok|okay|so)[,!]?\\s+|" +
+            "^(?:and|und|y|also|then|dann)\\s+|" +
+            "^(?:can you|could you|would you|will you|can we|could we|shall we|should we|kannst du|könntest du|kannst du mir|würdest du|" +
+            "können wir|wollen wir|sollen wir|puedes|podrías|podrias|podemos|quieres)\\s+|" +
+            "^(?:please|bitte|por favor)\\s+|" +
+            "^(?:remind me(?: to)?|don't forget to|dont forget to|remember to|erinnere mich(?: daran)?(?:,)?(?: dass)?(?: ich)?|" +
+            "denk daran(?:,)?|recuérdame(?: que)?|recuerdame(?: que)?|no olvides)\\s+",
+        RegexOption.IGNORE_CASE
+    )
+    private val politeWords = Regex("(?<![\\p{L}])(?:please|bitte|por favor)(?![\\p{L}])", RegexOption.IGNORE_CASE)
 
     private val MAIN_SEPARATOR = Regex("\\s*[·|]\\s*")
     private val chromeTrim = Regex("^(?:button|schaltfläche|botón|icon|symbol):?\\s*", RegexOption.IGNORE_CASE)
@@ -207,9 +329,11 @@ class ScreenContextAnalyzer {
     // Keyword sets (en / de / es)
     // ------------------------------------------------------------------
 
-    private class Words(list: List<String>) {
+    /** Whole-word keyword match (Unicode-aware). [compound] also matches word endings: "Zahnarzt|termin". */
+    private class Words(list: List<String>, compound: List<String> = emptyList()) {
         private val regex = Regex(
-            "\\b(?:${list.joinToString("|") { Regex.escape(it) }})\\b",
+            "(?<![\\p{L}])(?:${list.joinToString("|") { Regex.escape(it) }})(?![\\p{L}])" +
+                (if (compound.isEmpty()) "" else "|(?:${compound.joinToString("|") { Regex.escape(it) }})(?![\\p{L}])"),
             RegexOption.IGNORE_CASE
         )
         fun matches(text: String) = regex.containsMatchIn(text)
@@ -227,6 +351,11 @@ class ScreenContextAnalyzer {
             "cita", "reunión", "reunion", "reserva", "vuelo", "embarque", "tren",
             "andén", "anden", "dentista", "médico", "medico", "almuerzo", "cena",
             "concierto", "clase", "visita"
+        ),
+        compound = listOf(
+            "termin", "besprechung", "reservierung", "buchung", "flug", "arzt", "ärztin", "konzert",
+            "seminar", "vorlesung", "besichtigung", "treffen", "sitzung", "meeting", "kurs", "training",
+            "probe", "party", "feier", "geburtstag", "essen", "abholung", "untersuchung", "sprechstunde"
         )
     )
 
@@ -241,11 +370,14 @@ class ScreenContextAnalyzer {
             "vorbereiten", "erinnere", "erinnern", "prüfen", "herunterladen",
             "hochladen", "ausfüllen", "anmelden", "stornieren", "zurückgeben",
             "abgeben", "sammeln", "mailen", "antworten", "überprüfen", "packen",
-            "drucken", "überweisen", "aufladen",
+            "drucken", "überweisen", "aufladen", "bringen", "bring", "mitnehmen", "nimm", "zahlen", "schicken",
+            "schick", "besorgen", "erledigen", "kündigen", "einkaufen", "abholen", "zurückrufen", "ruf",
+            "melden", "vereinbaren", "beantragen", "mitbringen", "unterschreiben", "denk dran", "nicht vergessen",
             "traer", "recoger", "llamar", "pagar", "enviar", "firmar", "confirmar",
             "reservar", "comprar", "renovar", "preparar", "recuerda", "recordar",
             "revisar", "descargar", "subir", "rellenar", "registrar", "cancelar",
-            "devolver", "contestar", "imprimir", "transferir", "recargar"
+            "devolver", "contestar", "imprimir", "transferir", "recargar", "trae", "lleva", "llevar",
+            "compra", "paga", "envía", "envia", "llama", "no olvides", "entregar", "entrega"
         )
     )
 
@@ -264,35 +396,6 @@ class ScreenContextAnalyzer {
             "andén", "anden", "estación", "estacion", "aeropuerto", "dirección"
         )
     )
-
-    private val dateWords: Map<String, String> = linkedMapOf(
-        "day after tomorrow" to "day after tomorrow",
-        "übermorgen" to "übermorgen",
-        "pasado mañana" to "pasado mañana",
-        "tomorrow" to "tomorrow",
-        "morgen" to "morgen",
-        "mañana" to "mañana",
-        "manana" to "mañana",
-        "tonight" to "tonight",
-        "heute abend" to "heute abend",
-        "esta noche" to "esta noche",
-        "today" to "today",
-        "heute" to "heute",
-        "hoy" to "hoy",
-        "monday" to "Monday", "tuesday" to "Tuesday", "wednesday" to "Wednesday",
-        "thursday" to "Thursday", "friday" to "Friday", "saturday" to "Saturday",
-        "sunday" to "Sunday",
-        "montag" to "Montag", "dienstag" to "Dienstag", "mittwoch" to "Mittwoch",
-        "donnerstag" to "Donnerstag", "freitag" to "Freitag", "samstag" to "Samstag",
-        "sonntag" to "Sonntag",
-        "lunes" to "lunes", "martes" to "martes", "miércoles" to "miércoles",
-        "miercoles" to "miercoles", "jueves" to "jueves", "viernes" to "viernes",
-        "sábado" to "sábado", "sabado" to "sabado", "domingo" to "domingo"
-    )
-
-    private val datePatterns: List<Pair<Regex, String>> = dateWords.map { (word, canonical) ->
-        Regex("(?<![\\p{L}])${Regex.escape(word)}(?![\\p{L}])", RegexOption.IGNORE_CASE) to canonical
-    }
 
     private val stopWords = listOf(
         "and", "und", "y", "with", "mit", "con", "please", "bitte", "por favor",

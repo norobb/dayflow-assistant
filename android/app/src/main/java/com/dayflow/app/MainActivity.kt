@@ -6,6 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.dayflow.app.core.designsystem.DayflowTheme
+import androidx.compose.runtime.mutableStateOf
+import com.dayflow.app.integrations.notification.NotificationHelper
 import com.dayflow.app.integrations.overlay.DayflowOverlayService
 import com.dayflow.app.integrations.overlay.ScreenIntelligenceBubbleService
 import com.dayflow.app.ui.navigation.DayflowApp
@@ -42,10 +44,28 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        reviewText.value = intent?.getStringExtra(NotificationHelper.EXTRA_REVIEW_TEXT)
         setContent {
             DayflowTheme {
-                DayflowApp(app = app)
+                DayflowApp(app = app, reviewText = reviewText.value, onReviewConsumed = { reviewText.value = null })
             }
         }
+    }
+
+    private val reviewText = mutableStateOf<String?>(null)
+
+    override fun onStart() {
+        super.onStart()
+        com.dayflow.app.integrations.overlay.AppVisibility.inForeground.value = true
+    }
+
+    override fun onStop() {
+        com.dayflow.app.integrations.overlay.AppVisibility.inForeground.value = false
+        super.onStop()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        intent.getStringExtra(NotificationHelper.EXTRA_REVIEW_TEXT)?.let { reviewText.value = it }
     }
 }

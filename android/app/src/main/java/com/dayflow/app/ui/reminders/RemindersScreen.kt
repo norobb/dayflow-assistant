@@ -112,7 +112,7 @@ fun RemindersScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add Reminder",
+                        contentDescription = stringResource(R.string.reminders_add),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -175,7 +175,7 @@ private fun RemindersEmptyState() {
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = "No active reminders",
+            text = stringResource(R.string.reminders_empty_title),
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
@@ -184,7 +184,7 @@ private fun RemindersEmptyState() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Dayflow will schedule alerts and notify you at the exact right moment.",
+            text = stringResource(R.string.reminders_empty_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -226,12 +226,12 @@ private fun ReminderRowItem(
                 )
             }
 
-            SourceBadge(label = reminder.sourceType.identifier.replaceFirstChar { it.uppercase() })
+            SourceBadge(label = com.dayflow.app.ui.today.sourceLabel(reminder.sourceType))
 
             TextButton(onClick = onDismiss) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Done",
+                    contentDescription = stringResource(R.string.notif_action_done),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(16.dp)
                 )
@@ -266,7 +266,7 @@ private fun AddReminderDialog(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "New Reminder",
+                text = stringResource(R.string.reminders_new),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -274,7 +274,7 @@ private fun AddReminderDialog(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Reminder Title") },
+                label = { Text(stringResource(R.string.verify_field_title)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -286,7 +286,7 @@ private fun AddReminderDialog(
             OutlinedTextField(
                 value = timeLabel,
                 onValueChange = { timeLabel = it },
-                label = { Text("Trigger Time (e.g. Today 18:00)") },
+                label = { Text(stringResource(R.string.verify_field_when)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -307,7 +307,7 @@ private fun AddReminderDialog(
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
@@ -318,7 +318,7 @@ private fun AddReminderDialog(
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
-                    Text("Schedule", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.reminders_schedule), fontWeight = FontWeight.Bold)
                 }
             }
         }

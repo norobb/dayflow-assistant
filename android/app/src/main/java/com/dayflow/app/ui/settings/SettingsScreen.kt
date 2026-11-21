@@ -40,6 +40,7 @@ import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Vibration
+import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -267,70 +268,63 @@ fun SettingsScreen(
             }
 
             item {
+                AiProvidersSection(
+                    selected = uiState.aiProvider,
+                    geminiKey = uiState.geminiApiKey,
+                    geminiModel = uiState.geminiModel,
+                    onSelect = viewModel::setAiProvider,
+                    onGeminiKey = viewModel::setGeminiApiKey,
+                    onGeminiModel = viewModel::setGeminiModel
+                )
+            }
+
+            item { SectionHeader(stringResource(R.string.calendar_sync_title)) }
+            item { CalendarSection() }
+
+            item { SectionHeader(stringResource(R.string.context_title)) }
+            item { PersonalContextSection() }
+
+            item { SectionHeader(stringResource(R.string.auto_title)) }
+            item { AutomationsSection() }
+
+            // Section: Haptics & Feedback
+            item {
+                SectionHeader(stringResource(R.string.settings_section_interaction))
+            }
+
+            item {
                 DayflowCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Outlined.AutoAwesome,
+                                imageVector = Icons.Outlined.MusicNote,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = stringResource(R.string.settings_ai_provider_model),
-                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                text = stringResource(R.string.settings_sound),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }
-
-                        AiProviderRow(
-                            title = stringResource(R.string.settings_ai_gemini),
-                            selected = uiState.aiProvider == "gemini",
-                            onSelect = { viewModel.setAiProvider("gemini") }
-                        )
-                        AiProviderRow(
-                            title = stringResource(R.string.settings_ai_local),
-                            selected = uiState.aiProvider == "local",
-                            onSelect = { viewModel.setAiProvider("local") }
-                        )
-
-                        if (uiState.aiProvider == "gemini") {
-                            OutlinedTextField(
-                                value = uiState.geminiApiKey,
-                                onValueChange = { viewModel.setGeminiApiKey(it) },
-                                label = { Text(stringResource(R.string.settings_ai_gemini_key)) },
-                                placeholder = { Text("AIzaSy...") },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                                )
+                        Switch(
+                            checked = uiState.soundEnabled,
+                            onCheckedChange = { viewModel.toggleSound(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primary
                             )
-
-                            OutlinedTextField(
-                                value = uiState.geminiModel,
-                                onValueChange = { viewModel.setGeminiModel(it) },
-                                label = { Text(stringResource(R.string.settings_ai_model_id)) },
-                                placeholder = { Text("gemini-3.6-flash") },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                                )
-                            )
-                        }
+                        )
                     }
                 }
-            }
-
-            // Section: Haptics & Feedback
-            item {
-                SectionHeader(stringResource(R.string.settings_section_interaction))
             }
 
             item {
@@ -465,7 +459,7 @@ fun SettingsScreen(
                         PermissionRow(
                             icon = Icons.Outlined.Notifications,
                             title = stringResource(R.string.settings_perm_notif_listener),
-                            granted = false,
+                            granted = hasNotificationAccess(context),
                             onRequest = {
                                 try {
                                     val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
@@ -611,6 +605,8 @@ fun SettingsScreen(
                     }
                 }
             }
+
+            item { ActivityLogSection() }
 
             // About Brand Footer
             item {
@@ -764,37 +760,3 @@ private fun LanguageRow(
     }
 }
 
-@Composable
-private fun AiProviderRow(
-    title: String,
-    selected: Boolean,
-    onSelect: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-            .clickable { onSelect() }
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
-            ),
-            color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
-        )
-        if (selected) {
-            Icon(
-                imageVector = Icons.Outlined.Check,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(16.dp)
-            )
-        }
-    }
-}

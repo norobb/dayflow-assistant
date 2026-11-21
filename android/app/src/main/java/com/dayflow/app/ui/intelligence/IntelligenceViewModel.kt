@@ -23,6 +23,7 @@ import com.dayflow.app.integrations.accessibility.context.CandidateKind
 import com.dayflow.app.integrations.accessibility.context.CaptureTrigger
 import com.dayflow.app.integrations.accessibility.context.ScreenCandidate
 import com.dayflow.app.integrations.accessibility.context.ScreenCapture
+import com.dayflow.app.integrations.accessibility.context.ScreenCandidateSaver
 import com.dayflow.app.integrations.accessibility.context.ScreenCaptureStore
 import com.dayflow.app.integrations.accessibility.context.ScreenIntelligenceRunner
 import com.dayflow.app.integrations.accessibility.context.ScreenObservationSettings
@@ -136,7 +137,8 @@ class IntelligenceViewModel(
                         is ScreenActionBus.ActionResult.Done ->
                             result.code != ScreenActionBus.Codes.CAPTURE_DONE
                         is ScreenActionBus.ActionResult.Failed ->
-                            result.code != ScreenActionBus.Codes.CAPTURE_EMPTY
+                            result.code != ScreenActionBus.Codes.CAPTURE_EMPTY &&
+                                result.code != ScreenActionBus.Codes.CAPTURE_USE_BUBBLE
                         is ScreenActionBus.ActionResult.Running -> true
                         ScreenActionBus.ActionResult.Idle -> false
                     }
@@ -149,6 +151,9 @@ class IntelligenceViewModel(
         }
         viewModelScope.launch {
             ScreenAgentBus.running.collect { running -> _state.update { it.copy(agentRunning = running) } }
+        }
+        viewModelScope.launch {
+            DayflowAccessibilityService.connected.collect { refreshAccessState() }
         }
         refreshAccessState()
     }
@@ -304,43 +309,8 @@ class IntelligenceViewModel(
     }
 
     private suspend fun save(candidate: ScreenCandidate) {
-        val source = SourceType.CUSTOM
-        when (candidate.kind) {
-            CandidateKind.EVENT -> {
-                val event = DayflowEvent(
-                    time = candidate.timeLabel ?: (candidate.dateLabel ?: "—"),
-                    title = candidate.title,
-                    location = candidate.location,
-                    dateLabel = candidate.dateLabel ?: "Today",
-                    sourceType = source
-                )
-                repository.insertEvent(event)
-                if (PermissionUtils.hasCalendarPermission(context)) {
-                    calendarService.insertEvent(event)
-                }
-            }
-
-            CandidateKind.TASK -> {
-                repository.insertTask(
-                    DayflowTask(
-                        title = candidate.title,
-                        dueDate = candidate.scheduleLabel.ifBlank { null },
-                        sourceType = source
-                    )
-                )
-            }
-
-            CandidateKind.REMINDER -> {
-                val reminder = DayflowReminder(
-                    title = candidate.title,
-                    timeLabel = candidate.scheduleLabel.ifBlank { "Today" },
-                    scheduledTimeMillis = DateTimeUtils.parseTimeToMillis(candidate.timeLabel ?: ""),
-                    sourceType = source
-                )
-                repository.insertReminder(reminder)
-                notificationHelper.scheduleReminder(reminder)
-            }
-        }
+        val committer = (context.applicationContext as com.dayflow.app.DayflowApplication).itemCommitter
+        ScreenCandidateSaver.save(candidate, committer)
     }
 
     fun dismissStatus() {

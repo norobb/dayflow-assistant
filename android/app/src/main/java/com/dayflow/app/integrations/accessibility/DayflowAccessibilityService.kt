@@ -45,6 +45,7 @@ class DayflowAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
+        connected.value = true
         extractor = ScreenElementExtractor(this) { packageName }
         gestures = DayflowGestureController(this)
 
@@ -175,6 +176,21 @@ class DayflowAccessibilityService : AccessibilityService() {
 
             when (request.action) {
                 ScreenActionBus.Action.CAPTURE -> {
+                    // Asked from inside Dayflow: understand the app the user came from
+                    // (last observed screen), never Dayflow's own UI.
+                    if (foreground == packageName) {
+                        val previous = ScreenCaptureStore.lastAmbient?.takeIf { it.packageName != packageName }
+                            ?: ScreenCaptureStore.history.value.firstOrNull { it.packageName != packageName }
+                        if (previous == null) {
+                            ScreenActionBus.report(ScreenActionBus.ActionResult.Failed(ScreenActionBus.Codes.CAPTURE_USE_BUBBLE))
+                        } else {
+                            ScreenCaptureStore.publish(previous.copy(id = java.util.UUID.randomUUID().toString(), trigger = request.trigger))
+                            ScreenActionBus.report(
+                                ScreenActionBus.ActionResult.Done(ScreenActionBus.Codes.CAPTURE_DONE, listOf(previous.texts.size.toString()))
+                            )
+                        }
+                        return
+                    }
                     if (root == null) {
                         ScreenActionBus.report(
                             ScreenActionBus.ActionResult.Failed(ScreenActionBus.Codes.CAPTURE_EMPTY)
@@ -293,10 +309,13 @@ class DayflowAccessibilityService : AccessibilityService() {
     override fun onDestroy() {
         super.onDestroy()
         instance = null
+        connected.value = false
         scope.cancel()
     }
 
     companion object {
+        /** Live connection state for the UI (the service binds asynchronously after app start). */
+        val connected = kotlinx.coroutines.flow.MutableStateFlow(false)
         const val SCREEN_SENDER = "Screen Intelligence"
         const val MAX_CONTENT_LENGTH = 500
         const val MIN_PUBLISH_INTERVAL_MS = 1_000L

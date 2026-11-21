@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface EventDao {
-    @Query("SELECT * FROM events ORDER BY time ASC")
+    @Query("SELECT * FROM events ORDER BY startMillis IS NULL, startMillis ASC, time ASC")
     fun getAllEvents(): Flow<List<EventEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -19,6 +19,9 @@ interface EventDao {
 
     @Query("DELETE FROM events WHERE id = :eventId")
     suspend fun deleteEvent(eventId: String)
+
+    @Query("SELECT * FROM events WHERE id = :eventId")
+    suspend fun getEvent(eventId: String): EventEntity?
 
     @Query("DELETE FROM events")
     suspend fun clearAll()

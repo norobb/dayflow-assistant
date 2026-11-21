@@ -13,8 +13,8 @@ android {
         applicationId = "com.dayflow.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.3"
+        versionCode = 4
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -40,6 +40,11 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    // Test installs grant runtime permissions (the speech recognizer needs RECORD_AUDIO even for files).
+    installation {
+        installOptions += listOf("-g")
     }
 
     buildFeatures {
@@ -72,6 +77,9 @@ dependencies {
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
+
+    // On-device OCR (bundled model, works offline)
+    implementation(libs.mlkit.text.recognition)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)

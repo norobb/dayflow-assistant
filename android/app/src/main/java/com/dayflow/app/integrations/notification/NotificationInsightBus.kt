@@ -18,6 +18,8 @@ object NotificationInsightBus {
         val content: String,
         val title: String,
         val text: String,
+        /** Key into [PendingSuggestions] when Dayflow found items in this notification. */
+        val suggestionId: String? = null,
         val understoodAt: Long = System.currentTimeMillis()
     )
 

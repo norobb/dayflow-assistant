@@ -13,6 +13,38 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Package visibility: speech recognizer, maps/browser/dialer targets for smart actions -->
+    <queries>
+        <!-- Screen agent "open <app>" -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="text/plain" />
+        </intent>
+    </queries>
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -24,6 +56,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
+        android:localeConfig="@xml/locales_config"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.Dayflow">
 
         <!-- Main Dayflow UI Activity -->
@@ -31,6 +65,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Dayflow">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -79,6 +114,23 @@
             android:name=".integrations.notification.ReminderReceiver"
             android:exported="false" />
 
+        <receiver
+            android:name=".integrations.notification.NotificationActionReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".integrations.automation.AutomationReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".integrations.notification.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
         <!-- FileProvider for Sharing / Exporting -->
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -103,6 +155,11 @@
     <!-- System overlay (notification message overlay) -->
     <service
         android:name=".integrations.overlay.DayflowOverlayService"
+        android:exported="false" />
+
+    <!-- Floating "understand this screen" bubble -->
+    <service
+        android:name=".integrations.overlay.ScreenIntelligenceBubbleService"
         android:exported="false" />
 
     <!-- Accessibility / Screen Intelligence service -->

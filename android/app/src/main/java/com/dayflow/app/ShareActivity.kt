@@ -1,5 +1,6 @@
 package com.dayflow.app
 
+import com.dayflow.app.R
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -86,129 +87,39 @@ private fun ShareScreen(
 
     LaunchedEffect(intent) {
         language = app.preferencesRepository.getLanguage().first()
-        val action = intent.action
         val type = intent.type
-
-        if (action == Intent.ACTION_SEND && type != null) {
-            val provider = app.preferencesRepository.getAiProvider().first()
-            val apiKey = app.preferencesRepository.getGeminiApiKey().first()
-            val modelOverride = app.preferencesRepository.getGeminiModel().first()
-
-            when {
-                type.startsWith("text/") -> {
-                    val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
-                    // SECURITY ENHANCEMENT: Bound shared text length (max 10,000 chars) to prevent memory exhaustion / DoS
-                    val sanitizedText = sharedText?.take(10000)
-                    val result = app.analyzer.analyze(
-                        providerName = provider,
-                        type = SourceType.MESSAGE,
-                        rawInput = sanitizedText,
-                        apiKey = apiKey,
-                        modelOverride = modelOverride
-                    )
-                    analysisResult = result
-                    isAnalyzing = false
-                    app.soundAndHaptics.playSuccess()
-                }
-
-                type.startsWith("image/") -> {
-                    val imageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
-                    }
-                    val mediaBytes = imageUri?.let { uri ->
-                        app.contentResolver.openInputStream(uri)?.use { DocumentParser.readBytesWithLimit(it) }
-                    }
-                    if (imageUri != null && mediaBytes == null) {
-                        isAnalyzing = false
-                        errorMessage = "Shared image exceeds maximum size limit (10MB)."
-                    } else {
-                        val snippet = imageUri?.let { documentParser.getFileName(it) } ?: "Shared image"
-                        val result = app.analyzer.analyze(
-                            providerName = provider,
-                            type = SourceType.SCREENSHOT,
-                            rawInput = snippet,
-                            mediaBytes = mediaBytes,
-                            mimeType = type,
-                            apiKey = apiKey,
-                            modelOverride = modelOverride
-                        )
-                        analysisResult = result
-                        isAnalyzing = false
-                        app.soundAndHaptics.playSuccess()
-                    }
-                }
-
-                type == "application/pdf" || type.startsWith("application/") -> {
-                    val docUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
-                    }
-                    val mediaBytes = docUri?.let { uri ->
-                        app.contentResolver.openInputStream(uri)?.use { DocumentParser.readBytesWithLimit(it) }
-                    }
-                    if (docUri != null && mediaBytes == null) {
-                        isAnalyzing = false
-                        errorMessage = "Shared document exceeds maximum size limit (10MB)."
-                    } else {
-                        val snippet = docUri?.let { documentParser.getFileName(it) } ?: "Shared PDF"
-                        val result = app.analyzer.analyze(
-                            providerName = provider,
-                            type = SourceType.PDF,
-                            rawInput = snippet,
-                            mediaBytes = mediaBytes,
-                            mimeType = type,
-                            apiKey = apiKey,
-                            modelOverride = modelOverride
-                        )
-                        analysisResult = result
-                        isAnalyzing = false
-                        app.soundAndHaptics.playSuccess()
-                    }
-                }
-
-                type.startsWith("audio/") -> {
-                    val audioUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
-                    }
-                    val mediaBytes = audioUri?.let { uri ->
-                        app.contentResolver.openInputStream(uri)?.use { DocumentParser.readBytesWithLimit(it) }
-                    }
-                    if (audioUri != null && mediaBytes == null) {
-                        isAnalyzing = false
-                        errorMessage = "Shared audio exceeds maximum size limit (10MB)."
-                    } else {
-                        val result = app.analyzer.analyze(
-                            providerName = provider,
-                            type = SourceType.VOICE,
-                            rawInput = "Voice input",
-                            mediaBytes = mediaBytes,
-                            mimeType = type,
-                            apiKey = apiKey,
-                            modelOverride = modelOverride
-                        )
-                        analysisResult = result
-                        isAnalyzing = false
-                        app.soundAndHaptics.playSuccess()
-                    }
-                }
-
-                else -> {
-                    isAnalyzing = false
-                    errorMessage = "Unsupported shared content"
-                }
-            }
-        } else {
+        if (intent.action != Intent.ACTION_SEND || type == null) {
             isAnalyzing = false
-            errorMessage = "No shared content received"
+            errorMessage = app.getString(R.string.share_error_unsupported)
+            return@LaunchedEffect
         }
+        // SECURITY: bound shared text (10k chars) and files (10 MB) to avoid memory exhaustion.
+        val sharedText = (intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra(Intent.EXTRA_SUBJECT))?.take(10000)
+        val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
+        }
+        val sourceType = when {
+            type.startsWith("image/") -> SourceType.SCREENSHOT
+            type == "application/pdf" -> SourceType.PDF
+            type.startsWith("audio/") -> SourceType.VOICE
+            else -> SourceType.MESSAGE
+        }
+        val read = if (uri != null && sourceType != SourceType.MESSAGE) {
+            runCatching { app.contentResolver.openInputStream(uri)?.use { DocumentParser.readBytesWithLimit(it) } }
+        } else null
+        val bytes = read?.getOrNull()
+        if (read != null && bytes == null) {
+            isAnalyzing = false
+            errorMessage = app.getString(if (read.isFailure) R.string.input_media_read_error else R.string.share_error_too_large)
+            return@LaunchedEffect
+        }
+        val mime = if (sourceType == SourceType.MESSAGE) null else app.contentResolver.getType(uri!!) ?: type
+        analysisResult = app.analyzer.analyze(sourceType, sharedText, bytes, mime)
+        isAnalyzing = false
+        app.soundAndHaptics.playSuccess()
     }
 
     DayflowLocaleProvider(language) {
@@ -247,7 +158,7 @@ private fun ShareScreen(
                 IconButton(onClick = onFinish) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.action_close),
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
@@ -294,12 +205,11 @@ private fun ShareScreen(
                                 if (!isRetryingCalendar) {
                                     coroutineScope.launch {
                                         isRetryingCalendar = true
-                                        val remaining = failedCalendarEvents.filterNot { event ->
-                                            app.calendarService.insertEvent(event)
-                                        }
+                                        val remaining = app.itemCommitter.retryCalendar(failedCalendarEvents)
+                                        remaining.forEach { app.calendarService.launchCalendarIntent(it) }
                                         failedCalendarEvents = remaining
                                         isRetryingCalendar = false
-                                        if (remaining.isEmpty()) onFinish()
+                                        onFinish()
                                     }
                                 }
                             }
@@ -315,22 +225,11 @@ private fun ShareScreen(
                 val result = analysisResult!!
                 VerificationCard(
                     result = result,
-                    onAccept = {
+                    onAccept = { confirmed ->
                         if (!hasAcceptedResult) {
                             hasAcceptedResult = true
                             coroutineScope.launch {
-                                val failed = mutableListOf<DayflowEvent>()
-                                result.events.forEach { ev ->
-                                    app.repository.insertEvent(ev)
-                                    if (!app.calendarService.insertEvent(ev)) failed += ev
-                                }
-                                result.tasks.forEach { tk ->
-                                    app.repository.insertTask(tk)
-                                }
-                                result.reminders.forEach { rm ->
-                                    app.repository.insertReminder(rm)
-                                    app.notificationHelper.scheduleReminder(rm)
-                                }
+                                val failed = app.itemCommitter.commit(confirmed).calendarFailed
                                 app.soundAndHaptics.playSuccess()
                                 if (failed.isEmpty()) onFinish() else failedCalendarEvents = failed
                             }

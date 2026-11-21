@@ -52,17 +52,29 @@ android/app/src/main/java/com/dayflow/app/
 
 ## Key Features
 
-1. **Human-in-the-Loop Verification**:
-   - Analyzed items always present an actionable `VerificationCard` allowing the user to review what was detected before creating calendar events, reminders, or tasks.
-2. **Deep Android Integration**:
-   - **Sharesheet Target (`ShareActivity`)**: Registered for `ACTION_SEND` on text, images/screenshots, PDFs, and audio recordings.
-   - **Calendar Integration**: Direct ContentResolver or native Android Intent fallback with permission handling.
-   - **Notification Channels**: Scheduled reminders using AlarmManager.
-   - **Voice Recording**: Real microphone recording with amplitude metering and transcription hooks.
-3. **Official Dayflow Branding**:
-   - Reuses official Dayflow symbol and logo assets (`res/drawable/dayflow_symbol_official.png`, `dayflow_logo_official.png`).
-4. **Localization**:
-   - Fully localized into **English** (`values/strings.xml`), **German** (`values-de/strings.xml`), and **Spanish** (`values-es/strings.xml`).
+Every feature announced on the Dayflow website is implemented and was tested on the API 37 emulator:
+
+| Website feature | Android implementation |
+| :--- | :--- |
+| Message understanding | `LocalProvider` + `ScreenContextAnalyzer` + `DateResolver`: on-device extraction of events, tasks and reminders (EN/DE/ES, relative and absolute dates, German compounds, abbreviations) |
+| Screenshot recognition | `ContentExtractor.imageText` (ML Kit OCR, bundled model, offline) → same parser, multi-line appointment blocks |
+| PDF dossier extraction | `ContentExtractor.pdfText` (`PdfRenderer` + OCR, up to 8 pages) |
+| Voice note transcription | `ContentExtractor.audioText`: decodes any audio to PCM and transcribes with the system recognizer (on-device; triggers the language-pack download when missing) |
+| Synchronized daily dashboard | Today: proactive context hint (View tasks / Snooze), "Today, understood.", timeline (Dayflow + device calendar + routines), tasks, reminders, reset |
+| System share integration | `ShareActivity` for text, images, PDFs and audio |
+| Notification actions | `DayflowNotificationListenerService` analyzes incoming messages on device and posts a suggestion with **Add** / **Review**; optional overlay popup |
+| Google Calendar sync | `CalendarService`: writes to the chosen calendar (Google primary or a local "Dayflow" calendar), reads device calendars live, deletes in sync |
+| Screen intelligence | Accessibility capture, floating bubble (`ScreenIntelligenceBubbleService`), screen map, cross-app screen agent (open app → act → done; uses the selected AI provider, simple goals work on device), safety gate |
+| Smart verified actions | `SmartActionPlanner`: open link, route, dial, e-mail, reply / running-late drafts (SMS or share sheet) — always confirmed, never sent by Dayflow |
+| Human confirmation | `VerificationCard`: every item can be unchecked or edited before saving |
+| Personal context | Vocabulary (term → meaning), routines (weekdays + time), learned frequent contacts (`PersonalRepository`) |
+| Multi-provider model settings | On-device, Gemini, Anthropic-compatible (Messages API: Claude gateways, Ollama, LiteLLM), OpenAI-compatible (OpenAI, OpenRouter, Ollama); optional gateway URL, retry on 429/503, cloud failures fall back to on-device |
+| System automation workflows | Morning briefing, reminder before each event, suggestions from messages, task clean-up (`AutomationScheduler`, `ItemCommitter`) |
+| Privacy & transparency | Explicit permissions, notifications always analyzed on device, activity log of everything Dayflow did and what went to a cloud model |
+| Sound & haptics | Synthesized UI tones (click, analyze, success fifth, toggle) and haptics, each switchable |
+| Languages | English, German, Spanish; applied app-wide via the per-app locale (Android 13+) |
+
+Reminders survive reboots (`BootReceiver`); the cross-platform desktop app from the website roadmap is out of scope for Android.
 
 ---
 
@@ -83,3 +95,10 @@ cd android
 ```bash
 ./gradlew test
 ```
+
+### Run On-Device Tests (emulator)
+```bash
+# Speaks voice notes with the system TTS and transcribes them on the device
+./gradlew connectedDebugAndroidTest
+```
+Use JDK 17 (`JAVA_HOME`); newer JDKs break the Android `jlink` step.

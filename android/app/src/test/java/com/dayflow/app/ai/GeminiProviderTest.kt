@@ -14,17 +14,17 @@ class GeminiProviderTest {
 
     @Test
     fun testSanitizeModelNameRejectsPathTraversalAndQueryParams() {
-        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("../gemini"))
-        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("gemini-1.5?key=123"))
-        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("model/v1"))
-        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("gemini; rm -rf /"))
+        assertEquals("gemini-3.5-flash", GeminiProvider.sanitizeModelName("../gemini"))
+        assertEquals("gemini-3.5-flash", GeminiProvider.sanitizeModelName("gemini-1.5?key=123"))
+        assertEquals("gemini-3.5-flash", GeminiProvider.sanitizeModelName("model/v1"))
+        assertEquals("gemini-3.5-flash", GeminiProvider.sanitizeModelName("gemini; rm -rf /"))
     }
 
     @Test
     fun testSanitizeModelNameHandlesNullAndBlank() {
-        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName(null))
-        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName(""))
-        assertEquals("gemini-3.6-flash", GeminiProvider.sanitizeModelName("   "))
+        assertEquals("gemini-3.5-flash", GeminiProvider.sanitizeModelName(null))
+        assertEquals("gemini-3.5-flash", GeminiProvider.sanitizeModelName(""))
+        assertEquals("gemini-3.5-flash", GeminiProvider.sanitizeModelName("   "))
     }
 
     @Test

@@ -115,7 +115,7 @@ fun TasksScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add Task",
+                        contentDescription = stringResource(R.string.tasks_add),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -134,7 +134,7 @@ fun TasksScreen(
                     if (activeTasks.isNotEmpty()) {
                         item {
                             Text(
-                                text = "Active Tasks (${activeTasks.size})",
+                                text = stringResource(R.string.tasks_active, activeTasks.size),
                                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(vertical = 4.dp)
@@ -152,7 +152,7 @@ fun TasksScreen(
                     if (completedTasks.isNotEmpty()) {
                         item {
                             Text(
-                                text = "Completed (${completedTasks.size})",
+                                text = stringResource(R.string.tasks_completed_count, completedTasks.size),
                                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
@@ -211,7 +211,7 @@ private fun TasksEmptyState() {
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = "No tasks yet",
+            text = stringResource(R.string.tasks_empty_title),
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
@@ -220,7 +220,7 @@ private fun TasksEmptyState() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Create tasks manually or ask Dayflow to extract action items from your messages.",
+            text = stringResource(R.string.tasks_empty_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -243,7 +243,7 @@ private fun TaskRowItem(
         ) {
             Icon(
                 imageVector = if (task.completed) Icons.Default.CheckCircle else Icons.Outlined.Circle,
-                contentDescription = null,
+                contentDescription = stringResource(if (task.completed) R.string.task_completed else R.string.task_open),
                 tint = if (task.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                 modifier = Modifier
                     .size(22.dp)
@@ -267,12 +267,12 @@ private fun TaskRowItem(
                 }
             }
 
-            SourceBadge(label = task.sourceType.identifier.replaceFirstChar { it.uppercase() })
+            SourceBadge(label = com.dayflow.app.ui.today.sourceLabel(task.sourceType))
 
             IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
+                    contentDescription = stringResource(R.string.action_delete),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     modifier = Modifier.size(16.dp)
                 )
@@ -300,7 +300,7 @@ private fun AddTaskDialog(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "New Task",
+                text = stringResource(R.string.tasks_new),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -308,7 +308,7 @@ private fun AddTaskDialog(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Task Title") },
+                label = { Text(stringResource(R.string.verify_field_title)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -320,7 +320,7 @@ private fun AddTaskDialog(
             OutlinedTextField(
                 value = due,
                 onValueChange = { due = it },
-                label = { Text("Due Date / Time (Optional)") },
+                label = { Text(stringResource(R.string.tasks_due_optional)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -341,7 +341,7 @@ private fun AddTaskDialog(
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
@@ -352,7 +352,7 @@ private fun AddTaskDialog(
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
-                    Text("Create Task", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.tasks_create), fontWeight = FontWeight.Bold)
                 }
             }
         }

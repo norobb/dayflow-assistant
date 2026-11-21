@@ -43,7 +43,8 @@ class TasksViewModel(
                 title = cleanTitle,
                 completed = false,
                 dueDate = cleanDueDate,
-                sourceType = SourceType.CUSTOM
+                sourceType = SourceType.CUSTOM,
+                dueMillis = cleanDueDate?.let { com.dayflow.app.core.util.DateResolver.resolveMillis(it) }
             )
             repository.insertTask(task)
             soundAndHaptics.playSuccess()

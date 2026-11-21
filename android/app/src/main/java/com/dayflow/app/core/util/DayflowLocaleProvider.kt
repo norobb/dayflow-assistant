@@ -63,3 +63,17 @@ private tailrec fun Context.findActivityResultRegistryOwner(): ActivityResultReg
     val unwrapped = (this as? ContextWrapper)?.baseContext ?: return null
     return unwrapped.findActivityResultRegistryOwner()
 }
+
+/**
+ * Applies the in-app language system-wide for this app (Android 13+), so
+ * dialogs, notifications and services follow it too. Older devices rely on
+ * [DayflowLocaleProvider] for screens.
+ */
+fun applyAppLocale(context: Context, languageCode: String) {
+    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) return
+    val manager = context.getSystemService(android.app.LocaleManager::class.java) ?: return
+    val wanted = android.os.LocaleList.forLanguageTags(languageCode)
+    if (manager.applicationLocales.toLanguageTags() != wanted.toLanguageTags()) {
+        manager.applicationLocales = wanted
+    }
+}

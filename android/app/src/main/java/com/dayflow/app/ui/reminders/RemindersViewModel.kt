@@ -30,13 +30,16 @@ class RemindersViewModel(
     fun addReminder(title: String, timeLabel: String) {
         val cleanTitle = sanitizeReminderField(title, maxLength = 300)
         if (cleanTitle.isBlank()) return
-        val cleanTime = sanitizeReminderField(timeLabel, maxLength = 100).ifBlank { "Later today" }
+        val cleanTime = sanitizeReminderField(timeLabel, maxLength = 100).ifBlank { "+1h" }
         viewModelScope.launch {
             // SECURITY ENHANCEMENT: Use cryptographically secure UUID for unique reminder identifier
             val reminder = DayflowReminder(
                 id = "rm-${UUID.randomUUID()}",
                 title = cleanTitle,
                 timeLabel = cleanTime,
+                // "morgen 18:00", "Monday 9am", "18:30" -> real alarm time.
+                scheduledTimeMillis = com.dayflow.app.core.util.DateResolver.resolveMillis(cleanTime)
+                    ?: (System.currentTimeMillis() + 3_600_000L),
                 sourceType = SourceType.CUSTOM
             )
             repository.insertReminder(reminder)

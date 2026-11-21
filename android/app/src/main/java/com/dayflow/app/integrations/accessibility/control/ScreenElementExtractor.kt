@@ -64,7 +64,7 @@ class ScreenElementExtractor(
             if (includeOwn || nodePackage != own) {
                 out += ScreenActionBus.ScreenElement(
                     id = nextId++,
-                    label = labelFor(node),
+                    label = labelFor(node) + if (node.isSelected || node.isChecked) " [selected]" else "",
                     className = node.className?.toString().orEmpty(),
                     isEditable = node.isEditable,
                     centerX = bounds.centerX(),
@@ -84,7 +84,8 @@ class ScreenElementExtractor(
     }
 
     private fun isInteractive(node: AccessibilityNodeInfo): Boolean {
-        return node.isClickable || node.isLongClickable || node.isEditable
+        // Selected tabs often stop being clickable, but the agent must still see them as state.
+        return node.isClickable || node.isLongClickable || node.isEditable || node.isSelected
     }
 
     private fun labelFor(node: AccessibilityNodeInfo): String {
@@ -94,9 +95,23 @@ class ScreenElementExtractor(
         if (!desc.isNullOrBlank()) return desc.take(MAX_LABEL_LENGTH)
         val hint = node.hintText?.toString()?.trim()
         if (!hint.isNullOrBlank()) return hint.take(MAX_LABEL_LENGTH)
+        // A clickable row usually carries its text in child views ("Display & touch").
+        val childTexts = mutableListOf<String>()
+        collectChildText(node, childTexts, 0)
+        if (childTexts.isNotEmpty()) return childTexts.joinToString(" · ").take(MAX_LABEL_LENGTH)
         // Fall back to a readable class name, e.g. "ImageButton".
         val cls = node.className?.toString()?.substringAfterLast('.').orEmpty()
         return if (cls.isBlank()) "element" else cls
+    }
+
+    private fun collectChildText(node: AccessibilityNodeInfo, out: MutableList<String>, depth: Int) {
+        if (out.size >= 2 || depth > 4) return
+        for (i in 0 until node.childCount) {
+            val child = try { node.getChild(i) } catch (_: Exception) { null } ?: continue
+            (child.text ?: child.contentDescription)?.toString()?.trim()?.takeIf { it.isNotBlank() }?.let { out += it }
+            if (out.size >= 2) return
+            collectChildText(child, out, depth + 1)
+        }
     }
 
     private fun AccessibilityService.displayBounds(out: Rect) {

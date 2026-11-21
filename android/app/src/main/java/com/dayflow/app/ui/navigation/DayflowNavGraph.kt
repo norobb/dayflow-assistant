@@ -1,5 +1,8 @@
 package com.dayflow.app.ui.navigation
 
+import androidx.compose.runtime.LaunchedEffect
+import com.dayflow.app.domain.model.SourceType
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -38,7 +41,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun DayflowApp(
     app: DayflowApplication,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    reviewText: String? = null,
+    onReviewConsumed: () -> Unit = {}
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Today.route
@@ -59,17 +64,11 @@ fun DayflowApp(
     val isTutorialCompleted by settingsViewModel.isTutorialCompleted.collectAsState()
     val settingsState by settingsViewModel.uiState.collectAsState()
 
-    val startDestination = if (isTutorialCompleted) Screen.Today.route else Screen.Tutorial.route
+    val tutorialDone = isTutorialCompleted ?: return // preferences still loading (a few ms)
+    val startDestination = remember { if (tutorialDone) Screen.Today.route else Screen.Tutorial.route }
 
     val todayViewModel: TodayViewModel = viewModel(
-        factory = TodayViewModel.Factory(
-            app.repository,
-            app.preferencesRepository,
-            app.calendarService,
-            app.notificationHelper,
-            app.soundAndHaptics,
-            app.analyzer
-        )
+        factory = TodayViewModel.Factory(app)
     )
 
     val tasksViewModel: TasksViewModel = viewModel(
@@ -86,6 +85,14 @@ fun DayflowApp(
             app.soundAndHaptics
         )
     )
+
+    // "Review" from a suggestion notification: analyze that message and show the verification card.
+    LaunchedEffect(reviewText) {
+        if (!reviewText.isNullOrBlank()) {
+            todayViewModel.startAnalysis(SourceType.MESSAGE, reviewText)
+            onReviewConsumed()
+        }
+    }
 
     val showBottomBar = currentRoute != Screen.Settings.route && currentRoute != Screen.Tutorial.route
 
@@ -139,7 +146,13 @@ fun DayflowApp(
                     composable(Screen.Today.route) {
                         TodayScreen(
                             viewModel = todayViewModel,
-                            onSettingsClick = { navController.navigate(Screen.Settings.route) }
+                            onSettingsClick = { navController.navigate(Screen.Settings.route) },
+                            onViewTasks = {
+                                navController.navigate(Screen.Tasks.route) {
+                                    popUpTo(Screen.Today.route) { saveState = true }
+                                    launchSingleTop = true
+                                }
+                            }
                         )
                     }
 
@@ -158,8 +171,23 @@ fun DayflowApp(
                     }
 
                     composable(Screen.Intelligence.route) {
+                        val intelligenceViewModel: com.dayflow.app.ui.intelligence.IntelligenceViewModel = viewModel(
+                            factory = com.dayflow.app.ui.intelligence.IntelligenceViewModel.Factory(
+                                app.applicationContext,
+                                app.repository,
+                                app.preferencesRepository,
+                                app.calendarService,
+                                app.notificationHelper,
+                                app.soundAndHaptics
+                            )
+                        )
                         IntelligenceScreen(
-                            onSettingsClick = { navController.navigate(Screen.Settings.route) }
+                            viewModel = intelligenceViewModel,
+                            onSettingsClick = { navController.navigate(Screen.Settings.route) },
+                            onReviewNotification = { text ->
+                                navController.navigate(Screen.Today.route) { popUpTo(Screen.Today.route) }
+                                todayViewModel.startAnalysis(SourceType.MESSAGE, text)
+                            }
                         )
                     }
 

@@ -21,7 +21,9 @@ data class ScreenCandidate(
     val dateLabel: String? = null,
     val location: String? = null,
     val evidence: String = "",
-    val confidence: Float = 0.7f
+    val confidence: Float = 0.7f,
+    /** Resolved start (events/reminders) or due time (tasks); null if unknown. */
+    val startMillis: Long? = null
 ) {
     /** "Tomorrow · 17:30" style secondary line, built by the UI. */
     val scheduleLabel: String

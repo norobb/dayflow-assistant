@@ -23,9 +23,16 @@ object ScreenCaptureStore {
     private val _history = MutableStateFlow<List<ScreenCapture>>(emptyList())
     val history: StateFlow<List<ScreenCapture>> = _history.asStateFlow()
 
+    /** Most recent passively observed screen (memory only), for "understand the app I came from". */
+    @Volatile var lastAmbient: ScreenCapture? = null
+        private set
+
     fun publish(capture: ScreenCapture) {
         _latest.value = capture
-        if (capture.trigger == CaptureTrigger.AMBIENT) return
+        if (capture.trigger == CaptureTrigger.AMBIENT) {
+            lastAmbient = capture
+            return
+        }
 
         val previous = _history.value.firstOrNull()
         val isRepeat = previous != null &&
@@ -41,6 +48,7 @@ object ScreenCaptureStore {
     }
 
     fun clear() {
+        lastAmbient = null
         _latest.value = null
         _history.value = emptyList()
     }

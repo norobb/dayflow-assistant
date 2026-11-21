@@ -97,7 +97,7 @@ fun OmniInputSheet(
             selectedFileMimeType = context.contentResolver.getType(uri) ?: "image/*"
             selectedFileName = documentParser.getFileName(uri)
             mediaReadError = null
-            inputText = "Picked Image: ${selectedFileName}\nReceipt / Appointment Screenshot detected."
+            inputText = ""
         }
     }
 
@@ -110,7 +110,7 @@ fun OmniInputSheet(
             selectedFileMimeType = context.contentResolver.getType(uri) ?: "application/pdf"
             selectedFileName = documentParser.getFileName(uri)
             mediaReadError = null
-            inputText = "Picked PDF: ${selectedFileName}"
+            inputText = ""
         }
     }
     val microphonePermissionLauncher = rememberLauncherForActivityResult(
@@ -162,7 +162,7 @@ fun OmniInputSheet(
                 IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.action_close),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -194,9 +194,6 @@ fun OmniInputSheet(
                         selectedFileMimeType = null
                         selectedFileName = null
                         mediaReadError = null
-                        if (inputText.isBlank()) {
-                            inputText = "Doctor Appointment: Dr. Julia Stein — Zahnheilkunde — Tuesday 14:30"
-                        }
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -210,9 +207,6 @@ fun OmniInputSheet(
                         selectedFileMimeType = null
                         selectedFileName = null
                         mediaReadError = null
-                        if (inputText.isBlank()) {
-                            inputText = "Flight & Hotel Confirmation: Barcelona (BCN) · Oct 12 - 16 · Flight LH1812"
-                        }
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -340,7 +334,7 @@ fun OmniInputSheet(
                                                     if (audioBytes == null && mediaReadError == null) {
                                                         mediaReadError = context.getString(R.string.input_media_too_large)
                                                     } else if (audioBytes != null) {
-                                                        onAnalyze(SourceType.VOICE, "Voice recording", audioBytes, "audio/mp4")
+                                                        onAnalyze(SourceType.VOICE, null, audioBytes, "audio/mp4")
                                                     }
                                                 }
                                             }
@@ -350,7 +344,7 @@ fun OmniInputSheet(
                             ) {
                                 Icon(
                                     imageVector = if (isVoiceRecording) Icons.Default.Stop else Icons.Default.Mic,
-                                    contentDescription = null,
+                                    contentDescription = stringResource(if (isVoiceRecording) R.string.input_voice_stop else R.string.input_voice_start),
                                     tint = Color.White,
                                     modifier = Modifier.size(26.dp)
                                 )
@@ -405,7 +399,7 @@ fun OmniInputSheet(
                     icon = Icons.Outlined.AutoAwesome,
                     isLoading = isAnalyzing || isReadingMedia,
                     onClick = {
-                        val type = if (inputText.isNotBlank()) selectedTab else SourceType.MESSAGE
+                        val type = if (selectedFileUri != null) selectedTab else SourceType.MESSAGE
                         val input = inputText.ifBlank { null }
                         val uri = selectedFileUri
                         val mimeType = selectedFileMimeType

@@ -97,7 +97,7 @@ class UserPreferences(private val context: Context) : PreferencesRepository {
 
     override fun getAiProvider(): Flow<String> {
         return context.dataStore.data.map { preferences ->
-            preferences[PreferencesKeys.KEY_AI_PROVIDER] ?: "gemini"
+            preferences[PreferencesKeys.KEY_AI_PROVIDER] ?: "local"
         }
     }
 
@@ -122,12 +122,13 @@ class UserPreferences(private val context: Context) : PreferencesRepository {
 
     override fun getGeminiModel(): Flow<String> {
         return context.dataStore.data.map { preferences ->
-            preferences[PreferencesKeys.KEY_GEMINI_MODEL] ?: "gemini-3.6-flash"
+            preferences[PreferencesKeys.KEY_GEMINI_MODEL] ?: ""
         }
     }
 
     override suspend fun setGeminiModel(model: String) {
-        val cleanModel = GeminiProvider.sanitizeModelName(model)
+        // Stored as typed (control chars stripped); GeminiProvider validates it before use.
+        val cleanModel = model.replace(Regex("[\\x00-\\x1F\\x7F]"), "").trim().take(100)
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_GEMINI_MODEL] = cleanModel
         }
@@ -167,6 +168,22 @@ class UserPreferences(private val context: Context) : PreferencesRepository {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEY_SCREEN_BUBBLE] = enabled
         }
+    }
+
+    override fun stringPref(key: String, default: String): Flow<String> =
+        context.dataStore.data.map { it[stringPreferencesKey(key)] ?: default }
+
+    override suspend fun setStringPref(key: String, value: String) {
+        // Keys and endpoints are single-line; strip control characters defensively.
+        val clean = value.replace(Regex("[\\x00-\\x1F\\x7F]"), "").take(2048)
+        context.dataStore.edit { it[stringPreferencesKey(key)] = clean }
+    }
+
+    override fun boolPref(key: String, default: Boolean): Flow<Boolean> =
+        context.dataStore.data.map { it[booleanPreferencesKey(key)] ?: default }
+
+    override suspend fun setBoolPref(key: String, value: Boolean) {
+        context.dataStore.edit { it[booleanPreferencesKey(key)] = value }
     }
 
     private fun detectSystemLanguage(): String {

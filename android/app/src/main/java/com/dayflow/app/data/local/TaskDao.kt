@@ -23,6 +23,9 @@ interface TaskDao {
     @Query("DELETE FROM tasks WHERE id = :taskId")
     suspend fun deleteTask(taskId: String)
 
+    @Query("DELETE FROM tasks WHERE completed = 1 AND createdAt < :before")
+    suspend fun deleteCompletedBefore(before: Long): Int
+
     @Query("DELETE FROM tasks")
     suspend fun clearAll()
 }
