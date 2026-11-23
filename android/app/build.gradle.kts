@@ -84,6 +84,9 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
+    // Xposed API (provided by LSPosed/Vector at runtime) for the root-only notification button hook
+    compileOnly("de.robv.android.xposed:api:82")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

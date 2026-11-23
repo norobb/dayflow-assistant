@@ -316,7 +316,7 @@
     <string name="auto_event_reminder_desc">Legt für jeden neuen Termin automatisch eine Erinnerung an.</string>
     <string name="auto_event_reminder_lead">Minuten vorher</string>
     <string name="auto_suggestions">Vorschläge aus Nachrichten</string>
-    <string name="auto_suggestions_desc">Enthält eine Nachricht einen Termin, wird er mit einem Tipp angeboten (benötigt Benachrichtigungszugriff).</string>
+    <string name="auto_suggestions_desc">Bei jeder Nachricht mit Termin automatisch einen Vorschlag zeigen. Aus: stattdessen den Button „Mit Dayflow analysieren“ an der Benachrichtigung nutzen (Root + LSPosed).</string>
     <string name="auto_cleanup">Erledigte Aufgaben aufräumen</string>
     <string name="auto_cleanup_desc">Entfernt täglich Aufgaben, die seit über einem Tag erledigt sind.</string>
     <string name="auto_run_now">Tägliche Abläufe jetzt ausführen</string>

@@ -384,7 +384,7 @@ fun AutomationsSection() {
             if (briefingOn) TextPrefField(PrefKeys.BRIEFING_TIME, "07:30", stringResource(R.string.auto_briefing_time), "07:30", onChanged = reschedule)
             BoolPrefRow(PrefKeys.AUTO_EVENT_REMINDER, true, stringResource(R.string.auto_event_reminder), stringResource(R.string.auto_event_reminder_desc))
             if (reminderOn) TextPrefField(PrefKeys.EVENT_REMINDER_LEAD, "30", stringResource(R.string.auto_event_reminder_lead), "30", numeric = true)
-            BoolPrefRow(PrefKeys.AUTO_NOTIFICATION_SUGGESTIONS, true, stringResource(R.string.auto_suggestions), stringResource(R.string.auto_suggestions_desc))
+            BoolPrefRow(PrefKeys.AUTO_NOTIFICATION_SUGGESTIONS, false, stringResource(R.string.auto_suggestions), stringResource(R.string.auto_suggestions_desc))
             BoolPrefRow(PrefKeys.AUTO_CLEANUP, false, stringResource(R.string.auto_cleanup), stringResource(R.string.auto_cleanup_desc), onChanged = { reschedule() })
             TextButton(onClick = { scope.launch { AutomationScheduler.runDaily(app); ran = true } }) {
                 Text(stringResource(if (ran) R.string.auto_ran else R.string.auto_run_now))

@@ -316,7 +316,7 @@
     <string name="auto_event_reminder_desc">Creates a reminder automatically for every new appointment.</string>
     <string name="auto_event_reminder_lead">Minutes before</string>
     <string name="auto_suggestions">Suggestions from messages</string>
-    <string name="auto_suggestions_desc">When a message contains an appointment, offer it with one tap (requires notification access).</string>
+    <string name="auto_suggestions_desc">Automatically post a suggestion for every message with an appointment. Off: use the “Analyze with Dayflow” button on the notification instead (root + LSPosed).</string>
     <string name="auto_cleanup">Tidy up completed tasks</string>
     <string name="auto_cleanup_desc">Removes tasks completed more than a day ago, daily.</string>
     <string name="auto_run_now">Run daily workflows now</string>

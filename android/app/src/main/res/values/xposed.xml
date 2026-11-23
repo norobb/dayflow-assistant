@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- system_server: where notifications are enqueued -->
+    <string-array name="xposed_scope" translatable="false">
+        <item>android</item>
+    </string-array>
+</resources>

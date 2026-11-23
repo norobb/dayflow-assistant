@@ -316,7 +316,7 @@
     <string name="auto_event_reminder_desc">Crea automáticamente un recordatorio para cada cita nueva.</string>
     <string name="auto_event_reminder_lead">Minutos antes</string>
     <string name="auto_suggestions">Sugerencias de mensajes</string>
-    <string name="auto_suggestions_desc">Si un mensaje contiene una cita, se ofrece con un toque (requiere acceso a notificaciones).</string>
+    <string name="auto_suggestions_desc">Mostrar automáticamente una sugerencia por cada mensaje con una cita. Desactivado: usa el botón «Analizar con Dayflow» de la notificación (root + LSPosed).</string>
     <string name="auto_cleanup">Limpiar tareas completadas</string>
     <string name="auto_cleanup_desc">Elimina a diario las tareas completadas hace más de un día.</string>
     <string name="auto_run_now">Ejecutar flujos diarios ahora</string>

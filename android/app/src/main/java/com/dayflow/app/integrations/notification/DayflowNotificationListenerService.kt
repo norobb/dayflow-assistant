@@ -55,7 +55,7 @@ class DayflowNotificationListenerService : NotificationListenerService() {
                 if (isMessage && prefs.boolPref(PrefKeys.AUTO_LEARN_CONTACTS, true).first()) {
                     app.personalRepository.learnContact(title)
                 }
-                if (!prefs.boolPref(PrefKeys.AUTO_NOTIFICATION_SUGGESTIONS, true).first()) return@launch
+                if (!prefs.boolPref(PrefKeys.AUTO_NOTIFICATION_SUGGESTIONS, false).first()) return@launch
 
                 val language = prefs.getLanguage().first()
                 val result = local.analyze(
