@@ -66,4 +66,8 @@ object PrefKeys {
     const val AUTO_NOTIFICATION_SUGGESTIONS = "auto_notification_suggestions"
     const val AUTO_CLEANUP = "auto_cleanup"
     const val AUTO_LEARN_CONTACTS = "auto_learn_contacts"
+    /** Accent color chosen in the intro, as RRGGBB hex; blank = Dayflow burgundy. */
+    const val ACCENT_COLOR = "accent_color"
+    /** No-root mode: Dayflow chips next to notifications in the shade (accessibility). */
+    const val SHADE_CHIPS = "shade_chips"
 }

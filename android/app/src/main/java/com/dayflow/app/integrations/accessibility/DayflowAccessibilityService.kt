@@ -2,6 +2,7 @@ package com.dayflow.app.integrations.accessibility
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
+import androidx.compose.ui.graphics.toArgb
 import android.view.accessibility.AccessibilityNodeInfo
 import com.dayflow.app.integrations.accessibility.context.CaptureTrigger
 import com.dayflow.app.integrations.accessibility.context.ScreenCapture
@@ -41,6 +42,7 @@ class DayflowAccessibilityService : AccessibilityService() {
     private lateinit var extractor: ScreenElementExtractor
     private lateinit var gestures: DayflowGestureController
     private val safetyGate = DayflowSafetyGate()
+    private var shadeChips: NotificationShadeChips? = null
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -48,6 +50,15 @@ class DayflowAccessibilityService : AccessibilityService() {
         connected.value = true
         extractor = ScreenElementExtractor(this) { packageName }
         gestures = DayflowGestureController(this)
+        val chips = NotificationShadeChips(this).also { shadeChips = it }
+        (application as? com.dayflow.app.DayflowApplication)?.preferencesRepository?.let { prefs ->
+            scope.launch { prefs.boolPref(com.dayflow.app.domain.repository.PrefKeys.SHADE_CHIPS, true).collect { chips.enabled = it } }
+            scope.launch {
+                prefs.stringPref(com.dayflow.app.domain.repository.PrefKeys.ACCENT_COLOR).collect { hex ->
+                    com.dayflow.app.core.designsystem.accentFromHex(hex)?.let { chips.accentArgb = it.toArgb() }
+                }
+            }
+        }
 
         scope.launch {
             ScreenActionBus.requests.collectLatest { request ->
@@ -58,6 +69,7 @@ class DayflowAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
+        shadeChips?.onEvent(event)
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
             event.eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
         ) {
@@ -310,6 +322,7 @@ class DayflowAccessibilityService : AccessibilityService() {
         super.onDestroy()
         instance = null
         connected.value = false
+        shadeChips?.destroy()
         scope.cancel()
     }
 

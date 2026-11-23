@@ -34,8 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dayflow.app.core.designsystem.ButtonShape
 import com.dayflow.app.core.designsystem.DayflowBorder
-import com.dayflow.app.core.designsystem.DayflowPrimary
-import com.dayflow.app.core.designsystem.DayflowPrimaryLight
+import androidx.compose.material3.MaterialTheme
 import com.dayflow.app.core.designsystem.rememberReducedMotion
 
 /** Pressed buttons scale to 0.96 over 150ms with ease-out. */
@@ -69,7 +68,7 @@ fun DayflowPrimaryButton(
     isLoading: Boolean = false,
     enabled: Boolean = true
 ) {
-    val bgColor = if (enabled) DayflowPrimary else DayflowPrimary.copy(alpha = 0.5f)
+    val bgColor = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
     val interactionSource = remember { MutableInteractionSource() }
 
     Box(
@@ -142,14 +141,14 @@ fun DayflowSecondaryButton(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = DayflowPrimary,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(15.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
             }
             Text(
                 text = text,
-                color = DayflowPrimary,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold
             )

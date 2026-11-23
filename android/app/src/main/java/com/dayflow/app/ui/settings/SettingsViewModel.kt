@@ -47,6 +47,16 @@ class SettingsViewModel(
     val designSystemMode: StateFlow<DesignSystemMode> = preferencesRepository.getDesignSystemMode()
         .stateIn(viewModelScope, SharingStarted.Eagerly, DesignSystemMode.DAYFLOW_SIGNATURE)
 
+    val accentColor: StateFlow<String> = preferencesRepository.stringPref(com.dayflow.app.domain.repository.PrefKeys.ACCENT_COLOR)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
+    fun setAccentColor(hex: String) {
+        viewModelScope.launch {
+            soundAndHaptics.playClick()
+            preferencesRepository.setStringPref(com.dayflow.app.domain.repository.PrefKeys.ACCENT_COLOR, hex)
+        }
+    }
+
     /** null until loaded, so the first screen is chosen only once. */
     val isTutorialCompleted: StateFlow<Boolean?> = preferencesRepository.isTutorialCompleted()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)

@@ -61,6 +61,7 @@ fun DayflowApp(
 
     val appearanceMode by settingsViewModel.appearanceMode.collectAsState()
     val designSystemMode by settingsViewModel.designSystemMode.collectAsState()
+    val accentColor by settingsViewModel.accentColor.collectAsState()
     val isTutorialCompleted by settingsViewModel.isTutorialCompleted.collectAsState()
     val settingsState by settingsViewModel.uiState.collectAsState()
 
@@ -100,7 +101,8 @@ fun DayflowApp(
 
     DayflowTheme(
         appearanceMode = appearanceMode,
-        designSystemMode = designSystemMode
+        designSystemMode = designSystemMode,
+        accentHex = accentColor
     ) {
         DayflowLocaleProvider(settingsState.language) {
             Scaffold(
@@ -133,6 +135,10 @@ fun DayflowApp(
                 ) {
                     composable(Screen.Tutorial.route) {
                         TutorialScreen(
+                            accentHex = accentColor,
+                            onAccentChange = settingsViewModel::setAccentColor,
+                            appearanceMode = appearanceMode,
+                            onAppearanceChange = settingsViewModel::setAppearanceMode,
                             onFinishTutorial = {
                                 scope.launch {
                                     settingsViewModel.setTutorialCompleted(true)
