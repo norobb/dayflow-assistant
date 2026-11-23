@@ -524,7 +524,8 @@ fun SettingsScreen(
                             is UpdateStatus.Error -> stringResource(R.string.settings_status_error, status.message)
                         }
 
-                        var updateChannel by remember { mutableStateOf("releases") }
+                        // CI builds follow the CI channel by default; release builds the releases channel.
+                        var updateChannel by remember { mutableStateOf(if (com.dayflow.app.BuildConfig.CI_RUN > 0) "ci" else "releases") }
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -558,11 +559,19 @@ fun SettingsScreen(
                                 onClick = { viewModel.downloadAndInstallUpdate(available) },
                                 modifier = Modifier.fillMaxWidth()
                             )
+                        } else if (updateStatus is UpdateStatus.ReadyToInstall) {
+                            val ready = updateStatus as UpdateStatus.ReadyToInstall
+                            DayflowPrimaryButton(
+                                text = stringResource(R.string.settings_btn_install_update),
+                                icon = Icons.Outlined.Download,
+                                onClick = { viewModel.installDownloadedUpdate(ready.apkFile) },
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         } else {
                             DayflowSecondaryButton(
                                 text = stringResource(R.string.settings_btn_check_updates),
                                 icon = Icons.Outlined.Refresh,
-                                onClick = { viewModel.checkForUpdates() },
+                                onClick = { viewModel.checkForUpdates(updateChannel) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }

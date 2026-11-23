@@ -18,6 +18,10 @@ concurrency:
 
 jobs:
   build-apk:
+    permissions:
+      contents: write # publish the rolling ci-latest prerelease
+    env:
+      PUBLISH_CI: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && secrets.DAYFLOW_KEYSTORE_BASE64 != '' }}
     name: Build Dayflow Android APK
     runs-on: ubuntu-latest
 
@@ -52,3 +56,32 @@ jobs:
             android/app/build/outputs/apk/debug/*.apk
           retention-days: 30
           if-no-files-found: error
+
+      # Signed release APK with the same key as the installed app, so it can update in place.
+      # Published as the rolling "ci-latest" prerelease: README button + in-app CI channel.
+      - name: Build signed CI APK
+        if: env.PUBLISH_CI == 'true'
+        env:
+          KEYSTORE_B64: ${{ secrets.DAYFLOW_KEYSTORE_BASE64 }}
+          DAYFLOW_KEYSTORE_PASSWORD: ${{ secrets.DAYFLOW_KEYSTORE_PASSWORD }}
+          DAYFLOW_KEY_ALIAS: ${{ secrets.DAYFLOW_KEY_ALIAS }}
+          DAYFLOW_KEY_PASSWORD: ${{ secrets.DAYFLOW_KEY_PASSWORD }}
+          DAYFLOW_CI_RUN: ${{ github.run_number }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/dayflow.keystore"
+          DAYFLOW_KEYSTORE="$RUNNER_TEMP/dayflow.keystore" ./gradlew assembleRelease --stacktrace
+          cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/dayflow-ci.apk"
+          rm "$RUNNER_TEMP/dayflow.keystore"
+
+      - name: Publish ci-latest prerelease
+        if: env.PUBLISH_CI == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BASE=$(sed -n 's/^val baseVersionCode = //p' app/build.gradle.kts)
+          CODE=$((BASE * 10000 + ${{ github.run_number }}))
+          gh release delete ci-latest --yes --cleanup-tag || true
+          printf 'Latest build from main (%s).\n\nversionCode: %s\n\n%s\n' \
+            "${GITHUB_SHA::7}" "$CODE" "$(git log -1 --format=%s)" > "$RUNNER_TEMP/notes.md"
+          gh release create ci-latest "$RUNNER_TEMP/dayflow-ci.apk" --prerelease --latest=false \
+            --target "$GITHUB_SHA" --title "Dayflow CI #${{ github.run_number }}" --notes-file "$RUNNER_TEMP/notes.md"

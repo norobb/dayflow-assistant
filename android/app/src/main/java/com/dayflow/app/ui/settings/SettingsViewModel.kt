@@ -164,12 +164,14 @@ class SettingsViewModel(
         }
     }
 
-    fun checkForUpdates() {
+    fun checkForUpdates(channel: String) {
         viewModelScope.launch {
             soundAndHaptics.playClick()
-            updateManager.checkForUpdates("releases")
+            updateManager.checkForUpdates(channel)
         }
     }
+
+    fun installDownloadedUpdate(apk: java.io.File) = updateManager.installApk(apk)
 
     fun downloadAndInstallUpdate(status: UpdateStatus.UpdateAvailable) {
         viewModelScope.launch {

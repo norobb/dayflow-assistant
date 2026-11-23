@@ -1,3 +1,8 @@
+// CI passes its run number so every CI build is newer than the release it builds on.
+val ciRun = System.getenv("DAYFLOW_CI_RUN")?.toIntOrNull() ?: 0
+val baseVersionCode = 5
+val baseVersionName = "2.1"
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -13,14 +18,27 @@ android {
         applicationId = "com.dayflow.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "2.1"
+        versionCode = baseVersionCode * 10000 + ciRun
+        versionName = if (ciRun > 0) "$baseVersionName-ci.$ciRun" else baseVersionName
+        buildConfigField("int", "CI_RUN", ciRun.toString())
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Release signing only when CI provides the key; local release builds stay unsigned as before.
+    val keystore = System.getenv("DAYFLOW_KEYSTORE")?.let { file(it) }?.takeIf { it.exists() }
+    signingConfigs {
+        if (keystore != null) create("ci") {
+            storeFile = keystore
+            storePassword = System.getenv("DAYFLOW_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("DAYFLOW_KEY_ALIAS")
+            keyPassword = System.getenv("DAYFLOW_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
+            if (keystore != null) signingConfig = signingConfigs.getByName("ci")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

@@ -10,6 +10,8 @@
 [![Android](https://github.com/norobb/dayflow-assistant/actions/workflows/android.yml/badge.svg)](https://github.com/norobb/dayflow-assistant/actions/workflows/android.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-641C24.svg)](LICENSE)
 
+[![Download latest APK](https://img.shields.io/badge/Download-latest%20CI%20APK-641C24?style=for-the-badge&logo=android&logoColor=white)](https://github.com/norobb/dayflow-assistant/releases/download/ci-latest/dayflow-ci.apk)
+
 [Live demo](https://norobb.github.io/dayflow-assistant/) · [Documentation](docs/) · [Contributing](CONTRIBUTING.md)
 
 </div>
@@ -85,7 +87,7 @@ cd android
 ./gradlew assembleDebug
 ```
 
-CI attaches a debug APK to every run of the [Android workflow](.github/workflows/android.yml).
+CI attaches a debug APK to every run of the [Android workflow](.github/workflows/android.yml). Every push to `main` also publishes a signed APK as the rolling [`ci-latest`](https://github.com/norobb/dayflow-assistant/releases/tag/ci-latest) prerelease: [download it directly](https://github.com/norobb/dayflow-assistant/releases/download/ci-latest/dayflow-ci.apk), or update in the app under Settings → Updates → CI. It is signed with the same key as the releases, so it installs over an existing Dayflow.
 
 ## Configuration
 

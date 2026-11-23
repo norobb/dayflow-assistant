@@ -102,8 +102,12 @@ class UpdateManager(private val context: Context) {
         }
     }
 
+    /**
+     * CI channel: every push to main publishes a signed APK to the rolling "ci-latest"
+     * prerelease (see .github/workflows/android.yml). Its notes carry the build's versionCode.
+     */
     private fun checkCiUpdates() {
-        val apiUrl = "https://api.github.com/repos/norobb/dayflow-assistant/actions/runs?status=success&per_page=1"
+        val apiUrl = "https://api.github.com/repos/norobb/dayflow-assistant/releases/tags/ci-latest"
         val connection = (URL(apiUrl).openConnection() as HttpURLConnection).apply {
             requestMethod = "GET"
             setRequestProperty("Accept", "application/vnd.github+json")
@@ -111,29 +115,27 @@ class UpdateManager(private val context: Context) {
             connectTimeout = 8000
             readTimeout = 8000
         }
-
-        if (connection.responseCode == 200) {
-            val response = connection.inputStream.bufferedReader().use { it.readText() }
-            val json = JSONObject(response)
-            val runs = json.optJSONArray("workflow_runs")
-            if (runs != null && runs.length() > 0) {
-                val latestRun = runs.getJSONObject(0)
-                val runNumber = latestRun.optInt("run_number", 0)
-                val commitMsg = latestRun.optJSONObject("head_commit")?.optString("message") ?: "Latest CI build from main branch"
-                val htmlUrl = latestRun.optString("html_url", "")
-                val versionTag = "CI Build #$runNumber"
-
-                // Compare run number or flag update available
-                _updateStatus.value = UpdateStatus.UpdateAvailable(
-                    versionTag = versionTag,
-                    releaseNotes = commitMsg,
-                    downloadUrl = htmlUrl,
-                    channel = "ci"
-                )
-                return
-            }
+        if (connection.responseCode != 200) {
+            _updateStatus.value = UpdateStatus.Error("No CI build published yet (HTTP ${connection.responseCode})")
+            return
         }
-        _updateStatus.value = UpdateStatus.NoUpdateAvailable(BuildConfig.VERSION_NAME)
+        val json = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+        val body = json.optString("body", "")
+        val remoteCode = Regex("versionCode: (\\d+)").find(body)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val assets = json.optJSONArray("assets") ?: JSONArray()
+        val apkUrl = (0 until assets.length()).map { assets.getJSONObject(it) }
+            .firstOrNull { it.optString("name").endsWith(".apk") }?.optString("browser_download_url").orEmpty()
+
+        _updateStatus.value = if (apkUrl.isNotEmpty() && remoteCode > BuildConfig.VERSION_CODE) {
+            UpdateStatus.UpdateAvailable(
+                versionTag = json.optString("name", "CI build"),
+                releaseNotes = body,
+                downloadUrl = apkUrl,
+                channel = "ci"
+            )
+        } else {
+            UpdateStatus.NoUpdateAvailable(BuildConfig.VERSION_NAME)
+        }
     }
 
     suspend fun downloadAndInstallUpdate(updateInfo: UpdateStatus.UpdateAvailable) {
@@ -195,6 +197,15 @@ class UpdateManager(private val context: Context) {
 
     fun installApk(apkFile: File) {
         try {
+            // Android asks once per app: "Allow installing from Dayflow". Send the user there, then they tap Install again.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !context.packageManager.canRequestPackageInstalls()) {
+                context.startActivity(
+                    Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${context.packageName}"))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+                _updateStatus.value = UpdateStatus.ReadyToInstall(apkFile)
+                return
+            }
             val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 FileProvider.getUriForFile(
                     context,
@@ -217,9 +228,16 @@ class UpdateManager(private val context: Context) {
     }
 
     private fun isNewerVersion(remoteTag: String, localVersion: String): Boolean {
-        val cleanRemote = remoteTag.replace("v", "").trim()
-        val cleanLocal = localVersion.replace("v", "").trim()
-        return cleanRemote != cleanLocal && cleanRemote.isNotEmpty()
+        // "v2.1" vs "2.1-ci.57": compare the numeric parts only, so a CI build is not "updated" back to its own release.
+        fun parts(v: String) = v.trim().removePrefix("v").substringBefore('-').split('.').map { it.toIntOrNull() ?: 0 }
+        val remote = parts(remoteTag)
+        val local = parts(localVersion)
+        for (i in 0 until maxOf(remote.size, local.size)) {
+            val r = remote.getOrElse(i) { 0 }
+            val l = local.getOrElse(i) { 0 }
+            if (r != l) return r > l
+        }
+        return false
     }
 
     companion object {
