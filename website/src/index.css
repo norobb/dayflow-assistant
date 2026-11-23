@@ -145,14 +145,24 @@
   font-size: 14px; font-weight: 700; cursor: pointer;
   rotate: var(--r, 0deg);
   transition: transform 220ms var(--ease), box-shadow 220ms var(--ease), color 160ms var(--ease);
-  animation: bob 6s ease-in-out infinite;
+  animation: pop 0.7s var(--ease) var(--pd, 0s) both, bob 6s ease-in-out var(--bd, 0s) infinite;
 }
 .orbit svg { color: var(--color-primary); }
 .orbit:hover { transform: translateY(-4px) scale(1.04); box-shadow: var(--shadow-lift); color: var(--color-primary); }
-.orbit-a { --r: -6deg; top: 4%; left: -6%; }
-.orbit-b { --r: 5deg; top: 30%; right: -4%; animation-delay: -1.5s; }
-.orbit-c { --r: 4deg; bottom: 26%; left: -6%; animation-delay: -3s; }
-.orbit-d { --r: -4deg; bottom: -1%; right: -2%; animation-delay: -4.5s; }
+.orbit-a { --r: -6deg; top: 4%; left: -6%; --pd: 0.95s; }
+.orbit-b { --r: 5deg; top: 30%; right: -4%; --pd: 1.05s; --bd: -1.5s; }
+.orbit-c { --r: 4deg; bottom: 26%; left: -6%; --pd: 1.15s; --bd: -3s; }
+.orbit-d { --r: -4deg; bottom: -1%; right: -2%; --pd: 1.25s; --bd: -4.5s; }
+/* page-load choreography: nav drops in, title lines rise out of a blur, then copy, CTAs, phone, and the four sources pop into orbit */
+.nav { animation: nav-in 0.6s var(--ease) both; }
+.enter { animation: rise 0.8s var(--ease) var(--d, 0s) both; }
+.hero-stage.enter { animation-name: stage-in; animation-duration: 1s; }
+.stage-disc { animation: disc-in 1.4s var(--ease) 0.35s both; }
+@keyframes nav-in { from { opacity: 0; translate: 0 -16px; } }
+@keyframes rise { from { opacity: 0; translate: 0 22px; filter: blur(8px); } }
+@keyframes stage-in { from { opacity: 0; translate: 0 32px; scale: 0.97; } }
+@keyframes disc-in { from { opacity: 0; scale: 0.6; } }
+@keyframes pop { from { opacity: 0; scale: 0.6; } 60% { opacity: 1; } }
 @keyframes bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
 
 @media (min-width: 640px) { .orbit { display: inline-flex; } }
@@ -170,10 +180,10 @@
   background: var(--color-card-white); border: 1px solid var(--color-border);
   box-shadow: var(--shadow-soft); font-weight: 700; font-size: 15px;
   rotate: var(--tilt, 0deg);
-  transition: rotate 300ms var(--ease), transform 300ms var(--ease);
+  transition: rotate 300ms var(--ease);
 }
 .chip svg { color: var(--color-primary); }
-.chip:hover { rotate: 0deg; transform: translateY(-2px); }
+.chip:hover { rotate: 0deg; }
 .resolve {
   display: grid; gap: 12px; max-width: 760px;
   padding: clamp(28px, 4vw, 48px); border-radius: 28px;
@@ -265,6 +275,7 @@
   html { scroll-behavior: auto; }
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }

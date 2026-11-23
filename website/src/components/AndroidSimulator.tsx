@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { cubicEase } from '../utils/motion';
 import { useDayflowStore, type DayflowEvent } from '../store/dayflowStore';
 import { DayflowSymbol } from './DayflowLogo';
 import { sounds } from '../utils/audio';
@@ -200,8 +201,9 @@ export const AndroidSimulator: React.FC = () => {
                         <motion.div
                           key={item.id}
                           layout
-                          initial={{ opacity: 0, y: -4 }}
+                          initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, ease: cubicEase, delay: i * 0.06 }}
                           className={`flex items-center gap-2.5 py-2 ${i > 0 ? 'border-t border-[#1E1B19]/[0.06]' : 'mt-1'}`}
                         >
                           <Icon className="w-4 h-4 text-[#6B635B] shrink-0" />
@@ -222,9 +224,10 @@ export const AndroidSimulator: React.FC = () => {
                     <motion.div
                       key={ev.id}
                       layout
-                      initial={{ opacity: 0, y: -6 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
+                      transition={{ duration: 0.4, ease: cubicEase, delay: i * 0.05 }}
                       className="flex"
                     >
                       <div className="w-12 shrink-0 pt-px text-[13px] font-semibold text-[#1E1B19] tabular-nums">{ev.time || '–'}</div>
@@ -255,13 +258,14 @@ export const AndroidSimulator: React.FC = () => {
               </div>
               <div className="space-y-2">
                 <AnimatePresence initial={false}>
-                  {tasks.map((task) => (
+                  {tasks.map((task, i) => (
                     <motion.button
                       key={task.id}
                       layout
-                      initial={{ opacity: 0, y: -6 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
+                      transition={{ duration: 0.4, ease: cubicEase, delay: i * 0.05 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => toggleTask(task.id)}
                       aria-pressed={task.completed}
@@ -291,13 +295,14 @@ export const AndroidSimulator: React.FC = () => {
               <h4 className="font-serif text-[28px] leading-[1.15] font-medium text-[#1E1B19]">{t.dashboard.remindersTitle}</h4>
               <div className="space-y-2">
                 <AnimatePresence initial={false}>
-                  {reminders.map((rem) => (
+                  {reminders.map((rem, i) => (
                     <motion.div
                       key={rem.id}
                       layout
-                      initial={{ opacity: 0, y: -6 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
+                      transition={{ duration: 0.4, ease: cubicEase, delay: i * 0.05 }}
                       className={`px-4 py-3 rounded-2xl bg-white flex items-center gap-2.5 ${ink}`}
                     >
                       <Bell className="w-[18px] h-[18px] text-[#641C24] shrink-0" />

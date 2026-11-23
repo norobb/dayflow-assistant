@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { sounds } from '../utils/audio';
+import { ScrollReveal } from '../utils/motion';
 import { useDayflowStore } from '../store/dayflowStore';
 
 export const ProductConceptSections: React.FC = () => {
@@ -23,6 +24,7 @@ export const ProductConceptSections: React.FC = () => {
   return (
     <div className="space-y-24 py-16">
       {/* 1. Android Integration */}
+      <ScrollReveal>
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-[#FAF6F0] rounded-3xl border border-[#D8CFC2] p-8 lg:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -123,8 +125,10 @@ export const ProductConceptSections: React.FC = () => {
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* 2. Screen Intelligence */}
+      <ScrollReveal>
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-[#FAF6F0] rounded-3xl border border-[#D8CFC2] p-8 lg:p-12">
           <div className="max-w-2xl mb-8">
@@ -186,8 +190,10 @@ export const ProductConceptSections: React.FC = () => {
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* 3. Smart Actions (Understand. Act. Verify.) */}
+      <ScrollReveal>
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-[#FAF6F0] rounded-3xl border border-[#D8CFC2] p-8 lg:p-12">
           <div className="max-w-3xl mb-8">
@@ -241,8 +247,10 @@ export const ProductConceptSections: React.FC = () => {
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* 4. Personal Context & Multilingual */}
+      <ScrollReveal>
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-[#FAF6F0] rounded-3xl border border-[#D8CFC2] p-8 lg:p-12">
           <div className="max-w-2xl">
@@ -260,8 +268,10 @@ export const ProductConceptSections: React.FC = () => {
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* 5. Privacy & Trust */}
+      <ScrollReveal>
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-3xl border border-[#D8CFC2] p-8 lg:p-12 text-center max-w-3xl mx-auto space-y-4">
           <div className="w-12 h-12 rounded-2xl bg-[#641C24]/10 text-[#641C24] flex items-center justify-center mx-auto">
@@ -275,6 +285,7 @@ export const ProductConceptSections: React.FC = () => {
           </p>
         </div>
       </section>
+      </ScrollReveal>
     </div>
   );
 };

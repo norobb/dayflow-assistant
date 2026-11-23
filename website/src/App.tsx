@@ -29,7 +29,12 @@ import { MessageDemo } from './components/demos/MessageDemo';
 import { ScreenshotDemo } from './components/demos/ScreenshotDemo';
 import { PdfDemo } from './components/demos/PdfDemo';
 import { VoiceDemo } from './components/demos/VoiceDemo';
-import { ScrollReveal, tabContentVariants } from './utils/motion';
+import { ScrollReveal, tabContentVariants, cubicEase } from './utils/motion';
+import type { Variants } from 'motion/react';
+
+const stagger = (gap: number): Variants => ({ hidden: {}, show: { transition: { staggerChildren: gap } } });
+const rise: Variants = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: cubicEase } } };
+const scrap: Variants = { hidden: { opacity: 0, y: 28, scale: 0.9 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 260, damping: 18 } } };
 
 type DemoTab = 'message' | 'screenshot' | 'pdf' | 'voice';
 
@@ -174,11 +179,11 @@ export default function App() {
           <div className="wrap hero-grid">
             <div className="hero-copy">
               <h1 className="display-1">
-                <span className="hero-line">{titleLead}</span>
-                <span className="hero-line hero-accent">{t.hero.titlePart2}</span>
+                <span className="hero-line enter" style={{ '--d': '0.1s' } as React.CSSProperties}>{titleLead}</span>
+                <span className="hero-line hero-accent enter" style={{ '--d': '0.28s' } as React.CSSProperties}>{t.hero.titlePart2}</span>
               </h1>
-              <p className="lede">{t.hero.subtitle}</p>
-              <div className="actions">
+              <p className="lede enter" style={{ '--d': '0.46s' } as React.CSSProperties}>{t.hero.subtitle}</p>
+              <div className="actions enter" style={{ '--d': '0.58s' } as React.CSSProperties}>
                 <a href="#demo-section" onClick={() => sounds.playClick()} className="btn btn-primary">
                   {t.hero.tryDemoBtn}
                 </a>
@@ -189,7 +194,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="hero-stage">
+            <div className="hero-stage enter" style={{ '--d': '0.4s' } as React.CSSProperties}>
               <div className="stage-disc" aria-hidden="true" />
               {heroSources.map((s) => (
                 <button key={s.id} className={`orbit ${s.cls}`} onClick={() => openDemo(s.id)}>
@@ -204,7 +209,9 @@ export default function App() {
           </div>
         </section>
 
-        <TodayUnderstood />
+        <ScrollReveal>
+          <TodayUnderstood />
+        </ScrollReveal>
 
         {/* Problem */}
         <ScrollReveal>
@@ -214,14 +221,15 @@ export default function App() {
                 <h2 className="display-2">{t.problem.title}</h2>
                 <p className="lede">{t.problem.desc}</p>
               </div>
-              <ul className="chaos" aria-label={t.problem.title}>
+              {/* the chaos tumbles in one scrap at a time */}
+              <motion.ul className="chaos" aria-label={t.problem.title} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-80px' }} variants={stagger(0.07)}>
                 {chaos.map((c, i) => (
-                  <li key={c.label} className="chip" style={{ '--tilt': `${[-6, 4, -2, 7, -5, 3, -8][i]}deg` } as React.CSSProperties}>
+                  <motion.li key={c.label} className="chip" variants={scrap} whileHover={{ y: -2 }} style={{ '--tilt': `${[-6, 4, -2, 7, -5, 3, -8][i]}deg` } as React.CSSProperties}>
                     <c.icon size={16} aria-hidden="true" />
                     <span>{c.label}</span>
-                  </li>
+                  </motion.li>
                 ))}
-              </ul>
+              </motion.ul>
               <div className="resolve">
                 <p className="resolve-tag">{t.problem.contrastBadge}</p>
                 <h3 className="display-3">{t.problem.contrastTitle}</h3>
@@ -234,10 +242,10 @@ export default function App() {
         {/* Demo Studio */}
         <section id="demo-section" className="section section-tint">
           <div className="wrap">
-            <div className="section-head">
+            <ScrollReveal className="section-head">
               <h2 className="display-2">{t.demo.title}</h2>
               <p className="lede">{t.demo.subtitle}</p>
-            </div>
+            </ScrollReveal>
 
             <div className="segmented" role="tablist" aria-label="Demo Scenarios">
               {demoTabs.map((tab) => (
@@ -254,7 +262,7 @@ export default function App() {
               ))}
             </div>
 
-            <div className="demo-stage">
+            <ScrollReveal className="demo-stage" delay={0.1}>
               <AnimatePresence mode="wait">
                 <motion.div key={activeDemoTab} variants={tabContentVariants} initial="initial" animate="animate" exit="exit">
                   {activeDemoTab === 'message' && <MessageDemo />}
@@ -263,22 +271,22 @@ export default function App() {
                   {activeDemoTab === 'voice' && <VoiceDemo />}
                 </motion.div>
               </AnimatePresence>
-            </div>
+            </ScrollReveal>
           </div>
         </section>
 
         {/* Dashboard */}
         <section id="dashboard-section" className="section">
-          <div className="wrap">
+          <ScrollReveal className="wrap">
             <DayflowDashboard />
-          </div>
+          </ScrollReveal>
         </section>
 
         {/* Input system */}
         <section className="section section-tint">
-          <div className="wrap">
+          <ScrollReveal className="wrap">
             <OmniInputSystem onSelectScenario={(sc) => setActiveDemoTab(sc)} />
-          </div>
+          </ScrollReveal>
         </section>
 
         {/* Architecture */}
@@ -289,15 +297,15 @@ export default function App() {
                 <h2 className="display-2">{t.architecture.title}</h2>
                 <p className="lede">{t.architecture.subtitle}</p>
               </div>
-              <ol className="layers">
+              <motion.ol className="layers" initial="hidden" whileInView="show" viewport={{ once: true, margin: '-80px' }} variants={stagger(0.12)}>
                 {layers.map((l, i) => (
-                  <li key={l.title} className="layer">
+                  <motion.li key={l.title} className="layer" variants={rise}>
                     <span className="layer-num" aria-hidden="true">{i + 1}</span>
                     <h3 className="layer-title">{l.title}</h3>
                     <p className="muted">{l.desc}</p>
-                  </li>
+                  </motion.li>
                 ))}
-              </ol>
+              </motion.ol>
             </div>
           </section>
         </ScrollReveal>
@@ -306,22 +314,22 @@ export default function App() {
 
         {/* Live roadmap */}
         <section id="roadmap-section" className="section section-tint">
-          <div className="wrap">
+          <ScrollReveal className="wrap">
             <LiveRoadmap />
-          </div>
+          </ScrollReveal>
         </section>
       </main>
 
       {/* Footer */}
       <footer className="footer">
         <div className="wrap">
-          <div className="footer-cta">
+          <ScrollReveal className="footer-cta">
             <h2 className="display-2">{t.footer.readyTitle}</h2>
             <p className="lede">{t.footer.readySubtitle}</p>
             <a href="#demo-section" onClick={() => sounds.playClick()} className="btn btn-primary">
               {t.nav.tryDemo}
             </a>
-          </div>
+          </ScrollReveal>
           <div className="footer-base">
             <DayflowLogo size={24} />
             <span className="muted">© {new Date().getFullYear()} Dayflow. {t.footer.rights}</span>
