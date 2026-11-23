@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-23 — Website: simulator matches Android 2.1
+
+- Phone simulator rebuilt after the Android 2.1 app: serif titles, date line, context note with ink rule, compact "Today, understood." list, planner timeline, floating bottom bar with the central Understand button, Context flow tab.
+- Roadmap and feature sections reflect the shipped Android 2.0/2.1 release (no more "Coming soon" on live features); download link to the latest APK release.
+
 ## 2026-11-21 — Android 2.1: modernized design
 
 - Editorial look in the Dayflow colors: serif headings, flat cards with hairlines, sentence-case labels.

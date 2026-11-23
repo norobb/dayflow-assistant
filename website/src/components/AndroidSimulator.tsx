@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Calendar,
+  CalendarDays,
+  CircleCheck,
   CheckCircle2,
   Bell,
-  MapPin,
   Circle,
   ScanLine,
+  Radar,
+  Plus,
+  MessageSquare,
+  ReceiptText,
+  FileText,
   Maximize2,
   X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { staggerContainer, staggerItem } from '../utils/motion';
-import { useDayflowStore } from '../store/dayflowStore';
+import { useDayflowStore, type DayflowEvent } from '../store/dayflowStore';
 import { DayflowSymbol } from './DayflowLogo';
 import { sounds } from '../utils/audio';
 
@@ -23,6 +27,9 @@ export const AndroidSimulator: React.FC = () => {
     reminders,
     notifications,
     toggleTask,
+    todayUnderstood,
+    snoozeInsight,
+    language,
     activeInsight,
     activePhoneTab,
     setActivePhoneTab,
@@ -59,70 +66,73 @@ export const AndroidSimulator: React.FC = () => {
     setIsFullscreen(false);
   };
 
-  // Reusable Phone Inner Screen Content (Shared between device preview and fullscreen)
+  const sourceLabel = (type: DayflowEvent['sourceType']) =>
+    ({
+      message: t.demo.tabMessage,
+      screenshot: t.demo.tabScreenshot,
+      pdf: t.demo.tabPdf,
+      voice: t.demo.tabVoice,
+      default: t.phone.manualLabel,
+    })[type];
+
+  const today = new Intl.DateTimeFormat(language, { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+  const ink = 'border border-[#1E1B19]/[0.08]';
+  const tabMotion = {
+    initial: { opacity: 0, x: 6 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -6 },
+    transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] as const },
+  };
+
+  const openUnderstand = () => {
+    sounds.playClick();
+    setIsFullscreen(false);
+    document.getElementById('demo-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const navItems = [
+    { tab: 'timeline' as const, icon: CalendarDays, label: t.phone.todayTab },
+    { tab: 'tasks' as const, icon: CircleCheck, label: t.phone.tasksTab },
+    null, // centre slot: Understand
+    { tab: 'reminders' as const, icon: Bell, label: t.phone.notificationsTab },
+    { tab: 'scanner' as const, icon: Radar, label: t.phone.intelligenceTab },
+  ];
+
+  // Mirrors the Android 2.1 app: editorial serif titles, flat hairline cards, planner timeline, floating bottom bar.
   const renderScreenContent = (isFull: boolean = false) => (
     <div
-      className={`relative w-full h-full bg-[#FAF6F0] flex flex-col overflow-hidden text-left select-none isolate min-w-0 min-h-0 ${
+      className={`relative w-full h-full bg-[#F5EFE6] flex flex-col overflow-hidden text-left select-none isolate min-w-0 min-h-0 ${
         isFull ? 'max-w-2xl mx-auto rounded-none sm:rounded-3xl' : 'rounded-[38px]'
       }`}
     >
       {/* Status Bar */}
-      <div className="h-9 px-6 pt-2 flex items-center justify-between text-[11px] font-semibold text-[#1E1B19] z-20 shrink-0 border-b border-[#D8CFC2]/40 bg-[#FAF6F0]/90 backdrop-blur-sm">
-        <span>{currentTime}</span>
-        {/* Center Camera Cutout (Hole punch) */}
-        {!isFull && (
-          <div className="w-3.5 h-3.5 rounded-full bg-black mx-auto ring-1 ring-[#1E1B19]" />
-        )}
+      <div className="h-9 px-6 pt-2 flex items-center justify-between text-[11px] font-semibold text-[#1E1B19] z-20 shrink-0">
+        <span className="tabular-nums">{currentTime}</span>
+        {!isFull && <div className="w-3.5 h-3.5 rounded-full bg-black mx-auto ring-1 ring-[#1E1B19]" />}
         <div className="flex items-center gap-2 text-[10px]">
           <span>5G</span>
           <span className="font-bold">100%</span>
-          {isFull && (
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={closeFullscreen}
-              className="ml-2 p-1 rounded-md hover:bg-[#D8CFC2]/50 text-[#1E1B19] transition-all cursor-pointer"
-              title={t.phone.exitFullscreen}
-            >
-              <X className="w-3.5 h-3.5" />
-            </motion.button>
-          )}
         </div>
       </div>
 
-      {/* App Header */}
-      <div className="px-5 py-2.5 border-b border-[#D8CFC2]/50 bg-white/80 backdrop-blur-md flex items-center justify-between shrink-0 z-10">
+      {/* App Header: logo left, action right (the app shows settings here) */}
+      <div className="px-5 pt-1.5 pb-1 flex items-center justify-between shrink-0 z-10">
         <div className="flex items-center gap-2">
-          <DayflowSymbol size={20} />
-          <span className="text-sm font-bold text-[#1E1B19] tracking-tight">
-            dayflow
-          </span>
+          <DayflowSymbol size={24} />
+          <span className="text-[15px] font-extrabold text-[#1E1B19] tracking-tight">dayflow</span>
         </div>
-
-        {!isFull ? (
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={openFullscreen}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold text-[#641C24] bg-[#641C24]/5 hover:bg-[#641C24]/10 transition-colors cursor-pointer"
-            title={t.phone.fullscreenBtn}
-          >
-            <Maximize2 className="w-3 h-3" />
-            <span className="hidden sm:inline">{t.phone.fullscreenBtn}</span>
-          </motion.button>
-        ) : (
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={closeFullscreen}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold text-[#641C24] bg-[#641C24]/10 hover:bg-[#641C24]/20 transition-all cursor-pointer"
-          >
-            <X className="w-3.5 h-3.5" />
-            <span>{t.phone.exitFullscreen}</span>
-          </motion.button>
-        )}
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          onClick={isFull ? closeFullscreen : openFullscreen}
+          className="p-2 rounded-xl text-[#1E1B19]/80 hover:bg-[#1E1B19]/5 transition-colors cursor-pointer"
+          title={isFull ? t.phone.exitFullscreen : t.phone.fullscreenBtn}
+          aria-label={isFull ? t.phone.exitFullscreen : t.phone.fullscreenBtn}
+        >
+          {isFull ? <X className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+        </motion.button>
       </div>
 
-      {/* Reactive Notification Banner (Toast) with Spring Entrance */}
+      {/* Notification toast */}
       <AnimatePresence>
         {notifications.length > 0 && (
           <motion.div
@@ -131,299 +141,242 @@ export const AndroidSimulator: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-            className="mx-3 mt-2 p-2.5 bg-white rounded-2xl border border-[#D8CFC2] shadow-xs shrink-0 z-10"
+            className={`mx-4 mb-1 p-2.5 bg-white rounded-2xl shadow-xs shrink-0 z-10 ${ink}`}
           >
             <div className="flex items-center gap-2.5">
               <DayflowSymbol size={16} />
               <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-[#1E1B19] truncate">
-                    {notifications[0].title}
-                  </span>
-                  <span className="text-[10px] text-[#6B635B]">{notifications[0].time}</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold text-[#1E1B19] truncate">{notifications[0].title}</span>
+                  <span className="text-[10px] text-[#6B635B] shrink-0">{notifications[0].time}</span>
                 </div>
-                <p className="text-[11px] text-[#6B635B] truncate mt-0.5">
-                  {notifications[0].body}
-                </p>
+                <p className="text-[11px] text-[#6B635B] truncate mt-0.5">{notifications[0].body}</p>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Fixed Internal Scrollable Viewport */}
-      <div className="flex-1 overflow-y-auto px-4 py-3.5 space-y-4 scrollbar-none min-h-0">
+      {/* Scroll area; bottom padding lets content pass under the floating bar */}
+      <div className="flex-1 overflow-y-auto px-5 pt-2 pb-24 scrollbar-none min-h-0">
         <AnimatePresence mode="wait">
-          {/* TIMELINE TAB */}
           {activePhoneTab === 'timeline' && (
-            <motion.div
-              key="timeline"
-              initial={{ opacity: 0, x: 6 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -6 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">{t.dashboard.title}</h4>
-                  <span className="text-[10px] text-[#641C24] bg-[#641C24]/10 px-1.5 py-0.5 rounded-full font-medium">← {t.phone.todayTab ? "Swipe" : "Swipe"} →</span>
-                </div>
-                <span className="text-[10px] text-[#6B635B] font-medium">{events.length}</span>
+            <motion.div key="timeline" {...tabMotion} className="space-y-3">
+              <div>
+                <h4 className="font-serif text-[28px] leading-[1.15] font-medium text-[#1E1B19]">{t.dashboard.title}</h4>
+                <p className="text-[12px] text-[#6B635B] first-letter:uppercase">{today}</p>
               </div>
 
-              {/* Proactive Context Card */}
+              {/* Context note with an ink rule, like a margin note in a daybook */}
               {activeInsight.visible && (
-                <div className="p-3 rounded-2xl bg-[#F0E4E6] border border-[#641C24]/20 space-y-1.5">
-                  <div className="text-[11px] font-bold text-[#641C24]">
-                    {t.dashboard.insightTitle}
+                <div className={`p-4 rounded-2xl bg-white flex gap-3 ${ink}`}>
+                  <div className="w-[3px] rounded-full bg-[#641C24] shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[11px] font-medium text-[#641C24]">{t.dashboard.insightTitle}</div>
+                    <p className="text-[12.5px] text-[#1E1B19] leading-snug mt-1">{t.dashboard.insightDesc}</p>
+                    <div className="flex justify-end gap-1 mt-1.5 -mr-2">
+                      <button onClick={() => { sounds.playClick(); snoozeInsight(); }} className="px-2 py-1 rounded-lg text-[11px] font-medium text-[#6B635B] hover:bg-[#1E1B19]/5 cursor-pointer">
+                        {t.dashboard.snooze}
+                      </button>
+                      <button onClick={() => handleTabChange('tasks')} className="px-2 py-1 rounded-lg text-[11px] font-semibold text-[#641C24] hover:bg-[#641C24]/5 cursor-pointer">
+                        {t.dashboard.viewTasks}
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-[10px] text-[#1E1B19]/80 leading-snug">
-                    {t.dashboard.insightDesc}
-                  </p>
                 </div>
               )}
 
-              {/* Events Stream with Staggered Entrance and Swipe Gesture */}
-              <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-                className="space-y-2"
-              >
+              {/* Today, understood. One line per item */}
+              {todayUnderstood.length > 0 && (
+                <div className={`p-4 rounded-2xl bg-white ${ink}`}>
+                  <div className="font-serif text-[18px] leading-tight font-medium text-[#1E1B19]">{t.todayUnderstood.title}</div>
+                  <div className="text-[11px] text-[#6B635B]">
+                    {Math.min(todayUnderstood.length, 6)} {t.todayUnderstood.countLabel}
+                  </div>
+                  <AnimatePresence initial={false}>
+                    {todayUnderstood.slice(0, 6).map((item, i) => {
+                      const Icon = item.kind === 'Calendar' ? CalendarDays : item.kind === 'Task' ? CircleCheck : Bell;
+                      return (
+                        <motion.div
+                          key={item.id}
+                          layout
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`flex items-center gap-2.5 py-2 ${i > 0 ? 'border-t border-[#1E1B19]/[0.06]' : 'mt-1'}`}
+                        >
+                          <Icon className="w-4 h-4 text-[#6B635B] shrink-0" />
+                          <span className="text-[12.5px] text-[#1E1B19] truncate flex-1">{item.title}</span>
+                          <span className="text-[10.5px] text-[#6B635B] shrink-0 max-w-[40%] truncate">{item.source}</span>
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* Timeline: time column, ink rail with a dot per entry */}
+              <div className="text-[12px] font-medium text-[#6B635B] pt-2">{t.dashboard.timelineTitle}</div>
+              <div>
                 <AnimatePresence initial={false}>
-                  {events.map((ev) => (
+                  {events.map((ev, i) => (
                     <motion.div
                       key={ev.id}
-                      variants={staggerItem}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      drag="x"
-                      dragConstraints={{ left: 0, right: 0 }}
-                      dragElastic={0.25}
-                      whileDrag={{ scale: 1.02 }}
-                      className="p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs hover:border-[#641C24]/30 transition-all cursor-grab active:cursor-grabbing touch-pan-y"
+                      layout
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="flex"
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#641C24]">{ev.time}</span>
-                        <span className="text-[10px] uppercase tracking-wider text-[#6B635B] bg-[#FAF6F0] px-2 py-0.5 rounded-full border border-[#D8CFC2]">
-                          {ev.sourceType === 'default' ? t.phone.scheduledLabel : t.phone.organizedLabel}
-                        </span>
+                      <div className="w-12 shrink-0 pt-px text-[13px] font-semibold text-[#1E1B19] tabular-nums">{ev.time || '–'}</div>
+                      <div className="w-5 shrink-0 relative flex justify-center">
+                        {i < events.length - 1 && <div className="absolute top-3 bottom-0 w-px bg-[#641C24]/25" />}
+                        <div className={`mt-1.5 w-2 h-2 rounded-full ${ev.sourceType === 'default' ? 'bg-[#641C24]/35' : 'bg-[#641C24]'}`} />
                       </div>
-                      <div className="text-xs font-semibold text-[#1E1B19] mt-1">{ev.title}</div>
-                      {ev.location && (
-                        <div className="flex items-center gap-1 text-[10px] text-[#6B635B] mt-1">
-                          <MapPin className="w-3 h-3 text-[#641C24]" />
-                          <span>{ev.location}</span>
+                      <div className="min-w-0 flex-1 pl-1 pb-4">
+                        <div className="text-[13px] font-medium text-[#1E1B19] leading-snug">{ev.title}</div>
+                        <div className="text-[11px] text-[#6B635B] truncate">
+                          {[ev.location, sourceLabel(ev.sourceType)].filter(Boolean).join(' · ')}
                         </div>
-                      )}
+                      </div>
                     </motion.div>
                   ))}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             </motion.div>
           )}
 
-          {/* TASKS TAB */}
           {activePhoneTab === 'tasks' && (
-            <motion.div
-              key="tasks"
-              initial={{ opacity: 0, x: 6 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -6 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">{t.dashboard.tasksTitle}</h4>
-                <span className="text-[10px] text-[#6B635B]">
+            <motion.div key="tasks" {...tabMotion} className="space-y-3">
+              <div className="flex items-end justify-between">
+                <h4 className="font-serif text-[28px] leading-[1.15] font-medium text-[#1E1B19]">{t.dashboard.tasksTitle}</h4>
+                <span className="text-[11px] text-[#6B635B] tabular-nums pb-1">
                   {tasks.filter((tk) => tk.completed).length}/{tasks.length}
                 </span>
               </div>
-
-              <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-                className="space-y-2"
-              >
+              <div className="space-y-2">
                 <AnimatePresence initial={false}>
                   {tasks.map((task) => (
                     <motion.button
                       key={task.id}
-                      variants={staggerItem}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      drag="x"
-                      dragConstraints={{ left: 0, right: 0 }}
-                      dragElastic={0.25}
-                      whileDrag={{ scale: 1.02 }}
+                      layout
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => toggleTask(task.id)}
-                      className="w-full text-left p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs flex items-start gap-2.5 transition-all hover:border-[#641C24]/40 cursor-grab active:cursor-grabbing touch-pan-y"
+                      aria-pressed={task.completed}
+                      className={`w-full text-left px-4 py-3 rounded-2xl bg-white flex items-center gap-2.5 cursor-pointer ${ink}`}
                     >
-                      <div className="mt-0.5 shrink-0">
-                        {task.completed ? (
-                          <motion.div initial={{ scale: 0.6 }} animate={{ scale: 1 }}>
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#2E5C38]" />
-                          </motion.div>
-                        ) : (
-                          <Circle className="w-3.5 h-3.5 text-[#D8CFC2]" />
-                        )}
-                      </div>
+                      {task.completed ? (
+                        <CheckCircle2 className="w-[18px] h-[18px] text-white fill-[#641C24] shrink-0" />
+                      ) : (
+                        <Circle className="w-[18px] h-[18px] text-[#D8CFC2] shrink-0" />
+                      )}
                       <div className="min-w-0 flex-1">
-                        <div
-                          className={`text-xs font-medium leading-tight ${
-                            task.completed ? 'line-through text-[#6B635B]' : 'text-[#1E1B19]'
-                          }`}
-                        >
+                        <div className={`text-[12.5px] font-medium leading-tight ${task.completed ? 'line-through text-[#6B635B]' : 'text-[#1E1B19]'}`}>
                           {task.title}
                         </div>
-                        {task.dueDate && (
-                          <div className="text-[10px] text-[#6B635B] mt-0.5">{task.dueDate}</div>
-                        )}
+                        {task.dueDate && <div className="text-[11px] text-[#6B635B] mt-0.5">{task.dueDate}</div>}
                       </div>
+                      <span className="text-[10.5px] text-[#6B635B] shrink-0">{sourceLabel(task.sourceType)}</span>
                     </motion.button>
                   ))}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             </motion.div>
           )}
 
-          {/* REMINDERS / NOTIFICATIONS TAB */}
           {activePhoneTab === 'reminders' && (
-            <motion.div
-              key="reminders"
-              initial={{ opacity: 0, x: 6 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -6 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">{t.dashboard.remindersTitle}</h4>
-                <span className="text-[10px] text-[#6B635B]">{reminders.length}</span>
-              </div>
-
-              <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-                className="space-y-2"
-              >
+            <motion.div key="reminders" {...tabMotion} className="space-y-3">
+              <h4 className="font-serif text-[28px] leading-[1.15] font-medium text-[#1E1B19]">{t.dashboard.remindersTitle}</h4>
+              <div className="space-y-2">
                 <AnimatePresence initial={false}>
                   {reminders.map((rem) => (
                     <motion.div
                       key={rem.id}
-                      variants={staggerItem}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      drag="x"
-                      dragConstraints={{ left: 0, right: 0 }}
-                      dragElastic={0.25}
-                      whileDrag={{ scale: 1.02 }}
-                      className="p-3 rounded-2xl bg-white border border-[#D8CFC2] shadow-xs space-y-1 cursor-grab active:cursor-grabbing touch-pan-y"
+                      layout
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className={`px-4 py-3 rounded-2xl bg-white flex items-center gap-2.5 ${ink}`}
                     >
-                      <div className="text-xs font-semibold text-[#1E1B19]">{rem.title}</div>
-                      <div className="text-[10px] text-[#641C24] font-medium flex items-center gap-1">
-                        <Bell className="w-3 h-3" />
-                        <span>{rem.timeLabel}</span>
+                      <Bell className="w-[18px] h-[18px] text-[#641C24] shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[12.5px] font-medium text-[#1E1B19]">{rem.title}</div>
+                        <div className="text-[11px] text-[#6B635B]">{rem.timeLabel}</div>
                       </div>
                     </motion.div>
                   ))}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             </motion.div>
           )}
 
-          {/* SCREEN INTELLIGENCE CONCEPT TAB */}
           {activePhoneTab === 'scanner' && (
-            <motion.div
-              key="scanner"
-              initial={{ opacity: 0, x: 6 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -6 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-[#1E1B19] tracking-tight">
-                  {t.concepts.screenTitle}
-                </h4>
-                <span className="text-[10px] text-[#8C5E28] font-bold">
-                  {t.concepts.comingSoon}
-                </span>
+            <motion.div key="scanner" {...tabMotion} className="space-y-3">
+              <div>
+                <h4 className="font-serif text-[28px] leading-[1.15] font-medium text-[#1E1B19]">{t.phone.contextFlowTitle}</h4>
+                <p className="text-[12px] text-[#6B635B] leading-snug mt-1">{t.phone.screenSubtext}</p>
               </div>
-
-              <div className="p-3.5 rounded-2xl bg-white border border-[#D8CFC2] space-y-2.5 relative">
-                <div className="text-[11px] text-[#6B635B] leading-snug">
-                  {t.phone.screenSubtext}
-                </div>
-
-                <div className="p-3 rounded-xl border border-dashed border-[#641C24]/30 bg-[#641C24]/5 space-y-1 text-center">
-                  <ScanLine className="w-5 h-5 text-[#641C24] mx-auto text-[#641C24]" />
-                  <span className="text-[10px] font-bold text-[#641C24] block mt-1">
-                    Context Flow
-                  </span>
-                </div>
+              <div className={`rounded-2xl bg-white ${ink}`}>
+                {[
+                  { icon: MessageSquare, label: t.phone.streamChat },
+                  { icon: ReceiptText, label: t.phone.streamReceipts },
+                  { icon: FileText, label: t.phone.streamDocs },
+                ].map(({ icon: Icon, label }, i) => (
+                  <div key={label} className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? 'border-t border-[#1E1B19]/[0.06]' : ''}`}>
+                    <Icon className="w-4 h-4 text-[#641C24] shrink-0" />
+                    <span className="text-[12.5px] text-[#1E1B19]">{label}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#641C24] text-white text-[12px] font-semibold">
+                <ScanLine className="w-4 h-4" />
+                {t.phone.scanBtn}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Bottom Android Navigation Tabs */}
-      <div className="h-14 border-t border-[#D8CFC2]/60 bg-white/95 px-3 flex items-center justify-around shrink-0 z-10">
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={() => handleTabChange('timeline')}
-          className={`p-1.5 flex flex-col items-center gap-0.5 cursor-pointer transition-colors ${
-            activePhoneTab === 'timeline' ? 'text-[#641C24]' : 'text-[#6B635B] hover:text-[#1E1B19]'
-          }`}
-        >
-          <Calendar className="w-4 h-4" />
-          <span className="text-[10px] font-bold">{t.phone.todayTab}</span>
-        </motion.button>
+      {/* Linen fade so content passing under the floating bar doesn't peek out below it */}
+      <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#F5EFE6] from-50% to-transparent z-10 pointer-events-none" />
 
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={() => handleTabChange('tasks')}
-          className={`p-1.5 flex flex-col items-center gap-0.5 cursor-pointer transition-colors ${
-            activePhoneTab === 'tasks' ? 'text-[#641C24]' : 'text-[#6B635B] hover:text-[#1E1B19]'
-          }`}
-        >
-          <CheckCircle2 className="w-4 h-4" />
-          <span className="text-[10px] font-bold">{t.phone.tasksTab}</span>
-        </motion.button>
+      {/* Floating bottom bar: content scrolls underneath */}
+      <nav className={`absolute left-3 right-3 bottom-5 h-[60px] rounded-[28px] bg-white shadow-[0_8px_24px_-10px_rgb(30_27_25/0.35)] flex items-center justify-evenly px-1 z-20 ${ink}`}>
+        {navItems.map((item) =>
+          item ? (
+            <button
+              key={item.tab}
+              onClick={() => handleTabChange(item.tab)}
+              aria-current={activePhoneTab === item.tab ? 'page' : undefined}
+              className={`flex flex-col items-center gap-0.5 cursor-pointer transition-colors ${
+                activePhoneTab === item.tab ? 'text-[#641C24]' : 'text-[#6B635B] hover:text-[#1E1B19]'
+              }`}
+            >
+              <span className={`w-10 h-6 rounded-full flex items-center justify-center transition-colors ${activePhoneTab === item.tab ? 'bg-[#F0E4E6]' : ''}`}>
+                <item.icon className="w-4 h-4" />
+              </span>
+              <span className={`text-[9.5px] ${activePhoneTab === item.tab ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
+            </button>
+          ) : (
+            <motion.button
+              key="understand"
+              whileTap={{ scale: 0.92 }}
+              onClick={openUnderstand}
+              className="flex flex-col items-center gap-0.5 cursor-pointer text-[#641C24]"
+            >
+              <span className="w-9 h-9 rounded-full bg-[#641C24] text-white flex items-center justify-center">
+                <Plus className="w-5 h-5" />
+              </span>
+              <span className="text-[9.5px] font-bold">{t.phone.understandBtn}</span>
+            </motion.button>
+          ),
+        )}
+      </nav>
 
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={() => handleTabChange('reminders')}
-          className={`p-1.5 flex flex-col items-center gap-0.5 cursor-pointer transition-colors ${
-            activePhoneTab === 'reminders' ? 'text-[#641C24]' : 'text-[#6B635B] hover:text-[#1E1B19]'
-          }`}
-        >
-          <Bell className="w-4 h-4" />
-          <span className="text-[10px] font-bold">{t.phone.notificationsTab}</span>
-        </motion.button>
-
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={() => handleTabChange('scanner')}
-          className={`p-1.5 flex flex-col items-center gap-0.5 cursor-pointer transition-colors ${
-            activePhoneTab === 'scanner' ? 'text-[#641C24]' : 'text-[#6B635B] hover:text-[#1E1B19]'
-          }`}
-        >
-          <ScanLine className="w-4 h-4" />
-          <span className="text-[10px] font-bold">{t.phone.intelligenceTab}</span>
-        </motion.button>
-      </div>
-
-      {/* Android Home Navigation Bar (Gesture Pill) */}
-      <div
-        className={`h-3.5 w-full bg-white flex items-center justify-center shrink-0 overflow-hidden ${
-          isFull ? 'rounded-b-none sm:rounded-b-3xl' : 'rounded-b-[38px]'
-        }`}
-      >
-        <div className="w-24 h-1 bg-[#1E1B19]/30 rounded-full" />
-      </div>
+      {/* Gesture pill */}
+      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-24 h-1 bg-[#1E1B19]/30 rounded-full z-20" />
     </div>
   );
 

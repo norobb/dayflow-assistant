@@ -5,9 +5,9 @@ import {
   ShieldCheck,
   Share2,
   BellRing,
+  Download,
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { ProductStateBadge } from './DayflowLogo';
 import { sounds } from '../utils/audio';
 import { useDayflowStore } from '../store/dayflowStore';
 
@@ -32,8 +32,7 @@ export const ProductConceptSections: React.FC = () => {
                 <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
                   {t.concepts.androidBadge}
                 </span>
-                <ProductStateBadge state="COMING SOON" />
-              </div>
+                </div>
 
               <h2 className="text-balance text-3xl font-extrabold text-[#1E1B19] tracking-tight">
                 {t.concepts.androidTitle}
@@ -74,6 +73,17 @@ export const ProductConceptSections: React.FC = () => {
                   </div>
                 </motion.div>
               </div>
+
+              <a
+                href="https://github.com/norobb/dayflow-assistant/releases/latest"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => sounds.playClick()}
+                className="btn btn-primary"
+              >
+                <Download size={16} aria-hidden="true" />
+                <span>{t.concepts.androidDownload}</span>
+              </a>
             </div>
 
             {/* Android Notification Mockup */}
@@ -106,9 +116,6 @@ export const ProductConceptSections: React.FC = () => {
                     <button className="px-3 py-1.5 rounded-lg bg-[#641C24] text-white text-[11px] font-semibold flex items-center gap-1 cursor-default">
                       <span>{t.demo.analyzeBtn}</span>
                     </button>
-                    <span className="text-[11px] text-white/60">
-                      {t.concepts.comingSoon}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -126,7 +133,6 @@ export const ProductConceptSections: React.FC = () => {
               <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
                 {t.phone.intelligenceTab}
               </span>
-              <ProductStateBadge state="COMING SOON" />
             </div>
             <h2 className="text-balance text-3xl font-extrabold text-[#1E1B19] tracking-tight">
               {t.concepts.screenTitle}
@@ -190,7 +196,6 @@ export const ProductConceptSections: React.FC = () => {
               <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
                 {t.concepts.humanTitle}
               </span>
-              <ProductStateBadge state="COMING SOON" />
             </div>
             <h2 className="text-balance text-3xl font-extrabold text-[#1E1B19] tracking-tight">
               {t.concepts.actionsTitle}
@@ -245,7 +250,6 @@ export const ProductConceptSections: React.FC = () => {
               <span className="text-xs font-bold uppercase tracking-wider text-[#641C24]">
                 {t.architecture.contextTitle}
               </span>
-              <ProductStateBadge state="COMING SOON" />
             </div>
             <h2 className="text-balance text-3xl font-extrabold text-[#1E1B19] tracking-tight">
               {t.concepts.personalTitle}

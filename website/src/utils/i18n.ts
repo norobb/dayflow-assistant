@@ -138,6 +138,7 @@ export interface Translations {
     androidBadge: string;
     androidTitle: string;
     androidSubtitle: string;
+    androidDownload: string;
     shareTitle: string;
     shareDesc: string;
     notifTitle: string;
@@ -205,9 +206,15 @@ export interface Translations {
     notificationsTab: string;
     intelligenceTab: string;
     scheduledLabel: string;
+    manualLabel: string;
     organizedLabel: string;
-    noNotifications: string;
     screenSubtext: string;
+    understandBtn: string;
+    contextFlowTitle: string;
+    scanBtn: string;
+    streamChat: string;
+    streamReceipts: string;
+    streamDocs: string;
   };
   stateBadge: {
     comingSoon: string;
@@ -364,7 +371,8 @@ export const translations: Record<Language, Translations> = {
       androidBadge: 'Android',
       androidTitle: 'Dayflow, where your phone already is.',
       androidSubtitle:
-        'When a message arrives, Dayflow will provide direct actions from notifications and system share sheets.',
+        'When a message arrives, Dayflow offers direct actions from notifications and the system share sheet.',
+      androidDownload: 'Download for Android',
       shareTitle: 'System Share Integration',
       shareDesc: 'Share any screenshot, PDF, or text selection directly into your Dayflow schedule from any app.',
       notifTitle: 'Notification Actions',
@@ -433,12 +441,18 @@ export const translations: Record<Language, Translations> = {
       exitFullscreen: 'Exit Fullscreen',
       todayTab: 'Today',
       tasksTab: 'Tasks',
-      notificationsTab: 'Notifications',
+      notificationsTab: 'Reminders',
       intelligenceTab: 'Intelligence',
       scheduledLabel: 'Scheduled',
+      manualLabel: 'Manual',
       organizedLabel: 'Organized',
-      noNotifications: 'No notifications',
-      screenSubtext: 'Screen Intelligence contextual awareness across your apps.',
+      screenSubtext: 'When you ask, Dayflow reads the screen and suggests events, tasks and reminders from it.',
+      understandBtn: 'Understand',
+      contextFlowTitle: 'Context flow',
+      scanBtn: 'Scan screen',
+      streamChat: 'Chat & messaging intake',
+      streamReceipts: 'Receipts & bookings intake',
+      streamDocs: 'PDFs & documents intake',
     },
     stateBadge: {
       comingSoon: 'Coming soon',
@@ -594,6 +608,7 @@ export const translations: Record<Language, Translations> = {
       androidTitle: 'Dayflow direkt auf deinem Smartphone.',
       androidSubtitle:
         'Sobald eine Nachricht eingeht, bietet Dayflow direkte Aktionen aus Benachrichtigungen und dem Teilen-Menü.',
+      androidDownload: 'Für Android herunterladen',
       shareTitle: 'Teilen-Menü Integration',
       shareDesc: 'Teile Screenshots, PDFs oder Textauswahlen direkt aus beliebigen Apps in deinen Tagesplan.',
       notifTitle: 'Aktionen aus Mitteilungen',
@@ -662,12 +677,18 @@ export const translations: Record<Language, Translations> = {
       exitFullscreen: 'Vollbild beenden',
       todayTab: 'Heute',
       tasksTab: 'Aufgaben',
-      notificationsTab: 'Mitteilungen',
+      notificationsTab: 'Erinnerungen',
       intelligenceTab: 'Intelligenz',
       scheduledLabel: 'Geplant',
+      manualLabel: 'Manuell',
       organizedLabel: 'Organisiert',
-      noNotifications: 'Keine Mitteilungen',
-      screenSubtext: 'Screen Intelligence erfasst den Kontext über deine Apps hinweg.',
+      screenSubtext: 'Auf Wunsch liest Dayflow den Bildschirm und schlägt daraus Termine, Aufgaben und Erinnerungen vor.',
+      understandBtn: 'Verstehen',
+      contextFlowTitle: 'Kontextfluss',
+      scanBtn: 'Bildschirm scannen',
+      streamChat: 'Chat- & Nachrichtenerfassung',
+      streamReceipts: 'Termine & Buchungsbelege',
+      streamDocs: 'PDFs & Reisedokumente',
     },
     stateBadge: {
       comingSoon: 'Demnächst',
@@ -822,7 +843,8 @@ export const translations: Record<Language, Translations> = {
       androidBadge: 'Android',
       androidTitle: 'Dayflow directamente en tu teléfono.',
       androidSubtitle:
-        'Cuando recibas un mensaje, Dayflow ofrecerá acciones directas desde notificaciones y el menú de compartir.',
+        'Cuando recibas un mensaje, Dayflow ofrece acciones directas desde notificaciones y el menú de compartir.',
+      androidDownload: 'Descargar para Android',
       shareTitle: 'Integración con menú Compartir',
       shareDesc: 'Envía capturas, PDFs o texto seleccionado directamente a tu agenda de Dayflow desde cualquier app.',
       notifTitle: 'Acciones desde notificaciones',
@@ -891,12 +913,18 @@ export const translations: Record<Language, Translations> = {
       exitFullscreen: 'Salir de pantalla completa',
       todayTab: 'Hoy',
       tasksTab: 'Tareas',
-      notificationsTab: 'Notificaciones',
+      notificationsTab: 'Recordatorios',
       intelligenceTab: 'Inteligencia',
       scheduledLabel: 'Programado',
+      manualLabel: 'Manual',
       organizedLabel: 'Organizado',
-      noNotifications: 'Sin notificaciones',
-      screenSubtext: 'Screen Intelligence contextualiza la información de tus aplicaciones.',
+      screenSubtext: 'Cuando lo pides, Dayflow lee la pantalla y sugiere citas, tareas y recordatorios.',
+      understandBtn: 'Entender',
+      contextFlowTitle: 'Flujo de contexto',
+      scanBtn: 'Escanear pantalla',
+      streamChat: 'Comprensión de chats y mensajes',
+      streamReceipts: 'Citas y recibos de reserva',
+      streamDocs: 'PDFs y documentos de viaje',
     },
     stateBadge: {
       comingSoon: 'Próximamente',

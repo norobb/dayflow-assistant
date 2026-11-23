@@ -66,7 +66,10 @@ export const LiveRoadmap: React.FC = () => {
     return () => { alive = false; };
   }, []);
 
-  const shipped = [r.itemMessage, r.itemScreenshot, r.itemPdf, r.itemVoice, r.itemDashboard];
+  const shipped = [
+    r.itemMessage, r.itemScreenshot, r.itemPdf, r.itemVoice, r.itemDashboard,
+    r.itemAndroid, r.itemCalSync, r.itemScreenIntel, r.itemSmartActions, r.itemMultiProvider, r.itemAutomation,
+  ];
 
   return (
     <div className="roadmap">
@@ -123,15 +126,9 @@ export const LiveRoadmap: React.FC = () => {
         <li className="roadmap-col">
           <h3 className="roadmap-col-title">{r.liveNext}</h3>
           <div className="roadmap-group">
-            <ProductStateBadge state="COMING SOON" />
-            <ul className="roadmap-list roadmap-plain">
-              {[r.itemAndroid, r.itemCalSync, r.itemScreenIntel, r.itemSmartActions].map((s) => <li key={s}>{s}</li>)}
-            </ul>
-          </div>
-          <div className="roadmap-group">
             <ProductStateBadge state="LATER" />
             <ul className="roadmap-list roadmap-plain muted">
-              {[r.itemDesktop, r.itemMultiProvider, r.itemAutomation].map((s) => <li key={s}>{s}</li>)}
+              {[r.itemDesktop].map((s) => <li key={s}>{s}</li>)}
             </ul>
           </div>
         </li>
